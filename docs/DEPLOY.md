@@ -96,6 +96,30 @@ Yerelde doğrulamak için:
 npm run build && npx wrangler deploy --dry-run
 ```
 
+## Aktarıcı (oyun bağlantısı) nerede çalışıyor?
+
+Oyun mesajları Cloudflare Worker'daki Durable Object üzerinden geçer
+(`worker/index.ts`). Statik siteyi nerede barındırdığın buna göre değişir:
+
+| Site nerede | Ayar |
+|---|---|
+| Cloudflare Worker (aynı adres) | Ayar gerekmez; aktarıcı adresi origin'den bulunur |
+| Vercel / GitHub Pages | `VITE_RELAY_URL=wss://vampire-villager.<hesap>.workers.dev` ortam değişkenini ekle |
+
+Vercel'de: Project → Settings → Environment Variables → `VITE_RELAY_URL`.
+`VITE_` değişkenleri derlemeye gömülür, ekledikten sonra yeniden derle.
+
+Aktarıcıyı yayınlamak için Cloudflare tarafında `npx wrangler deploy`
+çalışır (depo bağlıysa her push'ta kendiliğinden).
+
+Yerel geliştirmede aktarıcıyı ayrı çalıştır:
+
+```bash
+npm run dev:relay
+```
+
+ve `.env` içine `VITE_RELAY_URL=ws://localhost:8787` yaz.
+
 ## Yerel derleme ve önizleme
 
 ```bash

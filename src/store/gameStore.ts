@@ -2,8 +2,7 @@ import { create } from 'zustand';
 import type { ConnectionState, NetDiagnostics, NetworkAdapter } from '../net/NetworkAdapter';
 import type { NetMessage } from '../net/messages';
 import { isClientMessage } from '../net/messages';
-import { TrysteroAdapter } from '../net/TrysteroAdapter';
-import { LocalAdapter } from '../net/LocalAdapter';
+import { createAdapter } from '../net';
 import { HostController } from './hostController';
 import type { GameSettings, PlayerId } from '../game/types';
 import type { PlayerView } from '../game/view';
@@ -136,7 +135,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const token = getPlayerToken();
       saveName(name);
 
-      adapter = solo ? new LocalAdapter() : new TrysteroAdapter();
+      adapter = createAdapter(solo);
       adapter.onStateChange((connection) => set({ connection }));
       adapter.onDiagnostics((diagnostics) => set({ diagnostics }));
 
@@ -161,7 +160,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       saveName(name);
 
       identityRetried = false;
-      const net = new TrysteroAdapter();
+      const net = createAdapter(false);
       adapter = net;
       net.onStateChange((connection) => set({ connection }));
       net.onDiagnostics((diagnostics) => set({ diagnostics }));

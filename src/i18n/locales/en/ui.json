@@ -55,7 +55,8 @@
     "connecting": "Connecting to the room…",
     "waitingPlayers": "Waiting for players…",
     "addBot": "Add bot",
-    "bigRoomHint": "Above 12 players there is still one Seer, Doctor and Hunter; everyone else is a villager. Very large rooms make the P2P mesh heavier."
+    "bigRoomHint": "Above 12 players there is still one Seer, Doctor and Hunter; everyone else is a villager. Very large rooms make the P2P mesh heavier.",
+    "botHint": "Bots act randomly at night and vote at random. For testing."
   },
   "role": {
     "title": "Your role",

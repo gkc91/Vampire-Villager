@@ -23,12 +23,39 @@ Neden bu yol:
 | Build | Vite | |
 | Stil | Tailwind CSS | Mobil-first |
 | State | Zustand | Oyun durumu tek store |
-| Ağ | Trystero — varsayılan `@trystero-p2p/nostr` | P2P, sıfır maliyet |
+| Ağ | Aktarıcı (Cloudflare Durable Object) — yedek: Trystero P2P | Ücretsiz katman, sıfır maliyet |
 | Native kabuk | Capacitor 6 | iOS + Android |
 | i18n | i18next + JSON dosyaları | bkz. 04-i18n.md |
 | Ses | Howler.js | Ambiyans + SFX |
 | TTS (opsiyonel) | Web Speech API | Moderatör sesli anlatımı, cihaz-yerel, bedava |
 | Barındırma | Cloudflare Pages veya GitHub Pages | Statik, bedava, sınırsız |
+
+## Taşıma Katmanı: Aktarıcı ve P2P
+
+İki taşıma da aynı `NetworkAdapter` sözleşmesini uygular; oyun motoru
+hangisinin kullanıldığını bilmez. Seçim `.env` içindeki `VITE_NET_MODE`.
+
+| | Aktarıcı (varsayılan) | P2P (Trystero) |
+|---|---|---|
+| Bağlanma | Tek WebSocket — anında | Relay + eş keşfi + NAT delme |
+| Ölçüm (yerel) | **0.4 sn** | 0.8 sn (eski torrent: 17 sn) |
+| Mobil operatör ağı | Sorunsuz | Sinyalleşme yöntemine bağlı |
+| Maliyet | Cloudflare ücretsiz katman | Sıfır |
+| Sunucu bağımlılığı | Var (aktarıcı) | Yok |
+
+**Aktarıcı oyunun kurallarını bilmez.** `worker/index.ts` yalnız mesaj taşır:
+oda başına bir Durable Object, her bağlantıya bir peerId, mesajlar ya tek
+hedefe ya odaya. Rol dağıtımı, gece çözümlemesi, görünüm filtresi hâlâ
+yalnız host cihazında çalışır — host-otoriter model her iki taşımada da
+aynen korunur.
+
+Ücretsiz katman sınırları (doğrulandı): günde 100.000 istek, WebSocket
+mesajları 20:1 sayılır, boştaki bağlantılar uyutulur (Hibernation API).
+6 kişilik bir oyun ≈ 800 mesaj ≈ 50 istek → günde ~2.000 oyun. Limit
+aşılırsa istekler reddedilir (Hata 1027), **fatura çıkmaz**.
+
+P2P yolu yedek olarak korunuyor: aktarıcı adresi tanımlı değilse
+kendiliğinden ona düşülür.
 
 ## Host-Otoriter Model (DEĞİŞMEZ PRENSİP)
 

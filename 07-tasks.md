@@ -30,6 +30,8 @@ Her milestone tek başına test edilebilir biter. Sıra atlanmaz — özellikle 
 - [x] Filtreli state yayını (her oyuncu yalnız kendi görünümünü alır)
 - [x] Kimlik gaspı koruması (token ↔ peer eşleşmesi, host kimliği yerel)
 - [x] Sinyalleşme yöntemi seçilebilir (nostr varsayılan) + bağlantı teşhis paneli
+- [x] Aktarıcı taşıması (Cloudflare Durable Object) — varsayılan yol;
+      P2P yedekte kaldı, host-otoriter model ikisinde de aynı
 - Test: 5 sekmeyle tam oyun P2P üzerinden oynandı; gerçek telefonla
       **WiFi ve mobil veriden hızlı bağlantı doğrulandı**. Kalan senaryo:
       uçak modu / 90 sn geri dönüş — docs/TESTING.md §4.

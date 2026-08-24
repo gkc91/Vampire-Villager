@@ -124,8 +124,8 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
 function HostSettings({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   const store = useGameStore();
-  const solo = useGameStore((s) => s.solo);
   const botCount = view.players.filter((p) => p.isBot).length;
+  const roomFull = view.players.filter((p) => !p.left).length >= view.settings.maxPlayers;
 
   return (
     <Card className="space-y-4">
@@ -181,18 +181,20 @@ function HostSettings({ view }: { view: PlayerView }) {
         <p className="mt-2 text-[11px] text-moon-200/40">{t('lobby.bigRoomHint')}</p>
       </div>
 
-      {solo && (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="btn-secondary flex-1"
-            onClick={() => store.addBot(BOT_NAMES[botCount % BOT_NAMES.length])}
-          >
-            <span aria-hidden="true">🤖</span>
-            <span>{t('lobby.addBot')}</span>
-          </button>
-        </div>
-      )}
+      {/* Bot her odada eklenebilir: az kişiyle test için. Botlar host
+          cihazında çalışır, taşıma katmanından bağımsızdır. */}
+      <div className="space-y-2">
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={roomFull}
+          onClick={() => store.addBot(BOT_NAMES[botCount % BOT_NAMES.length])}
+        >
+          <span aria-hidden="true">🤖</span>
+          <span>{t('lobby.addBot')}</span>
+        </button>
+        {botCount > 0 && <p className="text-[11px] text-moon-200/40">{t('lobby.botHint')}</p>}
+      </div>
     </Card>
   );
 }

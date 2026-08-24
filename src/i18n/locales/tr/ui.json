@@ -55,7 +55,8 @@
     "connecting": "Odaya bağlanılıyor…",
     "waitingPlayers": "Oyuncular bekleniyor…",
     "addBot": "Bot ekle",
-    "bigRoomHint": "12 üstü odalarda Kâhin/Doktor/Avcı yine birer tane; kalan herkes köylü olur. Çok kalabalık odalarda P2P bağlantı ağırlaşabilir."
+    "bigRoomHint": "12 üstü odalarda Kâhin/Doktor/Avcı yine birer tane; kalan herkes köylü olur. Çok kalabalık odalarda P2P bağlantı ağırlaşabilir.",
+    "botHint": "Botlar gece rastgele hareket eder, oylamada rastgele oy verir. Test için."
   },
   "role": {
     "title": "Rolün",
