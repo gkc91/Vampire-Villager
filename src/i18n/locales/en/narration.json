@@ -1,0 +1,19 @@
+{
+  "game_start": "The village gates are shut. Some of you drink blood…",
+  "night_start": "Darkness falls… The village closes its eyes.",
+  "vampire_wake": "Vampires… awaken. Choose your victim.",
+  "night_death": "The sun came up… but {{name}} will never wake again.",
+  "night_saved": "A scream was heard… yet at dawn everyone was standing.",
+  "no_death": "No blood was spilled tonight. For now.",
+  "day_start": "The square fills up. Time to talk.",
+  "vote_start": "Time to decide. Who hangs?",
+  "vote_hanged": "The rope went taut… {{name}} is no longer part of the village.",
+  "vote_tie": "The village could not decide. No one hangs… and tonight, who knows.",
+  "vote_none": "Nobody voted. The rope stayed empty today.",
+  "hunter_triggered": "With their last breath, {{name}} reached for a weapon…",
+  "hunter_kill": "The hunter's shot found {{name}}.",
+  "hunter_pass": "The hunter's hand shook, and the shot went wide.",
+  "player_left": "{{name}} vanished into thin air. They left the village.",
+  "win_village": "The village prevails! The last vampire is destroyed.",
+  "win_vampires": "The vampires rule the village now…"
+}

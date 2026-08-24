@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-night-950 text-moon-100 font-display antialiased;
+    background-image: radial-gradient(circle at 50% 0%, #271a4a 0%, #0a0713 60%);
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .app-frame {
+    @apply mx-auto flex h-full w-full max-w-[430px] flex-col px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)];
+  }
+
+  .card {
+    @apply rounded-2xl border border-night-600/60 bg-night-900/80 p-4 shadow-lg backdrop-blur-sm;
+  }
+
+  .btn {
+    @apply flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply btn bg-blood-500 text-moon-100 hover:bg-blood-400;
+  }
+
+  .btn-secondary {
+    @apply btn border border-night-600 bg-night-800/80 text-moon-200 hover:bg-night-700;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-moon-200/80 hover:text-moon-100;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-night-600 bg-night-900 px-4 py-3 text-base text-moon-100 outline-none placeholder:text-moon-200/40 focus:border-blood-400;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-night-600 bg-night-800/70 px-2.5 py-1 text-xs;
+  }
+}
+
+/* Sayaç çubuğu */
+.timer-bar {
+  transition: width 0.5s linear;
+}

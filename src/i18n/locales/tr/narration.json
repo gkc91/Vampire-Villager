@@ -1,0 +1,19 @@
+{
+  "game_start": "Köyün kapıları kapandı. Aranızda kan içenler var…",
+  "night_start": "Karanlık çöküyor… Köy, gözlerini kapatıyor.",
+  "vampire_wake": "Vampirler… uyanın. Kurbanınızı seçin.",
+  "night_death": "Güneş doğdu… ama {{name}} bir daha uyanmayacak.",
+  "night_saved": "Bir çığlık duyuldu… ama şafakta herkes ayaktaydı.",
+  "no_death": "Bu gece köyde kan dökülmedi. Şimdilik.",
+  "day_start": "Köy meydanı doldu. Konuşma vakti.",
+  "vote_start": "Karar vakti. Kim asılacak?",
+  "vote_hanged": "İp gerildi… {{name}} artık köyün bir parçası değil.",
+  "vote_tie": "Köy karar veremedi. Kimse asılmadı… bu gece kim bilir kim ölecek.",
+  "vote_none": "Kimse oy vermedi. İp bu gün boş kaldı.",
+  "hunter_triggered": "{{name}} son nefesinde silahına davrandı…",
+  "hunter_kill": "Avcının oku {{name}} adlı oyuncuyu buldu.",
+  "hunter_pass": "Avcının eli titredi, ok boşluğa gitti.",
+  "player_left": "{{name}} sırra kadem bastı. Köyü terk etti.",
+  "win_village": "Köy zafer kazandı! Son vampir de yok edildi.",
+  "win_vampires": "Artık köyü vampirler yönetiyor…"
+}

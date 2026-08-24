@@ -1,0 +1,147 @@
+{
+  "app": {
+    "title": "Vampir Köylü",
+    "tagline": "Gece çöküyor. Kime güveneceksin?"
+  },
+  "common": {
+    "back": "Geri",
+    "cancel": "Vazgeç",
+    "confirm": "Onayla",
+    "close": "Kapat",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "loading": "Yükleniyor…",
+    "you": "sen",
+    "host": "Kurucu",
+    "narrator": "Anlatıcı",
+    "dead": "Öldü",
+    "left": "Terk etti",
+    "offline": "Bağlantı yok",
+    "error": "Bir şeyler ters gitti"
+  },
+  "home": {
+    "create": "Oda Kur",
+    "join": "Odaya Katıl",
+    "nameLabel": "Adın",
+    "namePlaceholder": "Köydeki adın…",
+    "codeLabel": "Oda kodu",
+    "codePlaceholder": "6 haneli kod",
+    "nameRequired": "Önce bir isim yaz.",
+    "codeRequired": "6 haneli oda kodunu yaz.",
+    "solo": "Tek cihazda dene",
+    "soloHint": "Ağ olmadan, akışı görmek için."
+  },
+  "lobby": {
+    "title": "Köy Meydanı",
+    "roomCode": "Oda kodu",
+    "shareLink": "Katılma linki",
+    "share": "Paylaş",
+    "players": "Oyuncular ({{count}})",
+    "ready": "Hazırım",
+    "notReady": "Hazır değilim",
+    "waitingHost": "Kurucunun başlatması bekleniyor…",
+    "start": "Oyunu Başlat",
+    "needMorePlayers": "En az {{count}} oyuncu gerekiyor.",
+    "notAllReady": "Herkes hazır değil.",
+    "settings": "Oyun Ayarları",
+    "leave": "Odadan çık",
+    "hostRole": "Kurucunun rolü",
+    "hostPlays": "Kurucu da oynuyor",
+    "hostNarrates": "Kurucu sadece anlatıcı",
+    "discussionTime": "Tartışma süresi",
+    "maxPlayers": "Oyuncu sınırı",
+    "bigRoomLocked": "12'den fazla oyuncu ileride açılacak.",
+    "hostDeviceHint": "Kurucu olarak bilgisayar veya tablet önerilir; ekran kapanırsa oyun duraklar.",
+    "connecting": "Odaya bağlanılıyor…",
+    "waitingPlayers": "Oyuncular bekleniyor…",
+    "addBot": "Bot ekle",
+    "bigRoomHint": "12 üstü odalarda Kâhin/Doktor/Avcı yine birer tane; kalan herkes köylü olur. Çok kalabalık odalarda P2P bağlantı ağırlaşabilir."
+  },
+  "role": {
+    "title": "Rolün",
+    "reveal": "Rolümü göster",
+    "hide": "Gördüm, gizle",
+    "teammates": "Vampir arkadaşların",
+    "alone": "Tek vampir sensin.",
+    "gotIt": "Hazırım",
+    "waitingOthers": "Diğer oyuncular rollerine bakıyor…"
+  },
+  "night": {
+    "title": "Gece {{count}}",
+    "sleeping": "Köy uyuyor…",
+    "chooseTarget": "Hedefini seç",
+    "vampirePrompt": "Bu gece kim ölecek?",
+    "seerPrompt": "Kimin kimliğini öğrenmek istiyorsun?",
+    "doctorPrompt": "Bu gece kimi koruyacaksın?",
+    "confirm": "Seçimimi onayla",
+    "pass": "Pas geç",
+    "locked": "Seçimin kaydedildi.",
+    "waitingOthers": "Diğerleri seçiyor…",
+    "teamPicks": "Vampir arkadaşlarının seçimi",
+    "doctorRepeatBlocked": "Aynı kişiyi üst üste iki gece koruyamazsın.",
+    "seerResultVampire": "{{name}} bir VAMPİR.",
+    "seerResultClean": "{{name}} vampir DEĞİL."
+  },
+  "day": {
+    "title": "Gündüz {{count}}",
+    "discussion": "Tartışma",
+    "alive": "Hayatta kalanlar",
+    "endEarly": "Tartışmayı bitir",
+    "hint": "Konuşun, suçlayın, savunun. Sayaç bitince oylama başlar."
+  },
+  "vote": {
+    "title": "Oylama",
+    "prompt": "Kim asılsın?",
+    "abstain": "Çekimser kal",
+    "confirm": "Oyumu ver",
+    "locked": "Oyun kaydedildi.",
+    "waitingOthers": "Diğerleri oy veriyor…",
+    "tally": "Oylar",
+    "votesFor": "{{count}} oy"
+  },
+  "hunter": {
+    "title": "Son Ok",
+    "prompt": "Yanında kimi götürüyorsun?",
+    "pass": "Kimseyi seçme",
+    "waiting": "Avcı son okunu çekiyor…"
+  },
+  "result": {
+    "preparing": "Sonuçlar hazırlanıyor…",
+    "winVillage": "Köy Kazandı",
+    "winVampires": "Vampirler Kazandı",
+    "roles": "Roller",
+    "timeline": "Oyun özeti",
+    "playAgain": "Tekrar oyna",
+    "backHome": "Ana ekran"
+  },
+  "ghost": {
+    "banner": "Hayalet modundasın: her şeyi görüyorsun ama konuşmak yok.",
+    "allRoles": "Tüm roller"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil",
+    "music": "Müzik",
+    "sfx": "Ses efektleri",
+    "tts": "Sesli anlatıcı",
+    "ttsHint": "Cihazın kendi sesiyle okur. Aynı odada oynuyorsanız kurucunun cihazında açın.",
+    "on": "Açık",
+    "off": "Kapalı"
+  },
+  "status": {
+    "reconnecting": "Yeniden bağlanılıyor…",
+    "playerDisconnected": "{{name}} bağlantısını kaybetti.",
+    "playerReconnected": "{{name}} geri döndü."
+  },
+  "error": {
+    "hostLost": "Anlatıcı kayboldu",
+    "hostLostHint": "Kurucunun bağlantısı koptu, oyun sonlandı.",
+    "roomNotFound": "Oda bulunamadı",
+    "roomFull": "Oda dolu.",
+    "gameInProgress": "Oyun çoktan başladı.",
+    "nameTaken": "Bu isim alınmış.",
+    "connection": "Bağlantı kurulamadı",
+    "p2pHint": "Mobil veri kullanıyorsan WiFi'a geçmeyi dene.",
+    "duplicateSession": "Bu cihaz odada zaten var; yeni kimlikle bağlanılıyor…"
+  }
+}

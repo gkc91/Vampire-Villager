@@ -1,0 +1,32 @@
+{
+  "team": {
+    "village": "Köy",
+    "vampire": "Vampirler",
+    "neutral": "Tarafsız"
+  },
+  "vampire": {
+    "name": "Vampir",
+    "short": "Her gece bir kurban seçersin.",
+    "description": "Geceleri diğer vampirlerle birlikte bir köylü seçersin. Gündüz kimliğini saklarsın. Vampir sayısı köylü sayısına eşitlenince kazanırsınız."
+  },
+  "villager": {
+    "name": "Köylü",
+    "short": "Yeteneğin yok, sezgin var.",
+    "description": "Özel bir gücün yok. Tek silahın gündüz konuşman ve oyun. Tüm vampirler asılınca köy kazanır."
+  },
+  "seer": {
+    "name": "Kâhin",
+    "short": "Her gece bir kişinin kimliğini okursun.",
+    "description": "Her gece bir oyuncu seçersin ve onun vampir olup olmadığını öğrenirsin. Bildiğini ne zaman söyleyeceğin senin kararın; erken konuşan kâhin erken ölür."
+  },
+  "doctor": {
+    "name": "Doktor",
+    "short": "Her gece bir kişiyi korursun.",
+    "description": "Her gece bir oyuncuyu vampir saldırısından korursun. Kendini de koruyabilirsin ama aynı kişiyi üst üste iki gece koruyamazsın."
+  },
+  "hunter": {
+    "name": "Avcı",
+    "short": "Ölürsen yanında birini götürürsün.",
+    "description": "Nasıl ölürsen öl — gece saldırısı ya da asılma — son bir ok atarsın ve seçtiğin oyuncu da ölür."
+  }
+}

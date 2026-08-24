@@ -1,0 +1,147 @@
+{
+  "app": {
+    "title": "Vampire Village",
+    "tagline": "Night is falling. Who will you trust?"
+  },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "loading": "Loading…",
+    "you": "you",
+    "host": "Host",
+    "narrator": "Narrator",
+    "dead": "Dead",
+    "left": "Left",
+    "offline": "Offline",
+    "error": "Something went wrong"
+  },
+  "home": {
+    "create": "Create Room",
+    "join": "Join Room",
+    "nameLabel": "Your name",
+    "namePlaceholder": "Your name in the village…",
+    "codeLabel": "Room code",
+    "codePlaceholder": "6-character code",
+    "nameRequired": "Pick a name first.",
+    "codeRequired": "Enter the 6-character room code.",
+    "solo": "Try on one device",
+    "soloHint": "No network — just to see the flow."
+  },
+  "lobby": {
+    "title": "Village Square",
+    "roomCode": "Room code",
+    "shareLink": "Join link",
+    "share": "Share",
+    "players": "Players ({{count}})",
+    "ready": "I am ready",
+    "notReady": "Not ready",
+    "waitingHost": "Waiting for the host to start…",
+    "start": "Start Game",
+    "needMorePlayers": "At least {{count}} players needed.",
+    "notAllReady": "Not everyone is ready.",
+    "settings": "Game Settings",
+    "leave": "Leave room",
+    "hostRole": "Host role",
+    "hostPlays": "Host plays too",
+    "hostNarrates": "Host only narrates",
+    "discussionTime": "Discussion time",
+    "maxPlayers": "Player limit",
+    "bigRoomLocked": "More than 12 players is coming later.",
+    "hostDeviceHint": "A computer or tablet is recommended for the host; the game pauses if the screen turns off.",
+    "connecting": "Connecting to the room…",
+    "waitingPlayers": "Waiting for players…",
+    "addBot": "Add bot",
+    "bigRoomHint": "Above 12 players there is still one Seer, Doctor and Hunter; everyone else is a villager. Very large rooms make the P2P mesh heavier."
+  },
+  "role": {
+    "title": "Your role",
+    "reveal": "Show my role",
+    "hide": "Got it, hide",
+    "teammates": "Your fellow vampires",
+    "alone": "You are the only vampire.",
+    "gotIt": "I am ready",
+    "waitingOthers": "Others are still reading their roles…"
+  },
+  "night": {
+    "title": "Night {{count}}",
+    "sleeping": "The village sleeps…",
+    "chooseTarget": "Choose your target",
+    "vampirePrompt": "Who dies tonight?",
+    "seerPrompt": "Whose identity do you want to learn?",
+    "doctorPrompt": "Who will you protect tonight?",
+    "confirm": "Confirm my choice",
+    "pass": "Pass",
+    "locked": "Your choice is locked in.",
+    "waitingOthers": "The others are choosing…",
+    "teamPicks": "Your fellow vampires' picks",
+    "doctorRepeatBlocked": "You cannot protect the same person two nights in a row.",
+    "seerResultVampire": "{{name}} is a VAMPIRE.",
+    "seerResultClean": "{{name}} is NOT a vampire."
+  },
+  "day": {
+    "title": "Day {{count}}",
+    "discussion": "Discussion",
+    "alive": "Still alive",
+    "endEarly": "End discussion",
+    "hint": "Talk, accuse, defend. Voting starts when the timer ends."
+  },
+  "vote": {
+    "title": "Vote",
+    "prompt": "Who gets hanged?",
+    "abstain": "Abstain",
+    "confirm": "Cast my vote",
+    "locked": "Your vote is locked in.",
+    "waitingOthers": "The others are voting…",
+    "tally": "Votes",
+    "votesFor": "{{count}} votes"
+  },
+  "hunter": {
+    "title": "Last Shot",
+    "prompt": "Who are you taking with you?",
+    "pass": "Choose no one",
+    "waiting": "The hunter is taking their last shot…"
+  },
+  "result": {
+    "preparing": "Preparing the results…",
+    "winVillage": "The Village Wins",
+    "winVampires": "The Vampires Win",
+    "roles": "Roles",
+    "timeline": "Game summary",
+    "playAgain": "Play again",
+    "backHome": "Home"
+  },
+  "ghost": {
+    "banner": "You are a ghost: you see everything, but you do not speak.",
+    "allRoles": "All roles"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "music": "Music",
+    "sfx": "Sound effects",
+    "tts": "Spoken narrator",
+    "ttsHint": "Read aloud by the device itself. Turn it on for the host if you are in the same room.",
+    "on": "On",
+    "off": "Off"
+  },
+  "status": {
+    "reconnecting": "Reconnecting…",
+    "playerDisconnected": "{{name}} lost connection.",
+    "playerReconnected": "{{name}} is back."
+  },
+  "error": {
+    "hostLost": "The narrator vanished",
+    "hostLostHint": "The host disconnected, so the game ended.",
+    "roomNotFound": "Room not found",
+    "roomFull": "The room is full.",
+    "gameInProgress": "The game has already started.",
+    "nameTaken": "That name is taken.",
+    "connection": "Could not connect",
+    "p2pHint": "If you are on mobile data, try switching to WiFi.",
+    "duplicateSession": "This device is already in the room; reconnecting with a new identity…"
+  }
+}

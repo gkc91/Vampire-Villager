@@ -1,0 +1,32 @@
+{
+  "team": {
+    "village": "Village",
+    "vampire": "Vampires",
+    "neutral": "Neutral"
+  },
+  "vampire": {
+    "name": "Vampire",
+    "short": "Every night you pick a victim.",
+    "description": "Each night you and the other vampires agree on one villager. By day you hide who you are. You win when vampires equal the number of living villagers."
+  },
+  "villager": {
+    "name": "Villager",
+    "short": "No power, only instinct.",
+    "description": "You have no special ability. Your weapons are your voice by day and your vote. The village wins when every vampire is hanged."
+  },
+  "seer": {
+    "name": "Seer",
+    "short": "Each night you read one identity.",
+    "description": "Each night you pick a player and learn whether they are a vampire. When to speak up is your call — a seer who talks early dies early."
+  },
+  "doctor": {
+    "name": "Doctor",
+    "short": "Each night you protect someone.",
+    "description": "Each night you shield one player from the vampire attack. You may protect yourself, but never the same person two nights in a row."
+  },
+  "hunter": {
+    "name": "Hunter",
+    "short": "If you die, you take someone with you.",
+    "description": "However you die — night attack or hanging — you fire one last shot, and the player you choose dies too."
+  }
+}
