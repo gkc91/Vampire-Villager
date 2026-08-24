@@ -61,6 +61,11 @@ depodaki **`wrangler.jsonc`** dosyasından okunur:
 Bu dosya olmadan `wrangler deploy` projeyi otomatik yapılandırmaya çalışır ve
 "Vite 6.0.0+ gerekli" hatası verir. Dosya varsa Vite sürümüne bakmaz.
 
+> `public/_redirects` KULLANMA. O dosya Cloudflare **Pages**'e aitti; Workers
+> assets onu farklı yorumluyor ve `/*  /index.html  200` kuralını "sonsuz
+> döngü" sayıp yayını reddediyor. SPA yönlendirmesi `not_found_handling`
+> ile zaten çözülüyor.
+
 Yerelde doğrulamak için:
 
 ```bash
