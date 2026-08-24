@@ -56,7 +56,9 @@ Kontrol edilecekler:
 
 Ayrıca dene:
 
-- Mobil veri ↔ WiFi karışık kombinasyonlar.
+- Mobil veri ↔ WiFi karışık kombinasyonlar. (Mobil veri saha testinde
+  çalışıyor; eskiden hiç bağlanmamasının sebebi operatörün BitTorrent
+  tracker trafiğini kesmesiydi, `nostr` stratejisiyle çözüldü.)
 
 ## 4b. Bağlanamıyorsan: teşhis panelini oku
 

@@ -29,8 +29,10 @@ Her milestone tek başına test edilebilir biter. Sıra atlanmaz — özellikle 
 - [x] Katıl/ayrıl/yeniden bağlan (90 sn askı kuralı)
 - [x] Filtreli state yayını (her oyuncu yalnız kendi görünümünü alır)
 - [x] Kimlik gaspı koruması (token ↔ peer eşleşmesi, host kimliği yerel)
-- Test: 1 bilgisayar + 2 telefon; uçak modu senaryosu — docs/TESTING.md §4.
-      İki tarayıcı sekmesiyle P2P bağlantı doğrulandı.
+- [x] Sinyalleşme yöntemi seçilebilir (nostr varsayılan) + bağlantı teşhis paneli
+- Test: 5 sekmeyle tam oyun P2P üzerinden oynandı; gerçek telefonla
+      **WiFi ve mobil veriden hızlı bağlantı doğrulandı**. Kalan senaryo:
+      uçak modu / 90 sn geri dönüş — docs/TESTING.md §4.
 
 ## M3 — Oyun Motoru ✅
 - [x] stateMachine.ts: 02-game-flow.md'deki tüm durumlar

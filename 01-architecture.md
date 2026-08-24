@@ -69,9 +69,21 @@ interface NetworkAdapter {
 - **Ölçüm (aynı makine, iki sekme, lobiye düşme süresi):**
   nostr ≈ 1 sn, torrent ≈ 17 sn. Torrent tracker'larının bir kısmı ölü ve
   keşif announce aralığına bağlı olduğu için yavaş.
-- Bazı mobil operatör ağlarında (CGNAT) doğrudan P2P kurulamayabilir.
-  Bilinen sınır: bedava TURN sunucusu yok → bu durumda kullanıcıya
-  "WiFi'a geçmeyi dene" uyarısı gösterilir. Kabul edilmiş ödünleşim.
+- **Mobil veri: saha testinde ÇALIŞIYOR.** Başta mobil veriden hiç bağlantı
+  kurulamıyordu; sebep sanılanın aksine CGNAT değil, operatörün BitTorrent
+  tracker trafiğini engellemesiydi. `nostr` stratejisine geçilince gerçek
+  telefonla mobil veriden hızlı bağlanıldığı doğrulandı.
+  → Mobil erişilebilirliği belirleyen şey sinyalleşme yöntemi seçimidir.
+- **TURN kancası hazır ama kapalı.** Bazı ağlarda (simetrik NAT) STUN
+  yetmeyebilir. Hesap gerektirmeyen kamuya açık TURN artık YOK:
+  `openrelay.metered.ca` tarayıcıda ölçüldü, 0 aktarıcı adayı döndürüyor.
+  `.env` içindeki `VITE_TURN_URLS`/`USERNAME`/`CREDENTIAL` doldurulursa
+  Trystero'nun STUN listesine eklenir (`src/net/ice.ts`). Ücretli/hesaplı
+  bir TURN sağlayıcısına geçmek ayrı bir karar konusudur.
+- Bağlantı kurulamadığında kullanıcıya teşhis paneli gösterilir: kaç sinyal
+  sunucusuna bağlanıldığı, kaç cihaz bulunduğu ve cihazın STUN/TURN
+  yeteneği. Böylece sorun "ağ engeli / eş bulunamıyor / veri kanalı" olarak
+  ayırt edilir.
 - İleride gerekirse `SupabaseAdapter` yazılır (ücretsiz katman); oyun kodu
   değişmez, sadece adapter değişir. Host-otoriter mantık orada da korunur
   (Supabase yalnızca mesaj taşıyıcı olur, mantık yine host'ta).
