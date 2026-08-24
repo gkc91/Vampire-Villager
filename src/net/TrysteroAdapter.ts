@@ -1,0 +1,134 @@
+import { joinRoom, type Room } from 'trystero/torrent';
+import type { ConnectionState, NetworkAdapter, PeerId } from './NetworkAdapter';
+import type { ClientMessage, NetMessage, ServerMessage } from './messages';
+
+const APP_ID = 'vampir-koylu';
+/** Trystero action isimleri 12 bayttan uzun olamaz. */
+const ACTION = 'vk';
+
+/**
+ * Trystero (WebRTC, torrent tracker sinyalleşmesi) implementasyonu.
+ * Sıfır sunucu maliyeti; TURN yok → bazı CGNAT ağlarında bağlantı kurulamaz,
+ * bu durumda kullanıcıya "WiFi'a geç" uyarısı gösterilir.
+ */
+export class TrysteroAdapter implements NetworkAdapter {
+  readonly kind = 'trystero';
+
+  private room: Room | null = null;
+  private send: ((data: NetMessage, peers?: string | string[] | null) => void) | null = null;
+  private isHost = false;
+  private roomId = '';
+  private hostPeerId: PeerId | null = null;
+  private outbox: ClientMessage[] = [];
+
+  private messageCb: (msg: NetMessage, peerId: PeerId) => void = () => {};
+  private peerJoinCb: (peerId: PeerId) => void = () => {};
+  private peerLeaveCb: (peerId: PeerId) => void = () => {};
+  private stateCb: (state: ConnectionState) => void = () => {};
+
+  async createRoom(roomId: string): Promise<void> {
+    this.isHost = true;
+    await this.open(roomId);
+  }
+
+  async joinRoom(roomId: string): Promise<void> {
+    this.isHost = false;
+    await this.open(roomId);
+  }
+
+  private async open(roomId: string): Promise<void> {
+    this.roomId = roomId;
+    this.stateCb('connecting');
+
+    const room = joinRoom({ appId: APP_ID }, roomId);
+    this.room = room;
+
+    // Yük düz metin olarak taşınır (Trystero'nun JSON tipiyle uyum için).
+    const [rawSend, rawReceive] = room.makeAction<string>(ACTION);
+    const send = (data: NetMessage, peers?: string | string[] | null): void => {
+      void rawSend(JSON.stringify(data), peers ?? null);
+    };
+    this.send = send;
+
+    rawReceive((raw, peerId) => {
+      let msg: NetMessage;
+      try {
+        msg = JSON.parse(raw) as NetMessage;
+      } catch {
+        return; // bozuk paket
+      }
+      // Host kimliğini kendi tanıtır; istemci ondan sonra konuşur.
+      if (!this.isHost && msg.type === 'hostHello') {
+        this.hostPeerId = peerId;
+        this.stateCb('connected');
+        this.flushOutbox();
+      }
+      this.messageCb(msg, peerId);
+    });
+
+    room.onPeerJoin((peerId) => {
+      if (this.isHost) {
+        // Yeni gelene kendini tanıt: "host benim".
+        send({ type: 'hostHello', roomId: this.roomId } as ServerMessage, peerId);
+      }
+      this.peerJoinCb(peerId);
+    });
+
+    room.onPeerLeave((peerId) => {
+      if (peerId === this.hostPeerId) this.hostPeerId = null;
+      this.peerLeaveCb(peerId);
+    });
+
+    if (this.isHost) this.stateCb('connected');
+  }
+
+  private flushOutbox(): void {
+    if (!this.hostPeerId || !this.send) return;
+    const queued = this.outbox;
+    this.outbox = [];
+    for (const msg of queued) this.send(msg, this.hostPeerId);
+  }
+
+  sendToHost(msg: ClientMessage): void {
+    if (!this.send || !this.hostPeerId) {
+      this.outbox.push(msg);
+      return;
+    }
+    this.send(msg, this.hostPeerId);
+  }
+
+  sendToPlayer(peerId: PeerId, msg: ServerMessage): void {
+    if (!this.isHost || !this.send) return;
+    this.send(msg, peerId);
+  }
+
+  broadcast(msg: ServerMessage): void {
+    if (!this.isHost || !this.send) return;
+    this.send(msg);
+  }
+
+  onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void {
+    this.messageCb = cb;
+  }
+
+  onPeerJoin(cb: (peerId: PeerId) => void): void {
+    this.peerJoinCb = cb;
+  }
+
+  onPeerLeave(cb: (peerId: PeerId) => void): void {
+    this.peerLeaveCb = cb;
+  }
+
+  onStateChange(cb: (state: ConnectionState) => void): void {
+    this.stateCb = cb;
+  }
+
+  async leave(): Promise<void> {
+    if (this.isHost) this.broadcast({ type: 'hostLeft' });
+    await this.room?.leave();
+    this.room = null;
+    this.send = null;
+    this.hostPeerId = null;
+    this.stateCb('closed');
+  }
+}
