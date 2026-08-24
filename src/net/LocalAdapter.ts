@@ -47,7 +47,7 @@ export class LocalAdapter implements NetworkAdapter {
 
   onDiagnostics(cb: (diagnostics: NetDiagnostics) => void): void {
     // Tek cihaz modunda ağ yok; teşhis sabit.
-    cb({ strategy: 'local', relaysConnected: 0, relaysTotal: 0, peers: 0 });
+    cb({ strategy: 'local', relaysConnected: 0, relaysTotal: 0, peers: 0, timings: {} });
   }
 
   async leave(): Promise<void> {

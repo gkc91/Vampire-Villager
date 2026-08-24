@@ -158,6 +158,10 @@
     "turnOk": "TURN aktarıcısı çalışıyor.",
     "turnFail": "TURN tanımlı ama ulaşılamıyor.",
     "hintNoRelay": "Hiçbir sinyal sunucusuna ulaşılamadı; ağ bu trafiği engelliyor olabilir.",
-    "hintNat": "Sinyal sunucusu bağlı ama cihazlar birbirini bulamıyor. Bu genelde operatör ağı (CGNAT) kaynaklıdır; WiFi'a geçmeyi dene."
+    "hintNat": "Sinyal sunucusu bağlı ama cihazlar birbirini bulamıyor. Bu genelde operatör ağı (CGNAT) kaynaklıdır; WiFi'a geçmeyi dene.",
+    "tModule": "Ağ modülü yüklendi",
+    "tRelay": "Sinyal sunucusuna bağlanıldı",
+    "tPeer": "Karşı cihaz bulundu",
+    "title": "Bağlantı"
   }
 }

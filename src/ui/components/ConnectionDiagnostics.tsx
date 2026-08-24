@@ -39,6 +39,7 @@ export function ConnectionDiagnostics() {
         bad={noRelay}
       />
       <Row label={t('connect.peers')} value={String(diagnostics?.peers ?? 0)} />
+      {diagnostics && <Timings timings={diagnostics.timings} />}
 
       {slow && noRelay && <Note text={t('connect.hintNoRelay')} bad />}
       {slow && relayButNoPeer && <Note text={t('connect.hintNat')} bad />}
@@ -66,6 +67,18 @@ export function ConnectionDiagnostics() {
         </button>
       </div>
     </Card>
+  );
+}
+
+function Timings({ timings }: { timings: { module?: number; relay?: number; peer?: number } }) {
+  const { t } = useTranslation();
+  const ms = (v?: number) => (v === undefined ? '—' : `${(v / 1000).toFixed(1)} sn`);
+  return (
+    <div className="space-y-1 border-t border-night-700 pt-2">
+      <Row label={t('connect.tModule')} value={ms(timings.module)} />
+      <Row label={t('connect.tRelay')} value={ms(timings.relay)} />
+      <Row label={t('connect.tPeer')} value={ms(timings.peer)} />
+    </div>
   );
 }
 

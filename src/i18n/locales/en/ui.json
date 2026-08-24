@@ -158,6 +158,10 @@
     "turnOk": "TURN relay works.",
     "turnFail": "TURN is configured but unreachable.",
     "hintNoRelay": "Could not reach any signalling server; the network may be blocking this traffic.",
-    "hintNat": "Signalling is up but the devices cannot find each other. This usually means carrier NAT (CGNAT) — try switching to WiFi."
+    "hintNat": "Signalling is up but the devices cannot find each other. This usually means carrier NAT (CGNAT) — try switching to WiFi.",
+    "tModule": "Network module loaded",
+    "tRelay": "Signalling connected",
+    "tPeer": "Peer found",
+    "title": "Connection"
   }
 }

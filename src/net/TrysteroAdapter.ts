@@ -8,6 +8,7 @@ import type {
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 import { ACTIVE_STRATEGY, loadStrategy } from './strategy';
 import { turnServers } from './ice';
+import { relayUrls } from './relays';
 
 const APP_ID = 'vampir-koylu';
 /** Trystero action ismi (kısa tutulur). */
@@ -40,6 +41,8 @@ export class TrysteroAdapter implements NetworkAdapter {
   private diagnosticsCb: (d: NetDiagnostics) => void = () => {};
   private diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
   private getRelaySockets: (() => Record<string, WebSocket>) | null = null;
+  private openedAt = 0;
+  private timings: { module?: number; relay?: number; peer?: number } = {};
 
   async createRoom(roomId: string): Promise<void> {
     this.isHost = true;
@@ -53,14 +56,23 @@ export class TrysteroAdapter implements NetworkAdapter {
 
   private async open(roomId: string): Promise<void> {
     this.roomId = roomId;
+    this.openedAt = performance.now();
+    this.timings = {};
     this.stateCb('connecting');
 
     const { joinRoom, getRelaySockets } = await loadStrategy();
     this.getRelaySockets = getRelaySockets;
+    this.timings.module = Math.round(performance.now() - this.openedAt);
 
     const turnConfig = turnServers();
+    // nostr için ölçülmüş relay listesi; diğer stratejiler kendi varsayılanını kullanır.
+    const urls = ACTIVE_STRATEGY === 'nostr' ? relayUrls() : undefined;
     const room = joinRoom(
-      { appId: APP_ID, ...(turnConfig.length > 0 ? { turnConfig } : {}) },
+      {
+        appId: APP_ID,
+        ...(turnConfig.length > 0 ? { turnConfig } : {}),
+        ...(urls ? { relayConfig: { urls } } : {}),
+      },
       roomId,
       { onJoinError: () => this.stateCb('error') },
     );
@@ -88,9 +100,15 @@ export class TrysteroAdapter implements NetworkAdapter {
     };
 
     room.onPeerJoin = (peerId) => {
+      this.timings.peer ??= Math.round(performance.now() - this.openedAt);
       if (this.isHost) {
         // Yeni gelene kendini tanıt: "host benim".
         this.post({ type: 'hostHello', roomId: this.roomId }, peerId);
+      } else {
+        // hostHello'yu beklemeden kendimizi tanıtıyoruz: bir gidiş-dönüş
+        // kazanılıyor. İstemci mesajlarını yalnız host işler, diğer
+        // istemciler yok sayar; gizli bilgi taşımaz.
+        this.announceTo(peerId);
       }
       this.peerJoinCb(peerId);
     };
@@ -114,6 +132,13 @@ export class TrysteroAdapter implements NetworkAdapter {
     const queued = this.outbox;
     this.outbox = [];
     for (const msg of queued) this.post(msg, this.hostPeerId);
+  }
+
+  /** Host henüz belli değilken bekleyen mesajları yeni eşe gönderir. */
+  private announceTo(peerId: PeerId): void {
+    if (!this.action || this.hostPeerId) return;
+    // Kuyruk temizlenmez: host hangi eş olursa olsun mesajı almalı.
+    for (const msg of this.outbox) this.post(msg, peerId);
   }
 
   sendToHost(msg: ClientMessage): void {
@@ -160,11 +185,14 @@ export class TrysteroAdapter implements NetworkAdapter {
     const report = () => {
       const sockets = this.getRelaySockets?.() ?? {};
       const entries = Object.values(sockets);
+      const connected = entries.filter((ws) => ws?.readyState === WebSocket.OPEN).length;
+      if (connected > 0) this.timings.relay ??= Math.round(performance.now() - this.openedAt);
       this.diagnosticsCb({
         strategy: ACTIVE_STRATEGY,
-        relaysConnected: entries.filter((ws) => ws?.readyState === WebSocket.OPEN).length,
+        relaysConnected: connected,
         relaysTotal: entries.length,
         peers: Object.keys(this.room?.getPeers() ?? {}).length,
+        timings: { ...this.timings },
       });
     };
     report();

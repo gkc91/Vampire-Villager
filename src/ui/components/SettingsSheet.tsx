@@ -3,11 +3,14 @@ import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES, setLanguage, type Language } from
 import { useSettingsStore } from '../../store/settingsStore';
 import { setMusicEnabled, setSfxEnabled } from '../../audio/audioManager';
 import { isTtsSupported, stopSpeaking } from '../../audio/tts';
+import { ConnectionDiagnostics } from './ConnectionDiagnostics';
+import { useGameStore } from '../../store/gameStore';
 
 /** Cihaz ayarları: dil, müzik, SFX, sesli anlatıcı. */
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const settings = useSettingsStore();
+  const inRoom = useGameStore((s) => s.screen === 'game' && !s.solo);
 
   const toggle = (key: 'music' | 'sfx' | 'tts') => {
     const next = !settings[key];
@@ -58,6 +61,13 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             />
           )}
         </ul>
+
+        {inRoom && (
+          <div className="mt-4">
+            <p className="mb-2 text-sm text-moon-200/70">{t('connect.title')}</p>
+            <ConnectionDiagnostics />
+          </div>
+        )}
 
         <button type="button" className="btn-secondary mt-5" onClick={onClose}>
           {t('common.close')}

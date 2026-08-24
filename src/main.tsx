@@ -4,6 +4,7 @@ import App from './App';
 import './i18n';
 import './index.css';
 import { listenForDeepLinks } from './util/deepLink';
+import { loadStrategy } from './net/strategy';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -12,6 +13,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 
 void listenForDeepLinks();
+
+// Ağ modülünü kullanıcı ismini yazarken arka planda indir; "Odaya Katıl"a
+// basıldığında yükleme beklemesi kalmasın.
+void loadStrategy().catch(() => {});
 
 // PWA: service worker yalnız üretim derlemesinde kaydedilir.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

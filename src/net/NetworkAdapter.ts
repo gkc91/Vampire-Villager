@@ -16,6 +16,15 @@ export interface NetDiagnostics {
   relaysTotal: number;
   /** Bulunan eş sayısı. */
   peers: number;
+  /** Aşama süreleri (ms) — nerede beklendiğini gösterir. */
+  timings: {
+    /** Strateji modülünün yüklenmesi. */
+    module?: number;
+    /** İlk sinyal sunucusuna bağlanma. */
+    relay?: number;
+    /** İlk eşin bulunması. */
+    peer?: number;
+  };
 }
 
 /**
