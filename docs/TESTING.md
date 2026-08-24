@@ -1,0 +1,75 @@
+# Nasıl Test Edilir
+
+## 0. Geliştirme sunucusunu başlat
+
+```bash
+npm run dev
+```
+
+Terminal `Network:` satırında `http://192.168.x.x:5173` gibi bir adres
+verir. Telefonlar aynı WiFi'daysa bu adresi kullanır.
+
+## 1. Tek cihazda akış testi (ağ yok)
+
+1. Ana ekranda isim yaz → **Tek cihazda dene**.
+2. Lobide **Bot ekle** ile 4–11 bot ekle (en az 5 oyuncu gerekir).
+3. **Oyunu Başlat** → rolünü gör → gece/gündüz/oylama akışını izle.
+
+Botlar da tıpkı insanlar gibi yalnız kendi filtrelenmiş görünümlerini
+kullanır; oyunu baştan sona tek başına oynayabilirsin.
+
+## 2. İki cihaz / iki sekme (P2P)
+
+1. Cihaz A: isim → **Oda Kur**. 6 haneli kod ve link çıkar.
+2. Cihaz B: linke dokun (veya kodu yaz) → **Odaya Katıl**.
+3. A'da oyuncu listesinde B görünmeli.
+
+Aynı tarayıcıda iki sekme açarsan ikinci sekme otomatik olarak yeni bir
+kimlik alır (aynı `playerToken` çakışması engellenir).
+
+## 3. Gerçek oyun testi (5+ cihaz)
+
+En az 5 oyuncu gerekir (6 kişiden itibaren Avcı da dağıtılır).
+Kurucu bilgisayar/tablet olsun; telefonda kurucuysan ekranı kapatma.
+
+Kontrol edilecekler:
+
+- [ ] Herkes yalnız kendi rolünü görüyor.
+- [ ] Vampirler birbirini görüyor, gece hedefinde ortaklaşıyor.
+- [ ] Kâhin sonucu anında geliyor, kimse başkasının sonucunu görmüyor.
+- [ ] Doktor aynı kişiyi üst üste iki gece seçemiyor.
+- [ ] Ölen oyuncu hayalet moduna geçip tüm rolleri görüyor.
+- [ ] Hiçbir ölünün rolü açıklanmıyor (ne gece ölümünde ne asılmada);
+      roller yalnız oyun bitince herkesin ekranında açılıyor.
+- [ ] Vampir istersem kendini/takım arkadaşını hedefleyebiliyor.
+- [ ] Oylamada kendime oy verebiliyorum.
+- [ ] Avcı öldüğünde son ok ekranı 30 sn içinde açılıyor.
+- [ ] Oyun sonunda tüm roller ve zaman çizelgesi görünüyor.
+
+## 4. Kopma testi (M2'nin asıl sınavı)
+
+1. Oyun sürerken bir telefonu **uçak moduna** al.
+2. Diğer cihazlarda o oyuncu "bağlantı yok" olarak işaretlenir.
+3. 90 saniye dolmadan uçak modunu kapat → oyuncu aynı kimlikle döner,
+   rolü ve durumu geri gelir.
+4. 90 saniye geçerse "köyü terk etti" duyurusu düşer, oyun devam eder.
+
+Ayrıca dene:
+
+- Mobil veri ↔ WiFi karışık kombinasyonlar. Bazı operatör ağlarında
+  (CGNAT) doğrudan P2P kurulamaz; uygulama "WiFi'a geçmeyi dene" uyarısı
+  gösterir. Bu bilinen ve kabul edilmiş sınırdır (01-architecture.md).
+- Kurucunun sekmesini kapat → diğerlerinde "Anlatıcı kayboldu" ekranı.
+
+## 5. Dil testi
+
+Ayarlar (⚙️) → Dil → Türkçe/English. Aynı odadaki oyuncular farklı
+dillerde oynayabilir; anlatım her cihazda kendi dilinde çözülür.
+
+## 6. Otomatik testler
+
+```bash
+npm test              # 56 test: kurallar, görünüm filtresi, ağ, 100 rastgele oyun
+npm run lint:strings  # hardcoded metin taraması
+npm run check         # üçü birden + derleme
+```
