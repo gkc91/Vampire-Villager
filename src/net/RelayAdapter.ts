@@ -22,6 +22,8 @@ type ServerEnvelope =
 
 const RECONNECT_BASE_MS = 500;
 const RECONNECT_MAX_MS = 5000;
+/** Boşta kalan soketin ara sunucular tarafından kapatılmasını engeller. */
+const HEARTBEAT_MS = 25_000;
 
 /** Aktarıcı adresi: ayarlanmamışsa siteyi sunan origin kullanılır. */
 export function relayBaseUrl(): string | null {
@@ -58,6 +60,8 @@ export class RelayAdapter implements NetworkAdapter {
   private openedAt = 0;
   private timings: { module?: number; relay?: number; peer?: number } = {};
   private diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private onVisible: (() => void) | null = null;
 
   private messageCb: (msg: NetMessage, peerId: PeerId) => void = () => {};
   private peerJoinCb: (peerId: PeerId) => void = () => {};
@@ -82,7 +86,34 @@ export class RelayAdapter implements NetworkAdapter {
     this.timings = { module: 0 };
     this.stateCb('connecting');
     this.startDiagnostics();
+    this.startHeartbeat();
+    this.watchVisibility();
     this.connect();
+  }
+
+  /**
+   * Telefon kilitlenince / başka uygulamaya geçilince tarayıcı sekmeyi
+   * donduruyor ve soket ölüyor; zamanlayıcılar da durduğu için yeniden
+   * bağlanma tetiklenmiyordu. Sekme öne döner dönmez bağlantıyı tazeliyoruz.
+   * Host bunu yapmazsa oda boş kalır ve kimse katılamaz.
+   */
+  private watchVisibility(): void {
+    if (this.onVisible || typeof document === 'undefined') return;
+    this.onVisible = () => {
+      if (document.visibilityState !== 'visible' || this.closedByUs) return;
+      if (this.socket?.readyState === WebSocket.OPEN) return;
+      this.reconnectAttempt = 0;
+      this.connect();
+    };
+    document.addEventListener('visibilitychange', this.onVisible);
+    window.addEventListener('focus', this.onVisible);
+  }
+
+  private startHeartbeat(): void {
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = setInterval(() => {
+      if (this.socket?.readyState === WebSocket.OPEN) this.socket.send('ping');
+    }, HEARTBEAT_MS);
   }
 
   private connect(): void {
@@ -102,6 +133,7 @@ export class RelayAdapter implements NetworkAdapter {
 
     socket.onmessage = (event) => {
       if (typeof event.data !== 'string') return;
+      if (event.data === 'pong') return; // kalp atışı yanıtı
       let envelope: ServerEnvelope;
       try {
         envelope = JSON.parse(event.data) as ServerEnvelope;
@@ -267,6 +299,13 @@ export class RelayAdapter implements NetworkAdapter {
     this.closedByUs = true;
     if (this.diagnosticsTimer) clearInterval(this.diagnosticsTimer);
     this.diagnosticsTimer = null;
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
+    if (this.onVisible) {
+      document.removeEventListener('visibilitychange', this.onVisible);
+      window.removeEventListener('focus', this.onVisible);
+      this.onVisible = null;
+    }
     if (this.isHost) this.broadcast({ type: 'hostLeft' });
     this.socket?.close();
     this.socket = null;

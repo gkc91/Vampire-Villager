@@ -64,8 +64,30 @@ class FakeSocket {
 
 const RELAY = 'ws://relay.test';
 
+/** Node ortamında minimal DOM: yalnız görünürlük olayı için. */
+class FakeEventTarget {
+  private listeners = new Map<string, Set<() => void>>();
+  addEventListener(type: string, cb: () => void): void {
+    if (!this.listeners.has(type)) this.listeners.set(type, new Set());
+    this.listeners.get(type)!.add(cb);
+  }
+  removeEventListener(type: string, cb: () => void): void {
+    this.listeners.get(type)?.delete(cb);
+  }
+  fire(type: string): void {
+    for (const cb of this.listeners.get(type) ?? []) cb();
+  }
+}
+
+let fakeDocument: FakeEventTarget & { visibilityState: string };
+let fakeWindow: FakeEventTarget;
+
 beforeEach(() => {
   FakeSocket.instances = [];
+  fakeDocument = Object.assign(new FakeEventTarget(), { visibilityState: 'visible' });
+  fakeWindow = new FakeEventTarget();
+  vi.stubGlobal('document', fakeDocument);
+  vi.stubGlobal('window', fakeWindow);
   vi.stubGlobal('WebSocket', FakeSocket);
   vi.stubEnv('VITE_RELAY_URL', RELAY);
   vi.useFakeTimers();
@@ -186,5 +208,55 @@ describe('RelayAdapter — taşıma', () => {
     // İstemci yayın yapamaz
     adapter.broadcast({ type: 'hostLeft' });
     expect(socket.messages().some((m) => m.msg.type === 'hostLeft')).toBe(false);
+  });
+});
+
+describe('RelayAdapter — donan sekme ve boşta kalma', () => {
+  it('sekme öne dönünce ölü bağlantıyı anında tazeler', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.createRoom('ABC123');
+    const first = lastSocket();
+    first.open();
+    first.deliver({ t: 'welcome', peerId: 'host', peers: [] });
+
+    // Telefon kilitlendi: soket öldü, zamanlayıcılar donduğu için
+    // yeniden bağlanma tetiklenmedi.
+    first.readyState = 3;
+    const before = FakeSocket.instances.length;
+
+    fakeDocument.fire('visibilitychange');
+
+    expect(FakeSocket.instances.length).toBe(before + 1);
+    await adapter.leave();
+  });
+
+  it('boşta kalan bağlantıya kalp atışı gönderir', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.joinRoom('ABC123');
+    const socket = lastSocket();
+    socket.open();
+    socket.deliver({ t: 'welcome', peerId: 'me', peers: [] });
+
+    const before = socket.sent.length;
+    vi.advanceTimersByTime(26_000);
+    expect(socket.sent.slice(before)).toContain('ping');
+
+    // pong yanıtı mesaj akışını bozmamalı
+    expect(() => socket.onmessage?.({ data: 'pong' })).not.toThrow();
+    await adapter.leave();
+  });
+
+  it('leave sonrası kalp atışı durur', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.joinRoom('ABC123');
+    const socket = lastSocket();
+    socket.open();
+    socket.deliver({ t: 'welcome', peerId: 'me', peers: [] });
+    await adapter.leave();
+
+    socket.readyState = 1; // soket açık kalsa bile
+    const before = socket.sent.length;
+    vi.advanceTimersByTime(60_000);
+    expect(socket.sent.length).toBe(before);
   });
 });

@@ -21,13 +21,14 @@ export default function App() {
   const view = useGameStore((s) => s.view);
   const errorKey = useGameStore((s) => s.errorKey);
   const connection = useGameStore((s) => s.connection);
-  const isHost = useGameStore((s) => s.isHost);
+  const solo = useGameStore((s) => s.solo);
 
   useNarrationSpeech(view?.log ?? []);
   usePhaseEffects(screen === 'game' ? view : null);
   // Oyundaki herkes: telefon kilitlenirse bağlantı kopuyor.
   useWakeLock(screen === 'game');
-  useVisibilityResync(screen === 'game' && !isHost);
+  // Host da dahil: donmuş sekmeden dönünce bağlantı tazelenmeli.
+  useVisibilityResync(screen === 'game');
 
   if (screen === 'home') return <HomeScreen />;
   if (errorKey && !view) return <FatalError errorKey={errorKey} />;
@@ -36,7 +37,9 @@ export default function App() {
   return (
     <>
       {errorKey && <FatalError errorKey={errorKey} />}
-      {!errorKey && connection !== 'connected' && !isHost && <ConnectionBanner />}
+      {/* Host dahil: host'un bağlantısı ölürse oda sessizce erişilemez olur,
+          host bunu görmeli. */}
+      {!errorKey && connection !== 'connected' && !solo && <ConnectionBanner />}
       <PhaseScreen />
     </>
   );

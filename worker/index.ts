@@ -56,7 +56,12 @@ export default {
 };
 
 export class GameRoom implements DurableObject {
-  constructor(private state: DurableObjectState) {}
+  constructor(private state: DurableObjectState) {
+    // Boşta duran WebSocket'leri ara sunucular (operatör/proxy) kapatabiliyor.
+    // Bu otomatik yanıt, DO'yu uyandırmadan ping'e pong döner: bağlantı
+    // canlı kalır ve ücretlendirmeye girmez.
+    this.state.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'));
+  }
 
   async fetch(_request: Request): Promise<Response> {
     const pair = new WebSocketPair();
