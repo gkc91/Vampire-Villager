@@ -35,6 +35,31 @@ interface ClientEnvelope {
 
 const ROOM_PATH = /^\/room\/([A-Z0-9]{4,12})$/i;
 
+/**
+ * Aktarıcı adresi herkese açık olduğu için ücretsiz kota başkası tarafından
+ * kullanılabilir. Yalnız kendi barındırma alanlarımızdan gelen bağlantıları
+ * kabul ediyoruz. Origin başlığı olmayan istekler native kabuktan (Capacitor)
+ * gelir ve serbesttir.
+ */
+const ALLOWED_ORIGIN_SUFFIXES = ['.vercel.app', '.workers.dev', '.pages.dev'];
+const ALLOWED_ORIGIN_PREFIXES = [
+  'http://localhost',
+  'http://127.0.0.1',
+  'capacitor://',
+  'ionic://',
+];
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return true; // native kabuk
+  if (ALLOWED_ORIGIN_PREFIXES.some((p) => origin.startsWith(p))) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return ALLOWED_ORIGIN_SUFFIXES.some((suffix) => host.endsWith(suffix));
+  } catch {
+    return false;
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -43,6 +68,9 @@ export default {
     if (match) {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('expected websocket', { status: 426 });
+      }
+      if (!isAllowedOrigin(request.headers.get('Origin'))) {
+        return new Response('origin not allowed', { status: 403 });
       }
       const roomId = match[1].toUpperCase();
       const id = env.ROOMS.idFromName(roomId);

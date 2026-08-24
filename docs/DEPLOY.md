@@ -23,13 +23,13 @@ kalitesini etkilemez**, dosyaları servis etmekten başka iş yapmaz.
 3. Vercel Vite'ı otomatik tanır; ayarları değiştirme (depodaki
    `vercel.json` build komutunu, çıktı dizinini ve SPA yönlendirmesini
    zaten tanımlıyor).
-4. **Project Name** alanına ne yazarsan adres o olur: `vampir-koylu`
-   yazarsan `vampir-koylu.vercel.app`.
-5. Deploy. Bundan sonra her push otomatik yayınlanır.
+4. **Project Name** alanına ne yazarsan adres o olur:
+   `vampire-villager` → `vampire-villager.vercel.app`.
+5. Deploy. Ortam değişkeni **eklemene gerek yok**; oyun bağlantısı
+   Cloudflare'deki aktarıcıya kendiliğinden gider.
 
-Ortam değişkeni gerekirse (ör. `VITE_TURN_URLS`): Project → Settings →
-Environment Variables. `VITE_` ile başlayanlar derleme sırasında paketin
-içine gömülür, değişiklikten sonra yeniden derleme gerekir.
+Bundan sonra her push hem Vercel'e (site) hem Cloudflare'e (aktarıcı)
+yayınlanır. Cloudflare Worker'ı silme — oyun bağlantısı oradan geçiyor.
 
 Aynı depoyu hem Vercel'de hem Cloudflare'de tutabilirsin; ikisi de aynı
 commit'ten yayınlar. Cloudflare'i bırakacaksan panelden Worker'ı silmen
@@ -103,11 +103,16 @@ Oyun mesajları Cloudflare Worker'daki Durable Object üzerinden geçer
 
 | Site nerede | Ayar |
 |---|---|
-| Cloudflare Worker (aynı adres) | Ayar gerekmez; aktarıcı adresi origin'den bulunur |
-| Vercel / GitHub Pages | `VITE_RELAY_URL=wss://vampire-villager.<hesap>.workers.dev` ortam değişkenini ekle |
+| Cloudflare Worker (aynı adres) | Yok — origin'den bulunur |
+| Vercel / Pages / özel alan adı | **Yok** — üretim aktarıcı adresi kodda gömülü (`src/net/RelayAdapter.ts`) |
+| Yerel geliştirme | `.env` içine `VITE_RELAY_URL=ws://localhost:8787` |
 
-Vercel'de: Project → Settings → Environment Variables → `VITE_RELAY_URL`.
-`VITE_` değişkenleri derlemeye gömülür, ekledikten sonra yeniden derle.
+Aktarıcı adresi değişirse `PRODUCTION_RELAY` sabitini güncelle ya da
+`VITE_RELAY_URL` ortam değişkenini tanımla (o her zaman önceliklidir).
+
+Aktarıcı yalnız kendi barındırma alanlarımızdan gelen bağlantıları kabul
+eder (`*.vercel.app`, `*.workers.dev`, `*.pages.dev`, localhost, native
+kabuk). Başka sitelerden gelen istek 403 alır — ücretsiz kota korunur.
 
 Aktarıcıyı yayınlamak için Cloudflare tarafında `npx wrangler deploy`
 çalışır (depo bağlıysa her push'ta kendiliğinden).

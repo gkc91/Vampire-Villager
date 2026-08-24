@@ -25,15 +25,25 @@ const RECONNECT_MAX_MS = 5000;
 /** Boşta kalan soketin ara sunucular tarafından kapatılmasını engeller. */
 const HEARTBEAT_MS = 25_000;
 
-/** Aktarıcı adresi: ayarlanmamışsa siteyi sunan origin kullanılır. */
+/**
+ * Aktarıcı Cloudflare Worker'da çalışır; site nerede barındırılırsa
+ * barındırılsın (Vercel, Pages, özel alan adı) buraya bağlanır.
+ * WebSocket bağlantıları CORS'a tabi değildir, çapraz origin sorun değil.
+ */
+const PRODUCTION_RELAY = 'wss://vampire-villager.gokcekantarci.workers.dev';
+
+/** Aktarıcı adresi. Öncelik: .env → aynı origin (Worker) → üretim adresi. */
 export function relayBaseUrl(): string | null {
   const configured = (import.meta.env.VITE_RELAY_URL as string | undefined)?.trim();
   if (configured) return configured.replace(/\/$/, '');
   if (typeof window === 'undefined') return null;
   const { protocol, host } = window.location;
-  // Yerel geliştirmede site Vite'ta, aktarıcı ayrı portta olur → VITE_RELAY_URL şart.
+  // Yerel geliştirme: aktarıcı ayrı portta (`npm run dev:relay`) → .env şart.
   if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return null;
-  return `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}`;
+  // Site aktarıcıyla aynı Worker'dan servis ediliyorsa onu kullan.
+  if (host.endsWith('.workers.dev')) return `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}`;
+  // Vercel / Pages / özel alan adı: aktarıcı yine Worker'da.
+  return PRODUCTION_RELAY;
 }
 
 export function isRelayAvailable(): boolean {
