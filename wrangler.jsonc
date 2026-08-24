@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers "static assets" yayını — sunucu kodu yok, yalnız
+  // dist/ klasörü servis edilir. Ücretsiz katman, sınırsız statik istek.
+  // Derleme: npm run build   Yayın: npx wrangler deploy
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vampire-villager",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./dist",
+    // SPA: bilinmeyen yol (ör. /join/ABC123) index.html'e düşer.
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -38,11 +38,34 @@ Workflow'daki `cloudflare-pages` işi yalnız şu değişken tanımlıysa çalı
   `CLOUDFLARE_API_TOKEN` (Pages: Edit yetkili token)
   `CLOUDFLARE_ACCOUNT_ID`
 
-**Daha kolay yol — panelden bağla (secret gerekmez):**
-dash.cloudflare.com → Workers & Pages → Create → Pages → Connect to Git →
-depoyu seç (private depolar da listelenir) → Build command `npm run build`,
-output dizini `dist`. Her push'ta kendi derler.
-`public/_redirects` SPA yönlendirmesini halleder.
+**Panelden bağla (secret gerekmez, önerilen):**
+dash.cloudflare.com → Workers & Pages → Create → Connect to Git →
+depoyu seç (private depolar da listelenir). Ayarlar:
+
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+
+Cloudflare artık yeni projeleri "Workers" olarak kuruyor; yayın ayarları
+depodaki **`wrangler.jsonc`** dosyasından okunur:
+
+```jsonc
+{
+  "name": "vampire-villager",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
+```
+
+Bu dosya olmadan `wrangler deploy` projeyi otomatik yapılandırmaya çalışır ve
+"Vite 6.0.0+ gerekli" hatası verir. Dosya varsa Vite sürümüne bakmaz.
+
+Yerelde doğrulamak için:
+
+```bash
+npm run build && npx wrangler deploy --dry-run
+```
 
 ## Yerel derleme ve önizleme
 
