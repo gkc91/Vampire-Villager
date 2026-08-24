@@ -1,0 +1,223 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Screen } from '../components/Screen';
+import { Card, SectionTitle, Spinner } from '../components/atoms';
+import { PlayerGrid } from '../components/PlayerGrid';
+import { useGameStore } from '../../store/gameStore';
+import type { PlayerView } from '../../game/view';
+import { MIN_PLAYERS, ROOM_SIZE_OPTIONS, TABLE_MAX_PLAYERS } from '../../game/distribution';
+import { hasEntitlement } from '../../monetization/entitlements';
+import { joinLink } from '../../util/identity';
+
+const BOT_NAMES = ['Ada', 'Boran', 'Ceren', 'Deniz', 'Ege', 'Fikret', 'Gizem', 'Hakan', 'Irmak', 'Jale', 'Kerem'];
+
+export function LobbyScreen({ view }: { view: PlayerView }) {
+  const { t } = useTranslation();
+  const store = useGameStore();
+  const [copied, setCopied] = useState(false);
+
+  const players = view.players.filter((p) => !p.left);
+  const playing = players.filter((p) => p.isPlayer);
+  const everyoneReady = playing.every((p) => p.ready || p.isHost);
+  const enoughPlayers = playing.length >= MIN_PLAYERS;
+  const canStart = view.me.isHost && enoughPlayers && everyoneReady;
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(joinLink(view.roomId));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const share = async () => {
+    const url = joinLink(view.roomId);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: t('app.title'), text: t('app.tagline'), url });
+        return;
+      } catch {
+        // paylaşım iptal edildi
+      }
+    }
+    void copyLink();
+  };
+
+  return (
+    <Screen
+      backdrop="lobby"
+      title={t('lobby.title')}
+      subtitle={`${t('lobby.roomCode')}: ${view.roomId}`}
+      onBack={() => void store.leave()}
+      footer={
+        view.me.isHost ? (
+          <>
+            <button type="button" className="btn-primary" disabled={!canStart} onClick={store.startGame}>
+              {t('lobby.start')}
+            </button>
+            {!enoughPlayers && (
+              <p className="text-center text-xs text-moon-200/60">
+                {t('lobby.needMorePlayers', { count: MIN_PLAYERS })}
+              </p>
+            )}
+            {enoughPlayers && !everyoneReady && (
+              <p className="text-center text-xs text-moon-200/60">{t('lobby.notAllReady')}</p>
+            )}
+          </>
+        ) : (
+          <button
+            type="button"
+            className={view.me.ready ? 'btn-secondary' : 'btn-primary'}
+            onClick={() => store.setReady(!view.me.ready)}
+          >
+            {view.me.ready ? t('lobby.notReady') : t('lobby.ready')}
+          </button>
+        )
+      }
+    >
+      <Card className="space-y-3">
+        <div className="text-center">
+          <p className="text-xs uppercase tracking-widest text-moon-200/50">{t('lobby.roomCode')}</p>
+          <p className="text-4xl font-black tracking-[0.35em] text-moon-100">{view.roomId}</p>
+        </div>
+        <div className="flex gap-2">
+          <button type="button" className="btn-secondary flex-1" onClick={() => void copyLink()}>
+            {copied ? t('common.copied') : t('common.copy')}
+          </button>
+          <button type="button" className="btn-secondary flex-1" onClick={() => void share()}>
+            {t('lobby.share')}
+          </button>
+        </div>
+        <p className="break-all text-center text-[11px] text-moon-200/40">{joinLink(view.roomId)}</p>
+      </Card>
+
+      <section>
+        <SectionTitle>{t('lobby.players', { count: playing.length })}</SectionTitle>
+        <PlayerGrid
+          players={players}
+          meId={view.me.id}
+          badges={Object.fromEntries(
+            players.filter((p) => p.ready && !p.isHost).map((p) => [p.id, '✓']),
+          )}
+        />
+        {playing.length < MIN_PLAYERS && (
+          <div className="mt-2 flex items-center justify-center gap-2 text-xs text-moon-200/50">
+            <Spinner />
+            <span>{t('lobby.waitingPlayers')}</span>
+          </div>
+        )}
+      </section>
+
+      {view.me.isHost && <HostSettings view={view} />}
+
+      {!view.me.isHost && (
+        <p className="text-center text-xs text-moon-200/50">{t('lobby.waitingHost')}</p>
+      )}
+
+      <p className="pb-2 text-center text-[11px] text-moon-200/40">{t('lobby.hostDeviceHint')}</p>
+    </Screen>
+  );
+}
+
+function HostSettings({ view }: { view: PlayerView }) {
+  const { t } = useTranslation();
+  const store = useGameStore();
+  const solo = useGameStore((s) => s.solo);
+  const botCount = view.players.filter((p) => p.isBot).length;
+
+  return (
+    <Card className="space-y-4">
+      <SectionTitle>{t('lobby.settings')}</SectionTitle>
+
+      <div>
+        <p className="mb-2 text-sm text-moon-200/70">{t('lobby.hostRole')}</p>
+        <div className="flex gap-2">
+          <Choice
+            active={view.settings.hostPlays}
+            label={t('lobby.hostPlays')}
+            onClick={() => store.updateSettings({ hostPlays: true })}
+          />
+          <Choice
+            active={!view.settings.hostPlays}
+            label={t('lobby.hostNarrates')}
+            onClick={() => store.updateSettings({ hostPlays: false })}
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-moon-200/70">{t('lobby.discussionTime')}</p>
+        <div className="flex gap-2">
+          {[120, 180, 300].map((seconds) => (
+            <Choice
+              key={seconds}
+              active={view.settings.discussionSeconds === seconds}
+              label={`${seconds / 60}′`}
+              onClick={() => store.updateSettings({ discussionSeconds: seconds })}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-moon-200/70">{t('lobby.maxPlayers')}</p>
+        <div className="flex flex-wrap gap-2">
+          {ROOM_SIZE_OPTIONS.map((count) => {
+            // 12 üstü oda 05-monetization.md'deki big_room kapısından geçer.
+            const locked = count > TABLE_MAX_PLAYERS && !hasEntitlement('big_room');
+            return (
+              <Choice
+                key={count}
+                active={view.settings.maxPlayers === count}
+                disabled={locked}
+                label={locked ? `🔒 ${count}` : String(count)}
+                onClick={() => store.updateSettings({ maxPlayers: count })}
+              />
+            );
+          })}
+        </div>
+        <p className="mt-2 text-[11px] text-moon-200/40">{t('lobby.bigRoomHint')}</p>
+      </div>
+
+      {solo && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="btn-secondary flex-1"
+            onClick={() => store.addBot(BOT_NAMES[botCount % BOT_NAMES.length])}
+          >
+            <span aria-hidden="true">🤖</span>
+            <span>{t('lobby.addBot')}</span>
+          </button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function Choice({
+  active,
+  label,
+  onClick,
+  disabled,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex-1 rounded-xl border px-3 py-2 text-sm font-semibold disabled:opacity-40 ${
+        active ? 'border-blood-400 bg-blood-500/20' : 'border-night-600 bg-night-800'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}

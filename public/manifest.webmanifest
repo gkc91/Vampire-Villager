@@ -1,0 +1,25 @@
+{
+  "name": "Vampir Köylü",
+  "short_name": "Vampir Köylü",
+  "description": "AI moderatörlü, sunucusuz sosyal çıkarım oyunu.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0713",
+  "theme_color": "#0a0713",
+  "icons": [
+    {
+      "src": "./assets/icon/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
