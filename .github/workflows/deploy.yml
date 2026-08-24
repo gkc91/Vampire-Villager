@@ -1,9 +1,13 @@
 name: Deploy
 
-# main'e her push → derle ve yayınla.
-# Cloudflare Pages adımı yalnız iki secret tanımlıysa çalışır:
-#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
-# Tanımlı değilse iş atlanır; GitHub Pages adımı tek başına yeterlidir.
+# main'e her push → derle, test et, yayınla.
+#
+# GitHub Pages ücretsiz planda yalnız PUBLIC depolarda çalışır; bu yüzden
+# yayın işi depo public olduğunda kendiliğinden devreye girer, private
+# kaldığı sürece atlanır (CI kırmızı yanmaz).
+#
+# Cloudflare Pages private depoda da ücretsizdir; CLOUDFLARE_PROJECT_NAME
+# değişkeni tanımlanınca o iş çalışır.
 
 on:
   push:
@@ -46,6 +50,8 @@ jobs:
   github-pages:
     needs: build
     runs-on: ubuntu-latest
+    # Pages ücretsiz planda private depoda kullanılamaz.
+    if: ${{ !github.event.repository.private }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

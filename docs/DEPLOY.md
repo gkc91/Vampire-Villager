@@ -4,9 +4,20 @@
 `.github/workflows/deploy.yml` main'e her push'ta derler, testleri ve
 i18n taramasını çalıştırır, sonra yayınlar.
 
-## GitHub Pages (kurulum gerektirmeyen yol)
+## Hangi yol?
 
-1. Depoyu GitHub'a it.
+| Durum | Yol |
+|---|---|
+| Depo **public** | GitHub Pages — ek hesap gerekmez |
+| Depo **private** kalsın | Cloudflare Pages — private depoda da ücretsiz |
+
+GitHub Pages ücretsiz planda **yalnız public depolarda** çalışır. Depo private
+kaldığı sürece workflow'daki `github-pages` işi kendiliğinden atlanır, CI
+kırmızı yanmaz; depoyu public yaptığın an devreye girer.
+
+## GitHub Pages (depo public ise)
+
+1. Repo → Settings → General → Danger Zone → **Change visibility** → Public.
 2. Repo → Settings → Pages → Source: **GitHub Actions**.
 3. main'e push → `github-pages` işi yayınlar.
 
@@ -17,7 +28,7 @@ Proje sitesi alt yolda (`/repo-adi/`) yayınlandığı için workflow
 BASE_PATH=/repo-adi/ npm run build
 ```
 
-## Cloudflare Pages (özel alan adı istersen)
+## Cloudflare Pages (private depo veya özel alan adı)
 
 Workflow'daki `cloudflare-pages` işi yalnız şu değişken tanımlıysa çalışır:
 
@@ -27,8 +38,10 @@ Workflow'daki `cloudflare-pages` işi yalnız şu değişken tanımlıysa çalı
   `CLOUDFLARE_API_TOKEN` (Pages: Edit yetkili token)
   `CLOUDFLARE_ACCOUNT_ID`
 
-Cloudflare panelinden elle de bağlayabilirsin:
-Build command `npm run build`, output dizini `dist`.
+**Daha kolay yol — panelden bağla (secret gerekmez):**
+dash.cloudflare.com → Workers & Pages → Create → Pages → Connect to Git →
+depoyu seç (private depolar da listelenir) → Build command `npm run build`,
+output dizini `dist`. Her push'ta kendi derler.
 `public/_redirects` SPA yönlendirmesini halleder.
 
 ## Yerel derleme ve önizleme
