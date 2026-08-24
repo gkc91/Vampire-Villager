@@ -59,7 +59,12 @@ export function usePhaseEffects(view: PlayerView | null): void {
   }, [view]);
 }
 
-/** Host cihazında ekranın uyumasını engeller (01-architecture.md). */
+/**
+ * Ekranın uyumasını engeller. Yalnız host değil, oyundaki HER oyuncu için:
+ * telefon kilitlenince tarayıcı sekmeyi donduruyor ve WebRTC bağlantısı
+ * kopuyor. Party oyununda oyuncular sürekli telefondan başını kaldırdığı
+ * için bu, sahadaki en sık kopma sebebi.
+ */
 export function useWakeLock(active: boolean): void {
   useEffect(() => {
     if (!active || !('wakeLock' in navigator)) return;

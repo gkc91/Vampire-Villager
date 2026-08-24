@@ -6,10 +6,34 @@ i18n taramasını çalıştırır, sonra yayınlar.
 
 ## Hangi yol?
 
-| Durum | Yol |
-|---|---|
-| Depo **public** | GitHub Pages — ek hesap gerekmez |
-| Depo **private** kalsın | Cloudflare Pages — private depoda da ücretsiz |
+Üçü de ücretsiz ve statik; aynı `dist/` çıktısını sunar. Fark yalnız
+adres ve kurulum kolaylığıdır — **hosting seçimi oyunun P2P bağlantı
+kalitesini etkilemez**, dosyaları servis etmekten başka iş yapmaz.
+
+| Yol | Adres | Not |
+|---|---|---|
+| **Vercel** | `proje-adi.vercel.app` | En temiz adres, private depoda ücretsiz |
+| Cloudflare Workers | `proje.hesap.workers.dev` | Kurulu; adres hesap adını içerir |
+| GitHub Pages | `kullanici.github.io/depo` | Depo public olmalı |
+
+## Vercel (önerilen — adres en temizi)
+
+1. vercel.com → GitHub ile giriş yap (ücretsiz Hobby planı, kart istemez).
+2. **Add New → Project** → `Vampire-Villager` deposunu içe aktar.
+3. Vercel Vite'ı otomatik tanır; ayarları değiştirme (depodaki
+   `vercel.json` build komutunu, çıktı dizinini ve SPA yönlendirmesini
+   zaten tanımlıyor).
+4. **Project Name** alanına ne yazarsan adres o olur: `vampir-koylu`
+   yazarsan `vampir-koylu.vercel.app`.
+5. Deploy. Bundan sonra her push otomatik yayınlanır.
+
+Ortam değişkeni gerekirse (ör. `VITE_TURN_URLS`): Project → Settings →
+Environment Variables. `VITE_` ile başlayanlar derleme sırasında paketin
+içine gömülür, değişiklikten sonra yeniden derleme gerekir.
+
+Aynı depoyu hem Vercel'de hem Cloudflare'de tutabilirsin; ikisi de aynı
+commit'ten yayınlar. Cloudflare'i bırakacaksan panelden Worker'ı silmen
+yeterli.
 
 GitHub Pages ücretsiz planda **yalnız public depolarda** çalışır. Depo private
 kaldığı sürece workflow'daki `github-pages` işi kendiliğinden atlanır, CI

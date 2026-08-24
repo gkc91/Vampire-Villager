@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from './store/gameStore';
 import { useNarrationSpeech } from './ui/useNarration';
@@ -24,7 +25,9 @@ export default function App() {
 
   useNarrationSpeech(view?.log ?? []);
   usePhaseEffects(screen === 'game' ? view : null);
-  useWakeLock(isHost && screen === 'game');
+  // Oyundaki herkes: telefon kilitlenirse bağlantı kopuyor.
+  useWakeLock(screen === 'game');
+  useVisibilityResync(screen === 'game' && !isHost);
 
   if (screen === 'home') return <HomeScreen />;
   if (errorKey && !view) return <FatalError errorKey={errorKey} />;
@@ -37,6 +40,23 @@ export default function App() {
       <PhaseScreen />
     </>
   );
+}
+
+/** Sekme öne döndüğünde host'a yeniden tanıtıp durumu tazeler. */
+function useVisibilityResync(active: boolean) {
+  const resync = useGameStore((s) => s.resync);
+  useEffect(() => {
+    if (!active) return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') resync();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
+  }, [active, resync]);
 }
 
 function PhaseScreen() {

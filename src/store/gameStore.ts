@@ -42,6 +42,8 @@ interface GameStore {
   joinRoom: (roomId: string, name: string) => Promise<void>;
   /** Aynı odaya baştan bağlanmayı dener. */
   retryConnect: () => Promise<void>;
+  /** Uygulama öne döndüğünde kimliği host'a yeniden tanıtır. */
+  resync: () => void;
   leave: () => Promise<void>;
   clearError: () => void;
 
@@ -183,6 +185,13 @@ export const useGameStore = create<GameStore>((set, get) => {
       await net.joinRoom(roomId);
       // hostHello gelene kadar kuyrukta bekler.
       sendIntent({ type: 'join', token, name, color: colorForToken(token) });
+    },
+
+    resync() {
+      const { isHost, screen, myToken, myName } = get();
+      if (isHost || screen !== 'game' || !myToken) return;
+      // Arka planda donan sekme geri geldiğinde host bizi yeniden eşlesin.
+      sendIntent({ type: 'join', token: myToken, name: myName, color: colorForToken(myToken) });
     },
 
     async retryConnect() {
