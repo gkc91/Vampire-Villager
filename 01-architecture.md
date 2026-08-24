@@ -23,7 +23,7 @@ Neden bu yol:
 | Build | Vite | |
 | Stil | Tailwind CSS | Mobil-first |
 | State | Zustand | Oyun durumu tek store |
-| Ağ | Trystero (`trystero/torrent` stratejisi) | P2P, sıfır maliyet |
+| Ağ | Trystero — `@trystero-p2p/torrent` paketi | P2P, sıfır maliyet |
 | Native kabuk | Capacitor 6 | iOS + Android |
 | i18n | i18next + JSON dosyaları | bkz. 04-i18n.md |
 | Ses | Howler.js | Ambiyans + SFX |
@@ -58,8 +58,13 @@ interface NetworkAdapter {
 ```
 
 - İlk implementasyon: `TrysteroAdapter`.
-- Trystero'nun `torrent` stratejisi halka açık tracker'ları sinyalleşme için
-  kullanır; geliştiriciye hiçbir zaman fatura çıkmaz.
+- Trystero'nun `torrent` stratejisi halka açık BitTorrent tracker'larını
+  yalnız SİNYALLEŞME için kullanır (oyun verisi oradan geçmez); NAT aşımı
+  için de halka açık ücretsiz STUN sunucuları. Geliştiriciye fatura çıkmaz,
+  API anahtarı ya da hesap gerekmez.
+- Trystero 0.25'ten itibaren stratejiler ayrı paketlere bölündü; kullandığımız
+  paket `@trystero-p2p/torrent` (eski `trystero/torrent` alt yolu artık hata
+  fırlatıyor).
 - Bazı mobil operatör ağlarında (CGNAT) doğrudan P2P kurulamayabilir.
   Bilinen sınır: bedava TURN sunucusu yok → bu durumda kullanıcıya
   "WiFi'a geçmeyi dene" uyarısı gösterilir. Kabul edilmiş ödünleşim.

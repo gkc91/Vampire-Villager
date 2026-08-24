@@ -1,9 +1,10 @@
-import { joinRoom, type Room } from 'trystero/torrent';
+import { joinRoom } from '@trystero-p2p/torrent';
+import type { MessageAction, Room } from '@trystero-p2p/core';
 import type { ConnectionState, NetworkAdapter, PeerId } from './NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 
 const APP_ID = 'vampir-koylu';
-/** Trystero action isimleri 12 bayttan uzun olamaz. */
+/** Trystero action ismi (kısa tutulur). */
 const ACTION = 'vk';
 
 /**
@@ -15,7 +16,7 @@ export class TrysteroAdapter implements NetworkAdapter {
   readonly kind = 'trystero';
 
   private room: Room | null = null;
-  private send: ((data: NetMessage, peers?: string | string[] | null) => void) | null = null;
+  private action: MessageAction<string> | null = null;
   private isHost = false;
   private roomId = '';
   private hostPeerId: PeerId | null = null;
@@ -40,17 +41,16 @@ export class TrysteroAdapter implements NetworkAdapter {
     this.roomId = roomId;
     this.stateCb('connecting');
 
-    const room = joinRoom({ appId: APP_ID }, roomId);
+    const room = joinRoom({ appId: APP_ID }, roomId, {
+      onJoinError: () => this.stateCb('error'),
+    });
     this.room = room;
 
-    // Yük düz metin olarak taşınır (Trystero'nun JSON tipiyle uyum için).
-    const [rawSend, rawReceive] = room.makeAction<string>(ACTION);
-    const send = (data: NetMessage, peers?: string | string[] | null): void => {
-      void rawSend(JSON.stringify(data), peers ?? null);
-    };
-    this.send = send;
+    // Yük düz metin taşınır; mesaj birleşimimiz JSON'a çevrilir.
+    const action = room.makeAction<string>(ACTION);
+    this.action = action;
 
-    rawReceive((raw, peerId) => {
+    action.onMessage = (raw, { peerId }) => {
       let msg: NetMessage;
       try {
         msg = JSON.parse(raw) as NetMessage;
@@ -64,47 +64,53 @@ export class TrysteroAdapter implements NetworkAdapter {
         this.flushOutbox();
       }
       this.messageCb(msg, peerId);
-    });
+    };
 
-    room.onPeerJoin((peerId) => {
+    room.onPeerJoin = (peerId) => {
       if (this.isHost) {
         // Yeni gelene kendini tanıt: "host benim".
-        send({ type: 'hostHello', roomId: this.roomId } as ServerMessage, peerId);
+        this.post({ type: 'hostHello', roomId: this.roomId }, peerId);
       }
       this.peerJoinCb(peerId);
-    });
+    };
 
-    room.onPeerLeave((peerId) => {
+    room.onPeerLeave = (peerId) => {
       if (peerId === this.hostPeerId) this.hostPeerId = null;
       this.peerLeaveCb(peerId);
-    });
+    };
 
     if (this.isHost) this.stateCb('connected');
   }
 
+  /** target verilmezse odadaki herkese gider. */
+  private post(msg: NetMessage, target?: PeerId): void {
+    if (!this.action) return;
+    void this.action.send(JSON.stringify(msg), target ? { target } : undefined);
+  }
+
   private flushOutbox(): void {
-    if (!this.hostPeerId || !this.send) return;
+    if (!this.hostPeerId || !this.action) return;
     const queued = this.outbox;
     this.outbox = [];
-    for (const msg of queued) this.send(msg, this.hostPeerId);
+    for (const msg of queued) this.post(msg, this.hostPeerId);
   }
 
   sendToHost(msg: ClientMessage): void {
-    if (!this.send || !this.hostPeerId) {
+    if (!this.action || !this.hostPeerId) {
       this.outbox.push(msg);
       return;
     }
-    this.send(msg, this.hostPeerId);
+    this.post(msg, this.hostPeerId);
   }
 
   sendToPlayer(peerId: PeerId, msg: ServerMessage): void {
-    if (!this.isHost || !this.send) return;
-    this.send(msg, peerId);
+    if (!this.isHost) return;
+    this.post(msg, peerId);
   }
 
   broadcast(msg: ServerMessage): void {
-    if (!this.isHost || !this.send) return;
-    this.send(msg);
+    if (!this.isHost) return;
+    this.post(msg);
   }
 
   onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void {
@@ -127,7 +133,7 @@ export class TrysteroAdapter implements NetworkAdapter {
     if (this.isHost) this.broadcast({ type: 'hostLeft' });
     await this.room?.leave();
     this.room = null;
-    this.send = null;
+    this.action = null;
     this.hostPeerId = null;
     this.stateCb('closed');
   }

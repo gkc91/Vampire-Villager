@@ -27,6 +27,12 @@ interface GameStore {
   errorKey: string | null;
   view: PlayerView | null;
   myName: string;
+  /**
+   * Bu oturumun kimliği. localStorage'dan bir kez okunur; sonraki
+   * mesajlar bunu kullanır — böylece token başka bir sekmede değişse bile
+   * bu oturum kimliğini kaybetmez.
+   */
+  myToken: string;
 
   createRoom: (name: string, solo?: boolean) => Promise<string>;
   joinRoom: (roomId: string, name: string) => Promise<void>;
@@ -67,7 +73,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     switch (msg.type) {
       case 'hostHello': {
         // (Yeniden) bağlanma: kimliğimizi host'a tanıt.
-        const token = getPlayerToken();
+        const token = get().myToken || getPlayerToken();
         sendIntent({
           type: 'join',
           token,
@@ -83,7 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         if (msg.reason === 'duplicateSession' && !identityRetried) {
           identityRetried = true;
           const token = resetPlayerToken();
-          set({ errorKey: 'error.duplicateSession' });
+          set({ errorKey: 'error.duplicateSession', myToken: token });
           sendIntent({ type: 'join', token, name: get().myName, color: colorForToken(token) });
           break;
         }
@@ -107,6 +113,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     errorKey: null,
     view: null,
     myName: '',
+    myToken: '',
 
     async createRoom(name, solo = false) {
       await get().leave();
@@ -124,6 +131,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         isHost: true,
         solo,
         myName: name,
+        myToken: token,
         errorKey: null,
         connection: 'connecting',
       });
@@ -148,6 +156,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         isHost: false,
         solo: false,
         myName: name,
+        myToken: token,
         errorKey: null,
         connection: 'connecting',
       });
@@ -161,7 +170,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         host.stop();
         host = null;
       } else if (adapter) {
-        sendIntent({ type: 'leave', token: getPlayerToken() });
+        sendIntent({ type: 'leave', token: get().myToken });
         await adapter.leave();
       }
       adapter = null;
@@ -180,33 +189,33 @@ export const useGameStore = create<GameStore>((set, get) => {
     setReady(ready) {
       const controller = asHost();
       if (controller) controller.dispatch({ type: 'SET_READY', playerId: controller.hostPlayerId, ready });
-      else sendIntent({ type: 'ready', token: getPlayerToken(), ready });
+      else sendIntent({ type: 'ready', token: get().myToken, ready });
     },
 
     roleSeen() {
       const controller = asHost();
       if (controller) controller.dispatch({ type: 'ROLE_SEEN', playerId: controller.hostPlayerId });
-      else sendIntent({ type: 'roleSeen', token: getPlayerToken() });
+      else sendIntent({ type: 'roleSeen', token: get().myToken });
     },
 
     nightAction(targetId) {
       const controller = asHost();
       if (controller)
         controller.dispatch({ type: 'NIGHT_ACTION', playerId: controller.hostPlayerId, targetId });
-      else sendIntent({ type: 'nightAction', token: getPlayerToken(), targetId });
+      else sendIntent({ type: 'nightAction', token: get().myToken, targetId });
     },
 
     vote(targetId) {
       const controller = asHost();
       if (controller) controller.dispatch({ type: 'VOTE', playerId: controller.hostPlayerId, targetId });
-      else sendIntent({ type: 'vote', token: getPlayerToken(), targetId });
+      else sendIntent({ type: 'vote', token: get().myToken, targetId });
     },
 
     hunterShot(targetId) {
       const controller = asHost();
       if (controller)
         controller.dispatch({ type: 'HUNTER_SHOT', playerId: controller.hostPlayerId, targetId });
-      else sendIntent({ type: 'hunterShot', token: getPlayerToken(), targetId });
+      else sendIntent({ type: 'hunterShot', token: get().myToken, targetId });
     },
 
     startGame() {
