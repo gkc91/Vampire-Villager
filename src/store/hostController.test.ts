@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HostController, SUSPENSION_MS } from './hostController';
-import type { ConnectionState, NetworkAdapter, PeerId } from '../net/NetworkAdapter';
+import type {
+  ConnectionState,
+  NetDiagnostics,
+  NetworkAdapter,
+  PeerId,
+} from '../net/NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from '../net/messages';
 import type { PlayerView } from '../game/view';
 
@@ -29,6 +34,7 @@ class MockAdapter implements NetworkAdapter {
     this.peerLeaveCb = cb;
   }
   onStateChange(_cb: (state: ConnectionState) => void): void {}
+  onDiagnostics(_cb: (d: NetDiagnostics) => void): void {}
   async leave(): Promise<void> {}
 
   // test tetikleyicileri

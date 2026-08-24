@@ -16,6 +16,8 @@
   "dependencies": {
     "@capacitor/app": "^6.0.3",
     "@capacitor/core": "^6.2.1",
+    "@trystero-p2p/mqtt": "^0.25.3",
+    "@trystero-p2p/nostr": "^0.25.3",
     "@trystero-p2p/torrent": "^0.25.3",
     "howler": "^2.2.4",
     "i18next": "^23.15.1",

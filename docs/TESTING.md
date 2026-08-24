@@ -56,9 +56,29 @@ Kontrol edilecekler:
 
 Ayrıca dene:
 
-- Mobil veri ↔ WiFi karışık kombinasyonlar. Bazı operatör ağlarında
-  (CGNAT) doğrudan P2P kurulamaz; uygulama "WiFi'a geçmeyi dene" uyarısı
-  gösterir. Bu bilinen ve kabul edilmiş sınırdır (01-architecture.md).
+- Mobil veri ↔ WiFi karışık kombinasyonlar.
+
+## 4b. Bağlanamıyorsan: teşhis panelini oku
+
+Bağlantı kurulamadığında "Odaya bağlanılıyor…" ekranındaki panel üç değeri
+gösterir. Sorunu tahmin etmek yerine buradan oku:
+
+| Panel | Anlamı | Ne yapmalı |
+|---|---|---|
+| Sinyal sunucusu **0/N** | Ağ, sinyalleşme trafiğini engelliyor | `.env` ile `VITE_P2P_STRATEGY=mqtt` veya `torrent` dene |
+| Sinyal **>0**, Bulunan cihaz **0** | Sunucuya ulaşılıyor ama cihazlar birbirini bulamıyor — tipik CGNAT | TURN gerekiyor (bkz. aşağısı) |
+| Bulunan cihaz **>0** ama lobi açılmıyor | Veri kanalı kurulamıyor | TURN gerekiyor |
+
+**Bağlantı testini çalıştır** butonu cihazın kendi WebRTC yeteneğini ölçer:
+
+- "Dış adres öğrenildi" → STUN çalışıyor.
+- "TURN tanımlı değil" → mobil veride bağlantı kurulamayabilir; bu beklenen
+  durumdur, TURN eklenene kadar WiFi kullanılmalı.
+
+TURN eklemek için `.env.example` dosyasındaki `VITE_TURN_*` değişkenlerini
+doldur. Ücretsiz ve hesapsız kamuya açık TURN sunucusu kalmadı; ya kendi
+sunucunu (coturn) kurman ya da bir sağlayıcının ücretsiz katmanını
+kullanman gerekir — bu, "sıfır maliyet" prensibini etkileyen bir karardır.
 - Kurucunun sekmesini kapat → diğerlerinde "Anlatıcı kayboldu" ekranı.
 
 ## 5. Dil testi

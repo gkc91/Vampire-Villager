@@ -143,5 +143,21 @@
     "connection": "Could not connect",
     "p2pHint": "If you are on mobile data, try switching to WiFi.",
     "duplicateSession": "This device is already in the room; reconnecting with a new identity…"
+  },
+  "connect": {
+    "strategy": "Network method",
+    "relays": "Signalling servers",
+    "peers": "Devices found",
+    "slow": "This is taking longer than expected.",
+    "retry": "Try again",
+    "test": "Run connection test",
+    "testing": "Measuring…",
+    "stunOk": "External address discovered (STUN works).",
+    "stunFail": "Could not discover external address — the network may block WebRTC.",
+    "turnOff": "No TURN configured. Connections may fail on mobile carrier networks (CGNAT).",
+    "turnOk": "TURN relay works.",
+    "turnFail": "TURN is configured but unreachable.",
+    "hintNoRelay": "Could not reach any signalling server; the network may be blocking this traffic.",
+    "hintNat": "Signalling is up but the devices cannot find each other. This usually means carrier NAT (CGNAT) — try switching to WiFi."
   }
 }

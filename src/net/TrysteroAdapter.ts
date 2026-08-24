@@ -1,16 +1,27 @@
-import { joinRoom } from '@trystero-p2p/torrent';
 import type { MessageAction, Room } from '@trystero-p2p/core';
-import type { ConnectionState, NetworkAdapter, PeerId } from './NetworkAdapter';
+import type {
+  ConnectionState,
+  NetDiagnostics,
+  NetworkAdapter,
+  PeerId,
+} from './NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
+import { ACTIVE_STRATEGY, loadStrategy } from './strategy';
+import { turnServers } from './ice';
 
 const APP_ID = 'vampir-koylu';
 /** Trystero action ismi (kısa tutulur). */
 const ACTION = 'vk';
+/** Teşhis yayını aralığı. */
+const DIAGNOSTICS_MS = 1000;
 
 /**
- * Trystero (WebRTC, torrent tracker sinyalleşmesi) implementasyonu.
- * Sıfır sunucu maliyeti; TURN yok → bazı CGNAT ağlarında bağlantı kurulamaz,
- * bu durumda kullanıcıya "WiFi'a geç" uyarısı gösterilir.
+ * Trystero (WebRTC) implementasyonu. Sinyalleşme yöntemi strategy.ts'ten
+ * gelir (varsayılan: nostr — 46 relay, kalıcı WebSocket, hızlı).
+ *
+ * Sıfır sunucu maliyeti. TURN tanımlı değilse yalnız STUN kullanılır;
+ * simetrik NAT/CGNAT arkasındaki mobil ağlarda bağlantı kurulamayabilir
+ * (bkz. ice.ts ve docs/TESTING.md §4).
  */
 export class TrysteroAdapter implements NetworkAdapter {
   readonly kind = 'trystero';
@@ -26,6 +37,9 @@ export class TrysteroAdapter implements NetworkAdapter {
   private peerJoinCb: (peerId: PeerId) => void = () => {};
   private peerLeaveCb: (peerId: PeerId) => void = () => {};
   private stateCb: (state: ConnectionState) => void = () => {};
+  private diagnosticsCb: (d: NetDiagnostics) => void = () => {};
+  private diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
+  private getRelaySockets: (() => Record<string, WebSocket>) | null = null;
 
   async createRoom(roomId: string): Promise<void> {
     this.isHost = true;
@@ -41,10 +55,17 @@ export class TrysteroAdapter implements NetworkAdapter {
     this.roomId = roomId;
     this.stateCb('connecting');
 
-    const room = joinRoom({ appId: APP_ID }, roomId, {
-      onJoinError: () => this.stateCb('error'),
-    });
+    const { joinRoom, getRelaySockets } = await loadStrategy();
+    this.getRelaySockets = getRelaySockets;
+
+    const turnConfig = turnServers();
+    const room = joinRoom(
+      { appId: APP_ID, ...(turnConfig.length > 0 ? { turnConfig } : {}) },
+      roomId,
+      { onJoinError: () => this.stateCb('error') },
+    );
     this.room = room;
+    this.startDiagnostics();
 
     // Yük düz metin taşınır; mesaj birleşimimiz JSON'a çevrilir.
     const action = room.makeAction<string>(ACTION);
@@ -129,7 +150,30 @@ export class TrysteroAdapter implements NetworkAdapter {
     this.stateCb = cb;
   }
 
+  onDiagnostics(cb: (d: NetDiagnostics) => void): void {
+    this.diagnosticsCb = cb;
+  }
+
+  /** Sinyal soketlerini ve eş sayısını periyodik olarak raporlar. */
+  private startDiagnostics(): void {
+    if (this.diagnosticsTimer) clearInterval(this.diagnosticsTimer);
+    const report = () => {
+      const sockets = this.getRelaySockets?.() ?? {};
+      const entries = Object.values(sockets);
+      this.diagnosticsCb({
+        strategy: ACTIVE_STRATEGY,
+        relaysConnected: entries.filter((ws) => ws?.readyState === WebSocket.OPEN).length,
+        relaysTotal: entries.length,
+        peers: Object.keys(this.room?.getPeers() ?? {}).length,
+      });
+    };
+    report();
+    this.diagnosticsTimer = setInterval(report, DIAGNOSTICS_MS);
+  }
+
   async leave(): Promise<void> {
+    if (this.diagnosticsTimer) clearInterval(this.diagnosticsTimer);
+    this.diagnosticsTimer = null;
     if (this.isHost) this.broadcast({ type: 'hostLeft' });
     await this.room?.leave();
     this.room = null;

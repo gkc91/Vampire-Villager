@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ConnectionState, NetworkAdapter } from '../net/NetworkAdapter';
+import type { ConnectionState, NetDiagnostics, NetworkAdapter } from '../net/NetworkAdapter';
 import type { NetMessage } from '../net/messages';
 import { isClientMessage } from '../net/messages';
 import { TrysteroAdapter } from '../net/TrysteroAdapter';
@@ -27,6 +27,10 @@ interface GameStore {
   errorKey: string | null;
   view: PlayerView | null;
   myName: string;
+  /** Ağ teşhisi: hangi aşamada takıldığımızı gösterir. */
+  diagnostics: NetDiagnostics | null;
+  /** Bağlantı beklenenden uzun sürüyor (12 sn). */
+  slowConnect: boolean;
   /**
    * Bu oturumun kimliği. localStorage'dan bir kez okunur; sonraki
    * mesajlar bunu kullanır — böylece token başka bir sekmede değişse bile
@@ -36,6 +40,8 @@ interface GameStore {
 
   createRoom: (name: string, solo?: boolean) => Promise<string>;
   joinRoom: (roomId: string, name: string) => Promise<void>;
+  /** Aynı odaya baştan bağlanmayı dener. */
+  retryConnect: () => Promise<void>;
   leave: () => Promise<void>;
   clearError: () => void;
 
@@ -60,6 +66,9 @@ let adapter: NetworkAdapter | null = null;
 let host: HostController | null = null;
 /** Aynı cihazda ikinci oturum açıldığında bir kez yeni kimlikle denenir. */
 let identityRetried = false;
+let slowTimer: ReturnType<typeof setTimeout> | null = null;
+
+const SLOW_CONNECT_MS = 12_000;
 
 export const useGameStore = create<GameStore>((set, get) => {
   const asHost = (): HostController | null => (get().isHost ? host : null);
@@ -83,7 +92,9 @@ export const useGameStore = create<GameStore>((set, get) => {
         break;
       }
       case 'view':
-        set({ view: msg.view, connection: 'connected', errorKey: null });
+        if (slowTimer) clearTimeout(slowTimer);
+        slowTimer = null;
+        set({ view: msg.view, connection: 'connected', errorKey: null, slowConnect: false });
         break;
       case 'joinRejected': {
         if (msg.reason === 'duplicateSession' && !identityRetried) {
@@ -114,6 +125,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     view: null,
     myName: '',
     myToken: '',
+    diagnostics: null,
+    slowConnect: false,
 
     async createRoom(name, solo = false) {
       await get().leave();
@@ -123,6 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       adapter = solo ? new LocalAdapter() : new TrysteroAdapter();
       adapter.onStateChange((connection) => set({ connection }));
+      adapter.onDiagnostics((diagnostics) => set({ diagnostics }));
 
       host = new HostController(adapter, roomId, token, name, (view) => set({ view }));
       set({
@@ -148,7 +162,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       const net = new TrysteroAdapter();
       adapter = net;
       net.onStateChange((connection) => set({ connection }));
+      net.onDiagnostics((diagnostics) => set({ diagnostics }));
       net.onMessage((msg) => handleServerMessage(msg));
+
+      if (slowTimer) clearTimeout(slowTimer);
+      slowTimer = setTimeout(() => set({ slowConnect: true }), SLOW_CONNECT_MS);
 
       set({
         screen: 'game',
@@ -159,10 +177,18 @@ export const useGameStore = create<GameStore>((set, get) => {
         myToken: token,
         errorKey: null,
         connection: 'connecting',
+        slowConnect: false,
+        diagnostics: null,
       });
       await net.joinRoom(roomId);
       // hostHello gelene kadar kuyrukta bekler.
       sendIntent({ type: 'join', token, name, color: colorForToken(token) });
+    },
+
+    async retryConnect() {
+      const { roomId, myName, isHost } = get();
+      if (!roomId || isHost) return;
+      await get().joinRoom(roomId, myName);
     },
 
     async leave() {
@@ -174,6 +200,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         await adapter.leave();
       }
       adapter = null;
+      if (slowTimer) clearTimeout(slowTimer);
+      slowTimer = null;
       set({
         screen: 'home',
         roomId: null,
@@ -181,6 +209,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         solo: false,
         connection: 'idle',
         view: null,
+        diagnostics: null,
+        slowConnect: false,
       });
     },
 

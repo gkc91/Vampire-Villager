@@ -4,6 +4,7 @@ import { useNarrationSpeech } from './ui/useNarration';
 import { usePhaseEffects, useWakeLock } from './ui/usePhaseEffects';
 import { Screen } from './ui/components/Screen';
 import { Card, Spinner } from './ui/components/atoms';
+import { ConnectionDiagnostics } from './ui/components/ConnectionDiagnostics';
 import { HomeScreen } from './ui/screens/HomeScreen';
 import { LobbyScreen } from './ui/screens/LobbyScreen';
 import { RoleRevealScreen } from './ui/screens/RoleRevealScreen';
@@ -67,12 +68,15 @@ function PhaseScreen() {
 function Connecting() {
   const { t } = useTranslation();
   const leave = useGameStore((s) => s.leave);
+  const slow = useGameStore((s) => s.slowConnect);
+
   return (
     <Screen backdrop="lobby" title={t('app.title')} onBack={() => void leave()}>
-      <div className="flex h-full flex-col items-center justify-center gap-3">
+      <div className="flex h-full flex-col items-center justify-center gap-3 py-6">
         <Spinner />
         <p className="text-sm text-moon-200/70">{t('lobby.connecting')}</p>
-        <p className="max-w-[16rem] text-center text-xs text-moon-200/40">{t('error.p2pHint')}</p>
+        {slow && <p className="text-center text-xs text-blood-300">{t('connect.slow')}</p>}
+        <ConnectionDiagnostics />
       </div>
     </Screen>
   );
@@ -100,7 +104,12 @@ function FatalError({ errorKey }: { errorKey: string }) {
         </p>
         <h2 className="text-xl font-bold">{t(errorKey)}</h2>
         {isHostLost && <p className="text-sm text-moon-200/60">{t('error.hostLostHint')}</p>}
-        {!isHostLost && <p className="text-sm text-moon-200/60">{t('error.p2pHint')}</p>}
+        {!isHostLost && (
+          <>
+            <p className="text-sm text-moon-200/60">{t('error.p2pHint')}</p>
+            <ConnectionDiagnostics />
+          </>
+        )}
         <button type="button" className="btn-primary" onClick={() => void leave()}>
           {t('result.backHome')}
         </button>

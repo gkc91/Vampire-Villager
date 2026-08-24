@@ -1,4 +1,4 @@
-import type { ConnectionState, NetworkAdapter, PeerId } from './NetworkAdapter';
+import type { ConnectionState, NetDiagnostics, NetworkAdapter, PeerId } from './NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 
 /**
@@ -43,6 +43,11 @@ export class LocalAdapter implements NetworkAdapter {
 
   onStateChange(cb: (state: ConnectionState) => void): void {
     this.stateCb = cb;
+  }
+
+  onDiagnostics(cb: (diagnostics: NetDiagnostics) => void): void {
+    // Tek cihaz modunda ağ yok; teşhis sabit.
+    cb({ strategy: 'local', relaysConnected: 0, relaysTotal: 0, peers: 0 });
   }
 
   async leave(): Promise<void> {

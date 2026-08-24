@@ -143,5 +143,21 @@
     "connection": "Bağlantı kurulamadı",
     "p2pHint": "Mobil veri kullanıyorsan WiFi'a geçmeyi dene.",
     "duplicateSession": "Bu cihaz odada zaten var; yeni kimlikle bağlanılıyor…"
+  },
+  "connect": {
+    "strategy": "Ağ yöntemi",
+    "relays": "Sinyal sunucusu",
+    "peers": "Bulunan cihaz",
+    "slow": "Bağlantı beklenenden uzun sürüyor.",
+    "retry": "Tekrar dene",
+    "test": "Bağlantı testini çalıştır",
+    "testing": "Ölçülüyor…",
+    "stunOk": "Dış adres öğrenildi (STUN çalışıyor).",
+    "stunFail": "Dış adres öğrenilemedi — ağ WebRTC'yi engelliyor olabilir.",
+    "turnOff": "TURN tanımlı değil. Mobil operatör ağlarında (CGNAT) bağlantı kurulamayabilir.",
+    "turnOk": "TURN aktarıcısı çalışıyor.",
+    "turnFail": "TURN tanımlı ama ulaşılamıyor.",
+    "hintNoRelay": "Hiçbir sinyal sunucusuna ulaşılamadı; ağ bu trafiği engelliyor olabilir.",
+    "hintNat": "Sinyal sunucusu bağlı ama cihazlar birbirini bulamıyor. Bu genelde operatör ağı (CGNAT) kaynaklıdır; WiFi'a geçmeyi dene."
   }
 }

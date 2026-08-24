@@ -5,6 +5,20 @@ export type PeerId = string;
 export type ConnectionState = 'idle' | 'connecting' | 'connected' | 'error' | 'closed';
 
 /**
+ * Bağlantı teşhisi — "bağlanamıyorum" şikâyetini hangi aşamada takıldığına
+ * indirger: sinyal sunucusuna mı ulaşılamıyor, eş mi bulunamıyor, yoksa eş
+ * bulunup da veri kanalı mı açılamıyor (NAT/TURN).
+ */
+export interface NetDiagnostics {
+  strategy: string;
+  /** Açık sinyal (relay) soketi sayısı. 0 ise ağ engelliyor demektir. */
+  relaysConnected: number;
+  relaysTotal: number;
+  /** Bulunan eş sayısı. */
+  peers: number;
+}
+
+/**
  * Ağ soyutlaması — UI ve oyun motoru Trystero'yu doğrudan import etmez
  * (01-architecture.md). İleride SupabaseAdapter yazılırsa yalnız bu dosyayı
  * uygulayan yeni bir sınıf eklenir; host-otoriter mantık değişmez.
@@ -31,6 +45,7 @@ export interface NetworkAdapter {
   onPeerJoin(cb: (peerId: PeerId) => void): void;
   onPeerLeave(cb: (peerId: PeerId) => void): void;
   onStateChange(cb: (state: ConnectionState) => void): void;
+  onDiagnostics(cb: (diagnostics: NetDiagnostics) => void): void;
 
   leave(): Promise<void>;
 }
