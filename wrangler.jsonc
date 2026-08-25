@@ -10,8 +10,10 @@
     "binding": "ASSETS",
     // SPA: bilinmeyen yol (ör. /join/ABC123) index.html'e düşer.
     "not_found_handling": "single-page-application",
-    // /room/* WebSocket yükseltmesi Worker'a gitmeli, statik dosyaya değil.
-    "run_worker_first": ["/room/*"]
+    // /room/* WebSocket yükseltmesi ve /probe/* ölçüm uçları Worker'a
+    // gitmeli, statik dosyaya değil. Aksi halde SPA yedeği devreye girip
+    // 200 + index.html dönüyor ve ölçüm "engelli" sanıyor.
+    "run_worker_first": ["/room/*", "/probe/*"]
   },
   "durable_objects": {
     "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
