@@ -269,6 +269,11 @@ export class RelayAdapter implements NetworkAdapter {
     this.post(msg);
   }
 
+  /** Aktarıcı odadaki eşleri sürekli bildirir; liste güncel. */
+  isPeerConnected(peerId: PeerId): boolean {
+    return this.knownPeers.has(peerId);
+  }
+
   onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void {
     this.messageCb = cb;
   }

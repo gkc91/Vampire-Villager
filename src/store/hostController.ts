@@ -153,12 +153,19 @@ export class HostController {
       this.send(peerId, { type: 'joinRejected', reason: 'duplicateSession' });
       return;
     }
-    // Aynı token başka bir AKTİF peer'de açıksa (ör. ikinci sekme) reddet;
-    // gerçek yeniden bağlanmada eski peer çoktan düşmüş olur.
-    const activePeer = this.peerByPlayer.get(msg.token);
-    if (activePeer && activePeer !== peerId && this.playerByPeer.has(activePeer)) {
-      this.send(peerId, { type: 'joinRejected', reason: 'duplicateSession' });
-      return;
+    // Aynı token başka bir AKTİF peer'de açıksa (ör. ikinci sekme) reddet.
+    // "Aktif mi" sorusunu taşıma katmanına soruyoruz: host'un bağlantısı bir
+    // kez ölüp döndüğünde aradaki peerLeave olayları kaçtığı için kendi
+    // hafızası eskimiş olabiliyordu ve dönen herkes reddediliyordu.
+    const previousPeer = this.peerByPlayer.get(msg.token);
+    if (previousPeer && previousPeer !== peerId) {
+      if (this.adapter.isPeerConnected(previousPeer)) {
+        this.send(peerId, { type: 'joinRejected', reason: 'duplicateSession' });
+        return;
+      }
+      // Eski bağlantı gerçekten düşmüş: eskimiş eşleşmeyi temizle.
+      this.playerByPeer.delete(previousPeer);
+      this.peerByPlayer.delete(msg.token);
     }
 
     const existing = this.state.players.find((p) => p.id === msg.token);

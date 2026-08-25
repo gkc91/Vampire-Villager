@@ -53,8 +53,22 @@ export interface NetworkAdapter {
   onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void;
   onPeerJoin(cb: (peerId: PeerId) => void): void;
   onPeerLeave(cb: (peerId: PeerId) => void): void;
+  /**
+   * Bu peer HÂLÂ odada mı? Host, "aynı kimlik başka bir cihazda açık mı"
+   * sorusunu kendi hafızasına göre yanıtlarsa yanılır: bağlantısı bir kez
+   * ölüp dönen host, aradaki ayrılma olaylarını kaçırır ve eşleşmeleri
+   * eskir. Bu yüzden gerçeği taşıma katmanına soruyoruz.
+   */
+  isPeerConnected(peerId: PeerId): boolean;
+
   onStateChange(cb: (state: ConnectionState) => void): void;
   onDiagnostics(cb: (diagnostics: NetDiagnostics) => void): void;
+
+  /**
+   * Bu peer şu an odada mı? Host'un kendi eşleşme hafızası, bağlantısı
+   * kopukken kaçırdığı `peerLeave` olayları yüzünden eskiyebilir; kimlik
+   * çakışması kararında gerçeği taşıma katmanına sormak gerekir.
+   */
 
   leave(): Promise<void>;
 }

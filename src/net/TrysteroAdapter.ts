@@ -159,6 +159,10 @@ export class TrysteroAdapter implements NetworkAdapter {
     this.post(msg);
   }
 
+  isPeerConnected(peerId: PeerId): boolean {
+    return peerId in (this.room?.getPeers() ?? {});
+  }
+
   onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void {
     this.messageCb = cb;
   }

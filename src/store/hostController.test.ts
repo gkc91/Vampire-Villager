@@ -16,6 +16,8 @@ class MockAdapter implements NetworkAdapter {
   broadcasts: ServerMessage[] = [];
   private messageCb: (msg: NetMessage, peerId: PeerId) => void = () => {};
   private peerLeaveCb: (peerId: PeerId) => void = () => {};
+  /** Odada gerçekten açık olan bağlantılar (aktarıcının bildiği liste). */
+  connectedPeers = new Set<PeerId>();
 
   async createRoom(): Promise<void> {}
   async joinRoom(): Promise<void> {}
@@ -33,6 +35,9 @@ class MockAdapter implements NetworkAdapter {
   onPeerLeave(cb: (peerId: PeerId) => void): void {
     this.peerLeaveCb = cb;
   }
+  isPeerConnected(peerId: PeerId): boolean {
+    return this.connectedPeers.has(peerId);
+  }
   onStateChange(_cb: (state: ConnectionState) => void): void {}
   onDiagnostics(_cb: (d: NetDiagnostics) => void): void {}
   async leave(): Promise<void> {}
@@ -42,7 +47,13 @@ class MockAdapter implements NetworkAdapter {
     this.messageCb(msg, peerId);
   }
   peerLeaves(peerId: PeerId): void {
+    this.connectedPeers.delete(peerId);
     this.peerLeaveCb(peerId);
+  }
+
+  /** Host'un bağlantısı ölmüşken sessizce düşen oyuncu: olay ulaşmaz. */
+  peerDropsSilently(peerId: PeerId): void {
+    this.connectedPeers.delete(peerId);
   }
   viewsFor(peerId: PeerId): PlayerView[] {
     return this.sent
@@ -69,6 +80,7 @@ function setup() {
 }
 
 function join(adapter: MockAdapter, token: string, name: string, peerId: string) {
+  adapter.connectedPeers.add(peerId);
   adapter.clientSays({ type: 'join', token, name, color: '#fff' }, peerId);
 }
 
@@ -104,6 +116,23 @@ describe('HostController — katılım ve kimlik', () => {
     join(adapter, 'p1', 'Ali', 'peer2');
 
     expect(adapter.rejections()).toContain('duplicateSession');
+    host.stop();
+  });
+
+  it('host olayı kaçırdıysa dönen oyuncu yanlışlıkla reddedilmez', async () => {
+    const { adapter, host } = setup();
+    await host.start();
+    join(adapter, 'p1', 'Ali', 'peer1');
+
+    // Host'un kendi bağlantısı ölmüşken oyuncu düştü: peerLeave host'a hiç
+    // ulaşmadı, eşleşme tablosu eskidi. Eski davranışta dönen oyuncu
+    // "duplicateSession" ile reddediliyordu → odaya kimse giremiyordu.
+    adapter.peerDropsSilently('peer1');
+
+    join(adapter, 'p1', 'Ali', 'peer1-yeni');
+
+    expect(adapter.rejections()).not.toContain('duplicateSession');
+    expect(adapter.lastViewFor('peer1-yeni')?.me.id).toBe('p1');
     host.stop();
   });
 

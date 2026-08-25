@@ -33,6 +33,10 @@ export class LocalAdapter implements NetworkAdapter {
     // Peer yok.
   }
 
+  isPeerConnected(_peerId: PeerId): boolean {
+    return false; // tek cihaz modunda peer yok
+  }
+
   onMessage(cb: (msg: NetMessage, peerId: PeerId) => void): void {
     this.messageCb = cb;
   }
