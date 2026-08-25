@@ -152,6 +152,12 @@ export interface NightState {
    * dışlıyordu.
    */
   acted: string[];
+  /**
+   * `oyuncuId:adım` → seçilen hedef (pas ise null).
+   * Test röntgeni bunu okur: "mührüm kaydoldu mu" sorusunun tek kesin
+   * cevabı burası. Oyuncuya asla gönderilmez.
+   */
+  choices: Record<string, PlayerId | null>;
   /** Vampir oylamasının sonucu; ölüm gece sonunda çözülür. */
   attackTarget: PlayerId | null;
   /** Lord bu gece dönüştürdüyse: kurban seçimine katılamaz. */

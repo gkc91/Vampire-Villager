@@ -42,6 +42,7 @@ function emptyNight(): GameState['night'] {
     fog: false,
     woke: [],
     acted: [],
+    choices: {},
     attackTarget: null,
     convertedTonight: null,
   };
@@ -517,6 +518,7 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       // Pas: uyanmış sayılmaz (dedektif "uyanmadı" görür).
       if (action.targetId === null) {
         s.night.acted.push(`${actor.id}:${step}`);
+        s.night.choices[`${actor.id}:${step}`] = null;
         if (step === 'vampireVote') s.night.vampireVotes[actor.id] = '';
         if (stepComplete(s, step)) advanceNight(s, now);
         return s;
@@ -528,6 +530,7 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
 
       s.night.woke.push(actor.id);
       s.night.acted.push(`${actor.id}:${step}`);
+      s.night.choices[`${actor.id}:${step}`] = action.targetId;
 
       // Oyuncu ne yaptığını görebilmeli. Yalnız kendisine gider ve sonucu
       // ele vermez (ör. mühür tuttu mu bilgisi kurala göre verilmez).

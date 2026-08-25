@@ -189,6 +189,7 @@
     "dbgProtected": "Korunan",
     "dbgAttack": "Vampir hedefi",
     "dbgConverted": "Dönüştürülen",
-    "dbgRoles": "Roller"
+    "dbgRoles": "Roller",
+    "dbgSteps": "Adım dökümü (⨯ = pas/süre doldu)"
   }
 }

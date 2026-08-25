@@ -14,6 +14,9 @@ import type {
 import { ROLES, nightActionFor } from './roles';
 import { alivePlayers, isVampire, playerById } from './roles/helpers';
 import { eligibleActors } from './stateMachine';
+import { NIGHT_ORDER } from './types';
+
+const NIGHT_STEPS: NightStep[] = [...NIGHT_ORDER];
 
 /**
  * Oyuncuya giden filtrelenmiş görünüm. Host dışındaki hiçbir istemci ham
@@ -54,6 +57,8 @@ export interface NightDebug {
   convertedName: string | null;
   /** oyuncu adı → rol adı anahtarı */
   roles: [string, RoleId][];
+  /** adım → o adımda kim ne seçti ('—' = adım hiç açılmadı / kimse oynamadı) */
+  steps: [NightStep, string][];
 }
 
 export interface PlayerView {
@@ -200,6 +205,15 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
           protectedName: nameOf(state.night.protectedId),
           attackName: nameOf(state.night.attackTarget),
           convertedName: nameOf(state.night.convertedTonight),
+          steps: NIGHT_STEPS.map((st) => {
+            const entries = Object.entries(state.night.choices)
+              .filter(([key]) => key.endsWith(`:${st}`))
+              .map(([key, target]) => {
+                const who = nameOf(key.slice(0, key.lastIndexOf(':'))) ?? '?';
+                return `${who} → ${target === null ? '⨯' : (nameOf(target) ?? target)}`;
+              });
+            return [st, entries.length ? entries.join(', ') : '—'] as [NightStep, string];
+          }),
           roles: state.players
             .filter((p) => p.isPlayer && p.role)
             .map((p) => [p.name, p.role as RoleId] as [string, RoleId]),

@@ -52,6 +52,20 @@ export function NightDebugPanel({ view }: { view: PlayerView }) {
       </dl>
 
       <p className="mt-2 text-[11px] uppercase tracking-widest text-moon-200/40">
+        {t('test.dbgSteps')}
+      </p>
+      <dl className="mt-1 space-y-0.5 text-xs">
+        {d.steps.map(([step, who]) => (
+          <div key={step} className="flex gap-2">
+            <dt className="w-28 shrink-0 text-moon-200/45">
+              {t(`roles:${STEP_ROLE[step]}.name`)}
+            </dt>
+            <dd className={who === '—' ? 'text-moon-200/35' : 'text-moon-100/90'}>{who}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <p className="mt-2 text-[11px] uppercase tracking-widest text-moon-200/40">
         {t('test.dbgRoles')}
       </p>
       <ul className="mt-1 flex flex-wrap gap-1">

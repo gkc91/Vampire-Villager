@@ -189,6 +189,7 @@
     "dbgProtected": "Protected",
     "dbgAttack": "Vampire target",
     "dbgConverted": "Turned",
-    "dbgRoles": "Roles"
+    "dbgRoles": "Roles",
+    "dbgSteps": "Step log (⨯ = passed/timed out)"
   }
 }
