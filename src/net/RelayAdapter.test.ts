@@ -349,3 +349,56 @@ describe('RelayAdapter — WebSocket engelliyse HTTP taşıması', () => {
     expect(FakeEventSource.instances, '6 sn sonra HTTP denenmeli').toHaveLength(1);
   });
 });
+
+/**
+ * Sahada çıktı: host onu gördü ama konuk "bağlanıyor"da kaldı. Tek bir
+ * tanışma mesajı düşünce kimse yeniden denemiyordu.
+ */
+describe('RelayAdapter — tanışma kendini onarır', () => {
+  it('hostHello düşerse konuk kimliğini yeniden duyurur', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.joinRoom('ABC123');
+    const socket = lastSocket();
+    socket.open();
+    socket.deliver({ t: 'welcome', peerId: 'me', peers: ['host-1'] });
+    // Oyuncu kimliğini gönderir (normalde store yapar)
+    adapter.sendToHost({ type: 'join', token: 't', name: 'Ben', color: '#fff' });
+
+    const ilk = socket.messages().filter((m) => m.msg.type === 'join').length;
+    expect(ilk).toBeGreaterThan(0);
+
+    // Host cevap vermedi (mesaj düştü): iki tur bekle
+    await vi.advanceTimersByTimeAsync(5200);
+    const sonra = socket.messages().filter((m) => m.msg.type === 'join').length;
+    expect(sonra, 'kimlik yeniden duyurulmalı').toBeGreaterThan(ilk);
+
+    // Host sonunda cevap verince tekrar durur
+    socket.deliver({
+      t: 'msg',
+      from: 'host-1',
+      data: JSON.stringify({ type: 'hostHello', roomId: 'ABC123' }),
+    });
+    const durduktan = socket.messages().filter((m) => m.msg.type === 'join').length;
+    await vi.advanceTimersByTimeAsync(6000);
+    expect(socket.messages().filter((m) => m.msg.type === 'join').length).toBe(durduktan);
+  });
+
+  it('host, tekrar gelen join mesajına hostHello ile cevap verir', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.createRoom('ABC123');
+    const socket = lastSocket();
+    socket.open();
+    socket.deliver({ t: 'welcome', peerId: 'host-1', peers: [] });
+    socket.deliver({ t: 'peerJoin', peerId: 'guest-1' });
+
+    const ilk = socket.messages().filter((m) => m.msg.type === 'hostHello').length;
+    socket.deliver({
+      t: 'msg',
+      from: 'guest-1',
+      data: JSON.stringify({ type: 'join', token: 't', name: 'Konuk', color: '#fff' }),
+    });
+    const sonra = socket.messages().filter((m) => m.msg.type === 'hostHello');
+    expect(sonra.length, 'tanışma yenilenmeli').toBeGreaterThan(ilk);
+    expect(sonra[sonra.length - 1].to).toBe('guest-1');
+  });
+});

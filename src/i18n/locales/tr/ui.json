@@ -70,7 +70,9 @@
     "teammates": "Vampir arkadaşların",
     "alone": "Tek vampir sensin.",
     "gotIt": "Hazırım",
-    "waitingOthers": "Diğer oyuncular rollerine bakıyor…"
+    "waitingOthers": "Diğer oyuncular rollerine bakıyor…",
+    "pocket": "Rolüm",
+    "pocketClose": "Kapat"
   },
   "night": {
     "title": "Gece {{count}}",

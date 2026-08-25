@@ -147,6 +147,10 @@ export async function probeRelay(): Promise<RelayProbe> {
 
 /** WebSocket bu süre içinde açılmazsa HTTP taşımasına geçilir. */
 const WS_GIVE_UP_MS = 6000;
+/** Host tanışması gelene kadar kimliği bu aralıkla tekrar duyur. */
+const ANNOUNCE_RETRY_MS = 2500;
+/** 409 sonrası akış yeniden kurulurken beklenen süre. */
+const RESEND_DELAY_MS = 400;
 /** Aynı sekmede tekrar 6 saniye beklememek için. */
 const HTTP_FALLBACK_KEY = 'vk-http-fallback';
 
@@ -200,6 +204,15 @@ export class RelayAdapter implements NetworkAdapter {
   private diagnosticsTimer: ReturnType<typeof setInterval> | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private onVisible: (() => void) | null = null;
+  /**
+   * Host tanışması (hostHello) gelene kadar kimliği tekrar tekrar duyurur.
+   *
+   * Sahada çıktı: iPhone host HTTP taşımasındayken Android konuk odaya
+   * girdi, host onu gördü ama konuk "bağlanıyor"da kaldı. Sebebi tek bir
+   * mesajın düşmesiydi — mobil ağda akış her an kesilebiliyor ve o mesajı
+   * kimse yeniden göndermiyordu. Artık tanışma kendi kendini onarıyor.
+   */
+  private announceTimer: ReturnType<typeof setInterval> | null = null;
 
   private messageCb: (msg: NetMessage, peerId: PeerId) => void = () => {};
   private peerJoinCb: (peerId: PeerId) => void = () => {};
@@ -249,6 +262,24 @@ export class RelayAdapter implements NetworkAdapter {
     };
     document.addEventListener('visibilitychange', this.onVisible);
     window.addEventListener('focus', this.onVisible);
+  }
+
+  /** Tanışma tamamlanana kadar sürer; tamamlanınca kendini durdurur. */
+  private startAnnounceRetry(): void {
+    if (this.announceTimer || this.isHost) return;
+    this.announceTimer = setInterval(() => {
+      if (this.closedByUs || this.hostPeerId) {
+        this.stopAnnounceRetry();
+        return;
+      }
+      this.announce();
+    }, ANNOUNCE_RETRY_MS);
+  }
+
+  private stopAnnounceRetry(): void {
+    if (!this.announceTimer) return;
+    clearInterval(this.announceTimer);
+    this.announceTimer = null;
   }
 
   private startHeartbeat(): void {
@@ -386,6 +417,7 @@ export class RelayAdapter implements NetworkAdapter {
           // Yeni peerId aldık: kimliğimizi tazeleyip bekleyenleri duyur.
           this.hostPeerId = null;
           this.announce();
+          this.startAnnounceRetry();
         }
         break;
       }
@@ -418,7 +450,13 @@ export class RelayAdapter implements NetworkAdapter {
         }
         if (!this.isHost && msg.type === 'hostHello') {
           this.hostPeerId = envelope.from;
+          this.stopAnnounceRetry();
           this.flushOutbox();
+        }
+        // Konuk hâlâ kimliğini duyuruyorsa tanışmamız düşmüş demektir;
+        // cevabı yenile. (Yalnız 'join' tetikler, oyun trafiğini şişirmez.)
+        if (this.isHost && msg.type === 'join') {
+          this.post({ type: 'hostHello', roomId: this.roomId }, envelope.from);
         }
         this.messageCb(msg, envelope.from);
         break;
@@ -455,13 +493,27 @@ export class RelayAdapter implements NetworkAdapter {
       const base = relayBaseUrl();
       if (!base || !this.httpPeerId) return;
       const httpBase = base.replace(/^ws/, 'http');
+      // keepalive yalnız KÜÇÜK gövdeler için: tarayıcı sınırı 64 KB ve
+      // aşılırsa istek sessizce başarısız olur. Oyun görünümleri büyüyebilir.
+      const keepalive = body.length < 60_000;
       void fetch(
         `${httpBase}/send/${this.roomId}?peer=${encodeURIComponent(this.httpPeerId)}`,
-        // keepalive: sekme kapanırken son mesaj (ör. hostLeft) da gitsin.
-        { method: 'POST', body, keepalive: true },
-      ).catch(() => {
-        /* akış koparsa EventSource yeniden bağlanır */
-      });
+        { method: 'POST', body, keepalive },
+      )
+        .then((res) => {
+          // 409: sunucu bizi odada görmüyor (akış kopmuş). Akışı yeniden
+          // kurup mesajı bir kez daha gönderiyoruz; yoksa bu mesaj kaybolur
+          // ve karşı taraf sonsuza kadar bekler.
+          if (res.status === 409 && !this.closedByUs) {
+            this.connectHttp(base);
+            setTimeout(() => {
+              if (!this.closedByUs) this.post(msg, target);
+            }, RESEND_DELAY_MS);
+          }
+        })
+        .catch(() => {
+          /* ağ hatası: EventSource yeniden bağlanır, duyuru tekrarı toparlar */
+        });
       return;
     }
 
@@ -539,6 +591,7 @@ export class RelayAdapter implements NetworkAdapter {
     this.diagnosticsTimer = null;
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
+    this.stopAnnounceRetry();
     if (this.onVisible) {
       document.removeEventListener('visibilitychange', this.onVisible);
       window.removeEventListener('focus', this.onVisible);

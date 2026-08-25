@@ -9,6 +9,7 @@ import { ConnectionDiagnostics } from './ui/components/ConnectionDiagnostics';
 import { HomeScreen } from './ui/screens/HomeScreen';
 import { LobbyScreen } from './ui/screens/LobbyScreen';
 import { RoleRevealScreen } from './ui/screens/RoleRevealScreen';
+import { RolePocket } from './ui/components/RolePocket';
 import { NightScreen } from './ui/screens/NightScreen';
 import { NarrationScreen } from './ui/screens/NarrationScreen';
 import { DayScreen } from './ui/screens/DayScreen';
@@ -62,6 +63,18 @@ function useVisibilityResync(active: boolean) {
 }
 
 function PhaseScreen() {
+  const view = useGameStore((s) => s.view)!;
+
+  // Rol cebi her oyun ekranında dursun: insanlar rollerini unutuyor.
+  return (
+    <>
+      <CurrentScreen />
+      <RolePocket view={view} />
+    </>
+  );
+}
+
+function CurrentScreen() {
   const view = useGameStore((s) => s.view)!;
 
   switch (view.phase) {

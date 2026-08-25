@@ -70,7 +70,9 @@
     "teammates": "Your fellow vampires",
     "alone": "You are the only vampire.",
     "gotIt": "I am ready",
-    "waitingOthers": "Others are still reading their roles…"
+    "waitingOthers": "Others are still reading their roles…",
+    "pocket": "My role",
+    "pocketClose": "Close"
   },
   "night": {
     "title": "Night {{count}}",
