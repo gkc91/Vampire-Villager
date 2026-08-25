@@ -175,7 +175,16 @@
     "tModule": "Network module loaded",
     "tRelay": "Signalling connected",
     "tPeer": "Peer found",
-    "title": "Connection"
+    "title": "Connection",
+    "room": "Room code",
+    "hintRelayDown": "Cannot reach the server. Your internet may be down, or the network may be blocking this connection; run the test below.",
+    "hintRoomEmpty": "Connected to the server, but the host is not in this room. Compare the room code character by character, and make sure the host's app is open on screen (leaving the app on a phone can close the room).",
+    "probeSiteOk": "Internet works, the site is reachable.",
+    "probeSiteFail": "Cannot reach the site — you are offline. (The page may have opened from cache, which is why the game loads but will not connect.)",
+    "probeSocketOk": "Server connection opened ({{ms}} ms).",
+    "probeSocketFail": "Server connection failed (code {{code}}).",
+    "probeBlocked": "Internet works but the game connection is blocked: an ad/content blocker, VPN, corporate or family filter. Turn it off, or switch networks.",
+    "probeAllOk": "This device is fine. If the problem persists, run the same test on the other device."
   },
   "test": {
     "title": "Test tool",

@@ -46,6 +46,87 @@ export function isRelayAvailable(): boolean {
   return relayBaseUrl() !== null;
 }
 
+/** Aktarıcı ölçümü — "neden bağlanamıyorum" sorusunu ikiye ayırır. */
+export interface RelayProbe {
+  /** Siteye HTTP isteği gidiyor mu (internet var mı, engelli mi). */
+  site: boolean;
+  /** WebSocket açılabiliyor mu. */
+  socket: boolean;
+  /** Soket kapandıysa kapanma kodu (1006 = ağ kesti). */
+  closeCode?: number;
+  /** Soketin açılma süresi (ms). */
+  ms?: number;
+}
+
+/**
+ * Bir telefon "sunucuya bağlanamadım" dediğinde iki bambaşka sebep olabilir:
+ * internete hiç çıkamıyordur (sayfa servis çalışanının önbelleğinden açılmış
+ * olabilir, kullanıcı farkı anlamaz), ya da internet vardır ama WebSocket
+ * engellenmiştir. Bu ölçüm ikisini ayırır.
+ */
+export async function probeRelay(): Promise<RelayProbe> {
+  const result: RelayProbe = { site: false, socket: false };
+  const base = relayBaseUrl();
+
+  try {
+    const httpBase = base ? base.replace(/^ws/, 'http') : window.location.origin;
+    const res = await fetch(`${httpBase}/?probe=${Date.now()}`, { cache: 'no-store' });
+    // 404 bile olsa sunucuya ULAŞILMIŞ demektir; aranan şey budur.
+    result.site = res.status > 0;
+  } catch {
+    result.site = false;
+  }
+
+  if (!base) return result;
+
+  await new Promise<void>((resolve) => {
+    const started = performance.now();
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(`${base}/room/PROBE`);
+    } catch {
+      finish();
+      return;
+    }
+    const timer = setTimeout(() => {
+      try {
+        socket.close();
+      } catch {
+        /* yoksay */
+      }
+      finish();
+    }, 8000);
+    socket.onopen = () => {
+      result.socket = true;
+      result.ms = Math.round(performance.now() - started);
+      clearTimeout(timer);
+      try {
+        socket.close();
+      } catch {
+        /* yoksay */
+      }
+      finish();
+    };
+    socket.onclose = (event) => {
+      result.closeCode = event.code;
+      clearTimeout(timer);
+      finish();
+    };
+    socket.onerror = () => {
+      clearTimeout(timer);
+      finish();
+    };
+  });
+
+  return result;
+}
+
 export class RelayAdapter implements NetworkAdapter {
   readonly kind = 'relay';
 

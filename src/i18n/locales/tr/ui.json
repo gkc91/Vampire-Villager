@@ -175,7 +175,16 @@
     "tModule": "Ağ modülü yüklendi",
     "tRelay": "Sinyal sunucusuna bağlanıldı",
     "tPeer": "Karşı cihaz bulundu",
-    "title": "Bağlantı"
+    "title": "Bağlantı",
+    "room": "Oda kodu",
+    "hintRelayDown": "Sunucuya ulaşılamıyor. İnternetin kesik olabilir ya da ağ bu bağlantıyı engelliyor olabilir; aşağıdaki testi çalıştır.",
+    "hintRoomEmpty": "Sunucuya bağlandın ama odada kurucu yok. Oda kodunu harf harf karşılaştır ve kurucunun uygulaması ekranda açık olsun (telefonda başka uygulamaya geçilince oda kapanabilir).",
+    "probeSiteOk": "İnternet var, siteye ulaşılıyor.",
+    "probeSiteFail": "Siteye ulaşılamıyor — internet kopuk. (Sayfa önbellekten açılmış olabilir, bu yüzden oyun açılıyor ama bağlanmıyor.)",
+    "probeSocketOk": "Sunucu bağlantısı açıldı ({{ms}} ms).",
+    "probeSocketFail": "Sunucu bağlantısı açılamadı (kod {{code}}).",
+    "probeBlocked": "İnternet çalışıyor ama oyun bağlantısı engelleniyor: reklam/içerik engelleyici, VPN, kurumsal ya da aile filtresi olabilir. Kapatıp dene ya da başka ağa geç.",
+    "probeAllOk": "Bu cihazda sorun yok. Sorun karşı taraftaysa aynı testi onda da çalıştır."
   },
   "test": {
     "title": "Test aracı",

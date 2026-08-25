@@ -2,25 +2,35 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { hasTurn, probeIce, type IceProbe } from '../../net/ice';
+import { probeRelay, type RelayProbe } from '../../net/RelayAdapter';
+import { activeNetMode } from '../../net';
 import { Card, Spinner } from './atoms';
 
 /**
- * "Neden bağlanamıyorum?" panelini tahminden çıkarıp ölçüme bağlar:
- * sinyal sunucusuna ulaşılıyor mu, karşı cihaz bulundu mu, WebRTC'nin
- * dış adres/aktarıcı yetenekleri çalışıyor mu.
+ * "Neden bağlanamıyorum?" panelini tahminden çıkarıp ölçüme bağlar.
+ *
+ * DİKKAT: bu panel P2P döneminde yazılmıştı ve aktarıcı modunda YANLIŞ
+ * teşhis koyuyordu — "cihazlar birbirini bulamıyor, CGNAT olabilir, WiFi'a
+ * geç" diyordu. Aktarıcıda NAT geçişi diye bir şey yok: sunucu bağlıyken
+ * 0 cihaz görünüyorsa tek anlamı vardır, kurucu o odada değildir. STUN/TURN
+ * ölçümü de yalnız P2P modunda anlamlıdır. Mesajlar artık moda göre seçilir.
  */
 export function ConnectionDiagnostics() {
   const { t } = useTranslation();
   const diagnostics = useGameStore((s) => s.diagnostics);
   const slow = useGameStore((s) => s.slowConnect);
   const retry = useGameStore((s) => s.retryConnect);
+  const roomId = useGameStore((s) => s.roomId);
   const [probe, setProbe] = useState<IceProbe | null>(null);
+  const [relayProbe, setRelayProbe] = useState<RelayProbe | null>(null);
   const [probing, setProbing] = useState(false);
+  const relayMode = activeNetMode() === 'relay';
 
   const runProbe = async () => {
     setProbing(true);
     try {
-      setProbe(await probeIce());
+      if (relayMode) setRelayProbe(await probeRelay());
+      else setProbe(await probeIce());
     } finally {
       setProbing(false);
     }
@@ -39,10 +49,34 @@ export function ConnectionDiagnostics() {
         bad={noRelay}
       />
       <Row label={t('connect.peers')} value={String(diagnostics?.peers ?? 0)} />
+      {roomId && <Row label={t('connect.room')} value={roomId} />}
       {diagnostics && <Timings timings={diagnostics.timings} />}
 
-      {slow && noRelay && <Note text={t('connect.hintNoRelay')} bad />}
-      {slow && relayButNoPeer && <Note text={t('connect.hintNat')} bad />}
+      {slow && noRelay && (
+        <Note text={t(relayMode ? 'connect.hintRelayDown' : 'connect.hintNoRelay')} bad />
+      )}
+      {slow && relayButNoPeer && (
+        <Note text={t(relayMode ? 'connect.hintRoomEmpty' : 'connect.hintNat')} bad />
+      )}
+
+      {relayProbe && (
+        <div className="space-y-1 border-t border-night-700 pt-2">
+          <Note
+            text={t(relayProbe.site ? 'connect.probeSiteOk' : 'connect.probeSiteFail')}
+            bad={!relayProbe.site}
+          />
+          <Note
+            text={
+              relayProbe.socket
+                ? t('connect.probeSocketOk', { ms: relayProbe.ms ?? 0 })
+                : t('connect.probeSocketFail', { code: relayProbe.closeCode ?? 0 })
+            }
+            bad={!relayProbe.socket}
+          />
+          {relayProbe.site && !relayProbe.socket && <Note text={t('connect.probeBlocked')} bad />}
+          {relayProbe.site && relayProbe.socket && <Note text={t('connect.probeAllOk')} />}
+        </div>
+      )}
 
       {probe && (
         <div className="space-y-1 border-t border-night-700 pt-2">
