@@ -19,6 +19,7 @@ import {
   skipToStep,
   startNightWithRoles,
 } from './testUtils';
+import { buildPlayerView } from './view';
 import type { RoleId } from './types';
 
 /** 4 kişilik en küçük oyun. */
@@ -559,5 +560,25 @@ describe('başlangıç durumu', () => {
     expect(state.phase).toBe('LOBBY');
     expect(state.nightStep).toBeNull();
     expect(state.winner).toBeNull();
+  });
+});
+
+describe('hırsız — çalınan rolün notları', () => {
+  it('kâhin çalınınca notlar kimseye kalmaz', () => {
+    // p0 hırsız, p1 kâhin. Kâhin 1. gece sorgu yapar, hırsız rolü çalar.
+    let state = startNightWithRoles(['thief', 'seer', 'doctor', 'vampire', 'villager', 'hunter']);
+    state = skipToStep(state, 'seer');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p1', targetId: 'p3' }, T0);
+    expect(state.seerResults['p1']).toHaveLength(1);
+
+    state = skipToStep(state, 'thief');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p1' }, T0);
+
+    expect(player(state, 'p0').role).toBe('seer');
+    expect(player(state, 'p1').role).toBe('villager');
+    // Not ne hırsıza geçer ne de kurbanda görünür (03-roles.md).
+    expect(state.seerResults['p0'] ?? []).toHaveLength(0);
+    expect(buildPlayerView(state, 'p0', 'ROOM').seerResults).toHaveLength(0);
+    expect(buildPlayerView(state, 'p1', 'ROOM').seerResults).toHaveLength(0);
   });
 });

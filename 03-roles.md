@@ -126,6 +126,10 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 - Seçtiği oyuncunun **rolünü çalar**; ertesi güne o rolle uyanır.
 - Rolü çalınan oyuncu — vampir de olsa köylü de olsa — rolünü kaybeder ve
   **düz köylü** olarak devam eder.
+- **Birikmiş notlar kimseye kalmaz** (kullanıcı kararı, 2026-08-25). Kâhin
+  ya da dedektif çalınırsa o güne kadarki sorgu sonuçları oyundan silinir:
+  hırsız rolü sıfırdan devralır, kurban da artık göremez. Yalnız rol el
+  değiştirir, hafıza değil.
 - **Çalma bir kezdir.** Çaldığı andan itibaren hırsız o roldür ve o rolün
   takımındadır; kazanma koşulu da o takımın koşuludur. Çalmadan ölürse
   tarafsız olarak kaybeder.
