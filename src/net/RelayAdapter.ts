@@ -145,10 +145,43 @@ export async function probeRelay(): Promise<RelayProbe> {
   return result;
 }
 
+/** WebSocket bu süre içinde açılmazsa HTTP taşımasına geçilir. */
+const WS_GIVE_UP_MS = 6000;
+/** Aynı sekmede tekrar 6 saniye beklememek için. */
+const HTTP_FALLBACK_KEY = 'vk-http-fallback';
+
+/** sessionStorage her ortamda yok (testler, gizli mod); erişim korumalı. */
+function httpFallbackRemembered(): boolean {
+  try {
+    return globalThis.sessionStorage?.getItem(HTTP_FALLBACK_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function rememberHttpFallback(): void {
+  try {
+    globalThis.sessionStorage?.setItem(HTTP_FALLBACK_KEY, '1');
+  } catch {
+    /* gizli mod: sorun değil */
+  }
+}
+
 export class RelayAdapter implements NetworkAdapter {
   readonly kind = 'relay';
 
   private socket: WebSocket | null = null;
+  /**
+   * WebSocket açılmayan ağlar için HTTP taşıması (SSE + POST).
+   *
+   * Gerçek vaka: bir telefonda HTTPS çalışırken soket 1006 ile kapandı.
+   * QR ile gelen rastgele bir müşteriye "ağını değiştir" denemeyeceğine
+   * göre, soket açılmazsa oyun kendiliğinden bu yola geçer.
+   */
+  private stream: EventSource | null = null;
+  private httpPeerId: PeerId | null = null;
+  private useHttp = false;
+  private wsWatchdog: ReturnType<typeof setTimeout> | null = null;
   private roomId = '';
   private isHost = false;
   private hostPeerId: PeerId | null = null;
@@ -206,7 +239,11 @@ export class RelayAdapter implements NetworkAdapter {
     if (this.onVisible || typeof document === 'undefined') return;
     this.onVisible = () => {
       if (document.visibilityState !== 'visible' || this.closedByUs) return;
-      if (this.socket?.readyState === WebSocket.OPEN) return;
+      if (this.useHttp) {
+        if (this.stream?.readyState !== EventSource.CLOSED) return;
+      } else if (this.socket?.readyState === WebSocket.OPEN) {
+        return;
+      }
       this.reconnectAttempt = 0;
       this.connect();
     };
@@ -217,7 +254,7 @@ export class RelayAdapter implements NetworkAdapter {
   private startHeartbeat(): void {
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = setInterval(() => {
-      if (this.socket?.readyState === WebSocket.OPEN) this.socket.send('ping');
+      if (!this.useHttp && this.socket?.readyState === WebSocket.OPEN) this.socket.send('ping');
     }, HEARTBEAT_MS);
   }
 
@@ -228,11 +265,22 @@ export class RelayAdapter implements NetworkAdapter {
       return;
     }
 
+    if (this.useHttp || httpFallbackRemembered()) {
+      this.connectHttp(base);
+      return;
+    }
+
+    // Soket bu süre içinde açılmazsa ağ onu engelliyor demektir; beklemeye
+    // devam etmek yerine HTTP'ye geçiyoruz.
+    this.clearWatchdog();
+    this.wsWatchdog = setTimeout(() => this.fallbackToHttp(), WS_GIVE_UP_MS);
+
     const socket = new WebSocket(`${base}/room/${this.roomId}`);
     this.socket = socket;
 
     socket.onopen = () => {
       this.reconnectAttempt = 0;
+      this.clearWatchdog();
       this.timings.relay ??= Math.round(performance.now() - this.openedAt);
     };
 
@@ -250,12 +298,74 @@ export class RelayAdapter implements NetworkAdapter {
 
     socket.onclose = () => {
       if (this.closedByUs) return;
+      // Hiç açılmadan kapandıysa engel soketedir; HTTP'yi dene.
+      if (this.timings.relay === undefined) {
+        this.fallbackToHttp();
+        return;
+      }
       this.stateCb('connecting');
       this.scheduleReconnect();
     };
 
     socket.onerror = () => {
       // onclose zaten arkasından gelir; yeniden bağlanma orada işlenir.
+    };
+  }
+
+  private clearWatchdog(): void {
+    if (!this.wsWatchdog) return;
+    clearTimeout(this.wsWatchdog);
+    this.wsWatchdog = null;
+  }
+
+  /** WebSocket bu ağda geçmiyor: kalan her şeyi HTTP üzerinden yürüt. */
+  private fallbackToHttp(): void {
+    if (this.useHttp || this.closedByUs) return;
+    this.clearWatchdog();
+    this.useHttp = true;
+    // Aynı oturumda ikinci odada 6 saniye daha beklemeyelim.
+    rememberHttpFallback();
+    try {
+      this.socket?.close();
+    } catch {
+      /* zaten kapalı */
+    }
+    this.socket = null;
+    const base = relayBaseUrl();
+    if (base) this.connectHttp(base);
+  }
+
+  private connectHttp(base: string): void {
+    this.stream?.close();
+    const httpBase = base.replace(/^ws/, 'http');
+    // Kimliği İSTEMCİ taşır: akış koptuğunda aynı peerId ile dönüp odadaki
+    // yerimizi koruyoruz. Tahmin edilemez olması için tam UUID.
+    this.httpPeerId ??= crypto.randomUUID();
+
+    const stream = new EventSource(
+      `${httpBase}/stream/${this.roomId}?peer=${encodeURIComponent(this.httpPeerId)}`,
+    );
+    this.stream = stream;
+
+    stream.onopen = () => {
+      this.reconnectAttempt = 0;
+      this.timings.relay ??= Math.round(performance.now() - this.openedAt);
+    };
+
+    stream.onmessage = (event) => {
+      let envelope: ServerEnvelope;
+      try {
+        envelope = JSON.parse(event.data as string) as ServerEnvelope;
+      } catch {
+        return;
+      }
+      this.handleEnvelope(envelope);
+    };
+
+    stream.onerror = () => {
+      // EventSource kendi kendine yeniden bağlanır; kimliğimiz sabit
+      // olduğu için odadaki yerimiz korunur.
+      if (!this.closedByUs) this.stateCb('connecting');
     };
   }
 
@@ -339,9 +449,25 @@ export class RelayAdapter implements NetworkAdapter {
 
   /** target verilmezse odadaki herkese gider. */
   private post(msg: NetMessage, target?: PeerId): void {
+    const body = JSON.stringify({ to: target, data: JSON.stringify(msg) });
+
+    if (this.useHttp) {
+      const base = relayBaseUrl();
+      if (!base || !this.httpPeerId) return;
+      const httpBase = base.replace(/^ws/, 'http');
+      void fetch(
+        `${httpBase}/send/${this.roomId}?peer=${encodeURIComponent(this.httpPeerId)}`,
+        // keepalive: sekme kapanırken son mesaj (ör. hostLeft) da gitsin.
+        { method: 'POST', body, keepalive: true },
+      ).catch(() => {
+        /* akış koparsa EventSource yeniden bağlanır */
+      });
+      return;
+    }
+
     const socket = this.socket;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
-    socket.send(JSON.stringify({ to: target, data: JSON.stringify(msg) }));
+    socket.send(body);
   }
 
   sendToHost(msg: ClientMessage): void {
@@ -392,9 +518,11 @@ export class RelayAdapter implements NetworkAdapter {
   private startDiagnostics(): void {
     if (this.diagnosticsTimer) clearInterval(this.diagnosticsTimer);
     const report = () => {
-      const open = this.socket?.readyState === WebSocket.OPEN;
+      const open = this.useHttp
+        ? this.stream?.readyState === EventSource.OPEN
+        : this.socket?.readyState === WebSocket.OPEN;
       this.diagnosticsCb({
-        strategy: this.kind,
+        strategy: this.useHttp ? 'relay-http' : this.kind,
         relaysConnected: open ? 1 : 0,
         relaysTotal: 1,
         peers: this.knownPeers.size,
@@ -417,8 +545,11 @@ export class RelayAdapter implements NetworkAdapter {
       this.onVisible = null;
     }
     if (this.isHost) this.broadcast({ type: 'hostLeft' });
+    this.clearWatchdog();
     this.socket?.close();
     this.socket = null;
+    this.stream?.close();
+    this.stream = null;
     this.hostPeerId = null;
     this.knownPeers.clear();
     this.stateCb('closed');

@@ -260,3 +260,92 @@ describe('RelayAdapter — donan sekme ve boşta kalma', () => {
     expect(socket.sent.length).toBe(before);
   });
 });
+
+/**
+ * WebSocket'i engelleyen ağlar (gerçek vaka: HTTPS çalışıyor, soket 1006 ile
+ * kapanıyor). QR ile gelen misafire "ağını değiştir" denemeyeceğine göre
+ * oyun kendiliğinden HTTP taşımasına geçmeli.
+ */
+class FakeEventSource {
+  static instances: FakeEventSource[] = [];
+  static OPEN = 1;
+  static CLOSED = 2;
+
+  readyState = 0;
+  onopen: (() => void) | null = null;
+  onmessage: ((e: { data: string }) => void) | null = null;
+  onerror: (() => void) | null = null;
+
+  constructor(readonly url: string) {
+    FakeEventSource.instances.push(this);
+  }
+
+  close(): void {
+    this.readyState = 2;
+  }
+
+  open(): void {
+    this.readyState = 1;
+    this.onopen?.();
+  }
+
+  deliver(envelope: unknown): void {
+    this.onmessage?.({ data: JSON.stringify(envelope) });
+  }
+}
+
+describe('RelayAdapter — WebSocket engelliyse HTTP taşıması', () => {
+  let posts: { url: string; body: string }[];
+
+  beforeEach(() => {
+    FakeEventSource.instances = [];
+    posts = [];
+    vi.stubGlobal('EventSource', FakeEventSource);
+    vi.stubGlobal('crypto', { randomUUID: () => 'peer-uuid-1' });
+    vi.stubGlobal('fetch', (url: string, init?: { body?: string }) => {
+      posts.push({ url, body: init?.body ?? '' });
+      return Promise.resolve({ ok: true, status: 204 });
+    });
+  });
+
+  it('soket açılmadan kapanırsa akışa geçer ve mesajları POST eder', async () => {
+    const adapter = new RelayAdapter();
+    const states: string[] = [];
+    adapter.onStateChange((s) => states.push(s));
+
+    await adapter.joinRoom('ABC123');
+    lastSocket().drop(); // hiç açılmadan kapandı
+
+    const stream = FakeEventSource.instances[0];
+    expect(stream, 'HTTP akışı açılmalı').toBeDefined();
+    expect(stream.url).toBe(`http://relay.test/stream/ABC123?peer=peer-uuid-1`);
+
+    stream.open();
+    stream.deliver({ t: 'welcome', peerId: 'peer-uuid-1', peers: ['host-1'] });
+    expect(states).toContain('connected');
+
+    // Host tanıtılınca niyetler POST ile gitmeli
+    stream.deliver({
+      t: 'msg',
+      from: 'host-1',
+      data: JSON.stringify({ type: 'hostHello', roomId: 'ABC123' }),
+    });
+    adapter.sendToHost({ type: 'ready', ready: true } as never);
+
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts[posts.length - 1].url).toBe(
+      'http://relay.test/send/ABC123?peer=peer-uuid-1',
+    );
+    const frame = JSON.parse(posts[posts.length - 1].body) as { to?: string; data: string };
+    expect(frame.to).toBe('host-1');
+  });
+
+  it('soket 6 saniyede açılmazsa beklemeyi bırakır', async () => {
+    const adapter = new RelayAdapter();
+    await adapter.joinRoom('ABC123');
+
+    expect(FakeEventSource.instances).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(6000);
+    expect(FakeEventSource.instances, '6 sn sonra HTTP denenmeli').toHaveLength(1);
+  });
+});

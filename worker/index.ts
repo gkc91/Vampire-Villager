@@ -34,6 +34,8 @@ interface ClientEnvelope {
 }
 
 const ROOM_PATH = /^\/room\/([A-Z0-9]{4,12})$/i;
+/** /stream/KOD (SSE, sunucu→istemci) ve /send/KOD (POST, istemci→sunucu). */
+const HTTP_PATH = /^\/(stream|send)\/([A-Z0-9]{4,12})$/i;
 
 /**
  * Aktarıcı adresi herkese açık olduğu için ücretsiz kota başkası tarafından
@@ -68,6 +70,17 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const match = url.pathname.match(ROOM_PATH);
+
+    // HTTP taşıması: WebSocket'i engelleyen ağlar için ikinci kapı.
+    // Aynı odaya (aynı Durable Object) düşer, protokol birebir aynıdır.
+    const httpMatch = url.pathname.match(HTTP_PATH);
+    if (httpMatch) {
+      if (!isAllowedOrigin(request.headers.get('Origin'), request.url)) {
+        return new Response('origin not allowed', { status: 403 });
+      }
+      const id = env.ROOMS.idFromName(httpMatch[2].toUpperCase());
+      return env.ROOMS.get(id).fetch(request);
+    }
 
     if (match) {
       if (request.headers.get('Upgrade') !== 'websocket') {
@@ -119,7 +132,45 @@ export class GameRoom implements DurableObject {
     this.state.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'));
   }
 
-  async fetch(_request: Request): Promise<Response> {
+  /**
+   * HTTP taşıması için açık SSE akışları: peerId → akış denetleyicisi.
+   *
+   * WebSocket'ten farkı, hibernation'a girememesidir; akış açık kaldığı
+   * sürece DO uyanık durur. Bu yüzden yalnız WebSocket açılamayan
+   * cihazlar bu yola düşer, herkes değil.
+   */
+  private streams = new Map<string, ReadableStreamDefaultController<Uint8Array>>();
+  private encoder = new TextEncoder();
+  private keepAlive: ReturnType<typeof setInterval> | null = null;
+
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    // HTTP taşımasında peerId'yi istemci taşır: akış koptuğunda aynı kimlikle
+    // dönebilsin diye. (WebSocket'te sunucu atar, orada kopma = yeni kimlik.)
+    const httpPeer = url.searchParams.get('peer');
+
+    if (url.pathname.startsWith('/stream/')) {
+      if (!httpPeer) return new Response('peer required', { status: 400 });
+      return this.openStream(httpPeer);
+    }
+
+    if (url.pathname.startsWith('/send/')) {
+      if (!httpPeer) return new Response('peer required', { status: 400 });
+      if (!this.streams.has(httpPeer)) {
+        // Akış kopmuş: istemci yeniden bağlanmalı, mesajı sessizce yutma.
+        return new Response('stream gone', { status: 409 });
+      }
+      let envelope: ClientEnvelope;
+      try {
+        envelope = JSON.parse(await request.text()) as ClientEnvelope;
+      } catch {
+        return new Response('bad json', { status: 400 });
+      }
+      if (typeof envelope.data !== 'string') return new Response('bad envelope', { status: 400 });
+      this.route(httpPeer, envelope);
+      return new Response(null, { status: 204 });
+    }
+
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
 
@@ -127,13 +178,76 @@ export class GameRoom implements DurableObject {
     // Hibernation: bağlantı uyurken bile peerId etiketten geri okunur.
     this.state.acceptWebSocket(server, [peerId]);
 
-    const others = this.peers().filter((p) => p.peerId !== peerId);
-    this.send(server, { t: 'welcome', peerId, peers: others.map((p) => p.peerId) });
-    for (const other of others) {
-      this.send(other.socket, { t: 'peerJoin', peerId });
+    const others = this.allPeerIds().filter((id) => id !== peerId);
+    this.send(server, { t: 'welcome', peerId, peers: others });
+    for (const id of others) {
+      this.sendTo(id, { t: 'peerJoin', peerId });
     }
 
     return new Response(null, { status: 101, webSocket: client });
+  }
+
+  /** SSE akışı açar; WebSocket'teki karşılama/duyuru akışının aynısı. */
+  private openStream(peerId: string): Response {
+    // Aynı peer yeniden bağlanıyorsa eski akışı bırak (kimlik korunur).
+    const previous = this.streams.get(peerId);
+    if (previous) {
+      this.streams.delete(peerId);
+      try {
+        previous.close();
+      } catch {
+        /* zaten kapalı */
+      }
+    }
+
+    const room = this;
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        room.streams.set(peerId, controller);
+        const others = room.allPeerIds().filter((id) => id !== peerId);
+        room.sendTo(peerId, { t: 'welcome', peerId, peers: others });
+        for (const id of others) room.sendTo(id, { t: 'peerJoin', peerId });
+        room.startKeepAlive();
+      },
+      cancel() {
+        room.streams.delete(peerId);
+        for (const id of room.allPeerIds()) room.sendTo(id, { t: 'peerLeave', peerId });
+        if (room.streams.size === 0) room.stopKeepAlive();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'content-type': 'text/event-stream',
+        'cache-control': 'no-store',
+        connection: 'keep-alive',
+        // Ara sunucuların akışı tamponlamasını engeller.
+        'x-accel-buffering': 'no',
+      },
+    });
+  }
+
+  /**
+   * Boşta duran SSE akışlarını ara sunucular kesebiliyor; yorum satırı
+   * göndermek bağlantıyı canlı tutar (istemciye olay olarak görünmez).
+   */
+  private startKeepAlive(): void {
+    if (this.keepAlive) return;
+    this.keepAlive = setInterval(() => {
+      for (const [id, controller] of this.streams) {
+        try {
+          controller.enqueue(this.encoder.encode(': ping\n\n'));
+        } catch {
+          this.streams.delete(id);
+        }
+      }
+    }, 20000);
+  }
+
+  private stopKeepAlive(): void {
+    if (!this.keepAlive) return;
+    clearInterval(this.keepAlive);
+    this.keepAlive = null;
   }
 
   webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): void {
@@ -149,19 +263,42 @@ export class GameRoom implements DurableObject {
 
     const from = this.peerIdOf(ws);
     if (!from) return;
+    this.route(from, envelope);
+  }
 
+  /** İki taşımadan da gelen mesajlar buradan dağıtılır. */
+  private route(from: string, envelope: ClientEnvelope): void {
     const payload: ServerEnvelope = { t: 'msg', from, data: envelope.data };
 
     if (envelope.to) {
       // Hedefli: yalnız o istemciye. Gizli bilgi (rol görünümü) bu yoldan gider.
-      const target = this.peers().find((p) => p.peerId === envelope.to);
-      if (target) this.send(target.socket, payload);
+      this.sendTo(envelope.to, payload);
       return;
     }
 
-    for (const peer of this.peers()) {
-      if (peer.socket !== ws) this.send(peer.socket, payload);
+    for (const id of this.allPeerIds()) {
+      if (id !== from) this.sendTo(id, payload);
     }
+  }
+
+  /** Her iki taşımadaki eşler. */
+  private allPeerIds(): string[] {
+    return [...this.peers().map((p) => p.peerId), ...this.streams.keys()];
+  }
+
+  /** Hedef hangi taşımadaysa oradan gönderir. */
+  private sendTo(peerId: string, payload: ServerEnvelope): void {
+    const controller = this.streams.get(peerId);
+    if (controller) {
+      try {
+        controller.enqueue(this.encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+      } catch {
+        this.streams.delete(peerId);
+      }
+      return;
+    }
+    const target = this.peers().find((p) => p.peerId === peerId);
+    if (target) this.send(target.socket, payload);
   }
 
   webSocketClose(ws: WebSocket): void {
@@ -175,8 +312,8 @@ export class GameRoom implements DurableObject {
   private announceLeave(ws: WebSocket): void {
     const peerId = this.peerIdOf(ws);
     if (!peerId) return;
-    for (const peer of this.peers()) {
-      if (peer.socket !== ws) this.send(peer.socket, { t: 'peerLeave', peerId });
+    for (const id of this.allPeerIds()) {
+      if (id !== peerId) this.sendTo(id, { t: 'peerLeave', peerId });
     }
   }
 
