@@ -12,17 +12,21 @@ const ROLE_PLACEHOLDER: Record<RoleId, { emoji: string; from: string; to: string
 };
 
 export function RoleCard({ roleId, compact }: { roleId: RoleId; compact?: boolean }) {
+  // Rol kartları 2:3 üretiliyor (06-assets.md). Kutu yatay olursa object-cover
+  // görselin ortasından bir bant alır ve YÜZ kadraj dışında kalır (ölçüldü:
+  // yalnız %28–%72 aralığı görünüyordu). Tam kart oranını koruyoruz; dar
+  // kullanımda da kırpma üstten hizalanır ki yüz her zaman görünsün.
   const { t } = useTranslation();
   const skin = ROLE_PLACEHOLDER[roleId];
   const src = `${import.meta.env.BASE_URL}assets/roles/${roleId}.webp`;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-night-600/60 bg-night-900/80">
-      <div className={`relative ${compact ? 'h-32' : 'h-56'} w-full`}>
+      <div className={`relative w-full ${compact ? 'h-32' : 'aspect-[2/3]'}`}>
         <AssetImage
           src={src}
           alt={t(`roles:${roleId}.name`)}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
           fallback={
             <div
               className="flex h-full w-full items-center justify-center text-6xl"
