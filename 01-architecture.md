@@ -57,6 +57,16 @@ aşılırsa istekler reddedilir (Hata 1027), **fatura çıkmaz**.
 P2P yolu yedek olarak korunuyor: aktarıcı adresi tanımlı değilse
 kendiliğinden ona düşülür.
 
+**Saha durumu:** aktarıcıya geçildikten sonra gerçek telefonlarla yapılan
+testte bağlantı sorunsuz. Yolda çözülen iki hata kayda değer:
+1. Host odayı kurup başka uygulamaya geçince tarayıcı sekmeyi donduruyor,
+   WebSocket ölüyor ve zamanlayıcılar durduğu için yeniden bağlanma
+   tetiklenmiyordu → kalp atışı + görünürlük tetikleyicisi eklendi.
+2. Bağlantısı bir kez ölüp dönen host, aradaki "oyuncu ayrıldı"
+   olaylarını kaçırdığı için eşleşme tablosu eskiyordu ve sonrasında
+   katılan HERKES "duplicateSession" ile reddediliyordu → bu soru artık
+   taşıma katmanına soruluyor (`NetworkAdapter.isPeerConnected`).
+
 ## Host-Otoriter Model (DEĞİŞMEZ PRENSİP)
 
 - Oyun mantığının TAMAMI host cihazında çalışır (state machine, rol dağıtımı,

@@ -32,9 +32,13 @@ Her milestone tek başına test edilebilir biter. Sıra atlanmaz — özellikle 
 - [x] Sinyalleşme yöntemi seçilebilir (nostr varsayılan) + bağlantı teşhis paneli
 - [x] Aktarıcı taşıması (Cloudflare Durable Object) — varsayılan yol;
       P2P yedekte kaldı, host-otoriter model ikisinde de aynı
-- Test: 5 sekmeyle tam oyun P2P üzerinden oynandı; gerçek telefonla
-      **WiFi ve mobil veriden hızlı bağlantı doğrulandı**. Kalan senaryo:
-      uçak modu / 90 sn geri dönüş — docs/TESTING.md §4.
+- [x] Donan sekme dayanıklılığı: kalp atışı, öne dönünce anında yeniden
+      bağlanma, eskimiş peer eşleşmelerinin temizlenmesi
+- Test: 5 sekmeyle tam oyun oynandı (hem P2P hem aktarıcı); **gerçek
+      telefonlarda sorunsuz bağlanıldığı saha testiyle doğrulandı** —
+      WiFi, mobil veri ve "oda kur → başka uygulamaya geç → geri dön"
+      akışı dahil. Kalan senaryo: uçak modu / 90 sn geri dönüş —
+      docs/TESTING.md §4.
 
 ## M3 — Oyun Motoru ✅
 - [x] stateMachine.ts: 02-game-flow.md'deki tüm durumlar
