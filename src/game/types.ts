@@ -131,10 +131,15 @@ export interface NightState {
   blocked: PlayerId[];
   /** Sis var mı (bilgi rollerini kapatır). */
   fog: boolean;
-  /** O gece fiilen seçim yapanlar — dedektif bunu okur. */
+  /** O gece fiilen SEÇİM yapanlar — dedektif bunu okur (pas hariç). */
   woke: PlayerId[];
-  /** Bu gece hangi adımlar tamamlandı. */
-  doneSteps: NightStep[];
+  /**
+   * Hangi oyuncu hangi adımı tamamladı: `oyuncuId:adım`.
+   * `woke` ile karıştırılmamalı: vampir lordu hem kendi adımında hem kurban
+   * oylamasında oynar; tek bir "oynadı" bayrağı onu ikinci adımdan
+   * dışlıyordu.
+   */
+  acted: string[];
   /** Vampir oylamasının sonucu; ölüm gece sonunda çözülür. */
   attackTarget: PlayerId | null;
   /** Lord bu gece dönüştürdüyse: kurban seçimine katılamaz. */

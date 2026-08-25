@@ -5,6 +5,7 @@ import { Card, SectionTitle } from '../components/atoms';
 import { PhaseTimer } from '../components/PhaseTimer';
 import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
+import { PrivateNotes } from '../components/PrivateNotes';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import type { NightStep, PlayerId } from '../../game/types';
@@ -111,8 +112,7 @@ export function NightScreen({ view }: { view: PlayerView }) {
         </Card>
       )}
 
-      <SeerNotes view={view} />
-      <DetectiveNotes view={view} />
+      <PrivateNotes view={view} />
 
       {!acting && (
         <section>
@@ -121,64 +121,6 @@ export function NightScreen({ view }: { view: PlayerView }) {
         </section>
       )}
     </Screen>
-  );
-}
-
-function SeerNotes({ view }: { view: PlayerView }) {
-  const { t } = useTranslation();
-  if (view.seerResults.length === 0) return null;
-  return (
-    <section>
-      <SectionTitle>{t('roles:seer.name')}</SectionTitle>
-      <ul className="space-y-1">
-        {view.seerResults.map((result) => {
-          const target = view.players.find((p) => p.id === result.targetId);
-          return (
-            <li
-              key={`${result.round}-${result.targetId}`}
-              className={`rounded-lg border px-3 py-2 text-sm ${
-                result.isVampire
-                  ? 'border-blood-500/50 bg-blood-500/10 text-blood-300'
-                  : 'border-night-600 bg-night-900/70 text-moon-200/80'
-              }`}
-            >
-              {t(result.isVampire ? 'night.seerResultVampire' : 'night.seerResultClean', {
-                name: target?.name ?? '',
-              })}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function DetectiveNotes({ view }: { view: PlayerView }) {
-  const { t } = useTranslation();
-  if (view.detectiveResults.length === 0) return null;
-  return (
-    <section>
-      <SectionTitle>{t('roles:detective.name')}</SectionTitle>
-      <ul className="space-y-1">
-        {view.detectiveResults.map((result) => {
-          const target = view.players.find((p) => p.id === result.targetId);
-          return (
-            <li
-              key={`${result.round}-${result.targetId}`}
-              className={`rounded-lg border px-3 py-2 text-sm ${
-                result.woke
-                  ? 'border-moon-200/40 bg-night-800/70 text-moon-100'
-                  : 'border-night-600 bg-night-900/70 text-moon-200/70'
-              }`}
-            >
-              {t(result.woke ? 'night.detectiveWoke' : 'night.detectiveSlept', {
-                name: target?.name ?? '',
-              })}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }
 

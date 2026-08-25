@@ -93,7 +93,8 @@
     "mistConfirm": "Bring the fog",
     "usesLeft": "Uses left: {{count}}",
     "detectiveWoke": "{{name}} WOKE up tonight.",
-    "detectiveSlept": "{{name}} did not wake tonight."
+    "detectiveSlept": "{{name}} did not wake tonight.",
+    "myNotes": "My notes"
   },
   "day": {
     "title": "Day {{count}}",

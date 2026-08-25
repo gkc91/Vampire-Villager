@@ -245,6 +245,18 @@ describe('vampir lordu', () => {
     expect(eligibleActors(state, 'vampireVote')).toContain('p0');
   });
 
+  it('yeteneğini kullandıktan sonra kurban oylamasına da katılır', () => {
+    let state = startNightWithRoles(roles);
+    // Lord kendi adımında dönüştürme yapar
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p4' }, T0);
+    state = skipToStep(state, 'vampireVote');
+
+    // Kendi adımında oynamış olması onu oylamadan DIŞLAMAMALI
+    expect(eligibleActors(state, 'vampireVote')).toContain('p0');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p2' }, T0);
+    expect(state.night.vampireVotes['p0']).toBe('p2');
+  });
+
   it('avcıyı dönüştürmeye çalışırsa geri teper', () => {
     const withHunter: RoleId[] = ['vampireLord', 'vampire', 'hunter', 'seer', 'villager', 'villager'];
     let state = startNightWithRoles(withHunter);
@@ -266,6 +278,15 @@ describe('kan büyücüsü', () => {
     expect(state.night.blocked).toContain('p2');
     state = skipToStep(state, 'seer');
     expect(state.phase === 'NIGHT' ? eligibleActors(state, 'seer') : []).not.toContain('p2');
+  });
+
+  it('mühürledikten sonra kurban oylamasına katılabilir', () => {
+    let state = startNightWithRoles(roles);
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p2' }, T0);
+    state = skipToStep(state, 'vampireVote');
+    expect(eligibleActors(state, 'vampireVote')).toContain('p0');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p3' }, T0);
+    expect(state.night.vampireVotes['p0']).toBe('p3');
   });
 
   it('avcıyı mühürleyemez, avcı uyarılır', () => {

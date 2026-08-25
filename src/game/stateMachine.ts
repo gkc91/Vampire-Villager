@@ -10,7 +10,7 @@ import type {
   RoleId,
 } from './types';
 import { NIGHT_ORDER } from './types';
-import { ROLES, initialUses } from './roles';
+import { ROLES, initialUses, nightActionFor } from './roles';
 import {
   alivePlayers,
   aliveVampires,
@@ -40,7 +40,7 @@ function emptyNight(): GameState['night'] {
     blocked: [],
     fog: false,
     woke: [],
-    doneSteps: [],
+    acted: [],
     attackTarget: null,
     convertedTonight: null,
   };
@@ -176,13 +176,14 @@ export function eligibleActors(state: GameState, step: NightStep): PlayerId[] {
   }
 }
 
-/** Adımda beklenen herkes seçimini yaptı mı? */
+/** Bu oyuncu bu adımı tamamladı mı (seçim ya da pas)? */
+function hasActed(state: GameState, playerId: PlayerId, step: NightStep): boolean {
+  return state.night.acted.includes(`${playerId}:${step}`);
+}
+
+/** Adımda beklenen herkes kararını verdi mi? */
 function stepComplete(state: GameState, step: NightStep): boolean {
-  const actors = eligibleActors(state, step);
-  if (step === 'vampireVote') {
-    return actors.every((id) => id in state.night.vampireVotes);
-  }
-  return actors.every((id) => state.night.woke.includes(id) || state.night.doneSteps.includes(step));
+  return eligibleActors(state, step).every((id) => hasActed(state, id, step));
 }
 
 // ------------------------------------------------------------- faz geçişleri
@@ -495,22 +496,22 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       const actor = playerById(s, action.playerId);
       if (!actor || !actor.role) return s;
       if (!eligibleActors(s, step).includes(actor.id)) return s;
-      if (s.night.woke.includes(actor.id) || actor.id in s.night.vampireVotes) return s;
+      if (hasActed(s, actor.id, step)) return s;
 
       // Pas: uyanmış sayılmaz (dedektif "uyanmadı" görür).
       if (action.targetId === null) {
+        s.night.acted.push(`${actor.id}:${step}`);
         if (step === 'vampireVote') s.night.vampireVotes[actor.id] = '';
-        else s.night.doneSteps.push(step);
         if (stepComplete(s, step)) advanceNight(s, now);
         return s;
       }
 
-      const role = ROLES[actor.role];
-      const nightAction = role.nightAction;
-      if (!nightAction || nightAction.step !== step) return s;
+      const nightAction = nightActionFor(actor.role, step);
+      if (!nightAction) return s;
       if (!nightAction.validTargets(s, actor.id).includes(action.targetId)) return s;
 
       s.night.woke.push(actor.id);
+      s.night.acted.push(`${actor.id}:${step}`);
 
       if (step === 'vampireVote') {
         s.night.vampireVotes[actor.id] = action.targetId;

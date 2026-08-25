@@ -4,6 +4,7 @@ import { SectionTitle } from '../components/atoms';
 import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
 import { GhostNote, roleNames } from './NightScreen';
+import { PrivateNotes } from '../components/PrivateNotes';
 import type { PlayerView } from '../../game/view';
 
 /** NIGHT_RESULT ve VOTE_RESULT: yalnız anlatım gösterilir. */
@@ -22,6 +23,7 @@ export function NarrationScreen({ view }: { view: PlayerView }) {
         <NarrationBanner log={view.log} lines={3} />
       </div>
       <GhostNote view={view} />
+      <PrivateNotes view={view} />
 
       <section className="pt-2">
         <SectionTitle>{t('day.alive')}</SectionTitle>

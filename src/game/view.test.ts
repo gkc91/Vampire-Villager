@@ -57,6 +57,31 @@ describe('görünüm filtresi (host-otoriter gizlilik)', () => {
     expect(buildPlayerView(state, 'ROOM', 'p1').nightAction.validTargets).toEqual([]);
   });
 
+  it('özel vampir kendi adımından sonra oylamada da seçim yapabilir', () => {
+    const roles: RoleId[] = ['vampireLord', 'vampire', 'seer', 'doctor', 'villager', 'villager'];
+    let state = startNightWithRoles(roles);
+
+    // Lord kendi adımında oynar
+    expect(buildPlayerView(state, 'ROOM', 'p0').nightAction.canAct).toBe(true);
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p4' }, T0);
+    state = skipToStep(state, 'vampireVote');
+
+    const lordView = buildPlayerView(state, 'ROOM', 'p0');
+    expect(lordView.nightAction.canAct).toBe(true);
+    // Oylamada hedef listesi vampir rolününki: herkes seçilebilir
+    expect(lordView.nightAction.validTargets.length).toBeGreaterThan(0);
+  });
+
+  it('kâhin sonucunu seçim yaptığı anda alır', () => {
+    let state = startNightWithRoles(SIX);
+    state = skipToStep(state, 'seer');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p1', targetId: 'p0' }, T0);
+
+    const view = buildPlayerView(state, 'ROOM', 'p1');
+    expect(view.seerResults).toHaveLength(1);
+    expect(view.seerResults[0]).toMatchObject({ targetId: 'p0', isVampire: true });
+  });
+
   it('roller oyun bitene kadar kapalı, bitince herkese açılır', () => {
     let state = startNightWithRoles(SIX);
     state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p4' }, T0);

@@ -93,7 +93,8 @@
     "mistConfirm": "Sisi bas",
     "usesLeft": "Kalan hakkın: {{count}}",
     "detectiveWoke": "{{name}} bu gece UYANDI.",
-    "detectiveSlept": "{{name}} bu gece uyanmadı."
+    "detectiveSlept": "{{name}} bu gece uyanmadı.",
+    "myNotes": "Notlarım"
   },
   "day": {
     "title": "Gündüz {{count}}",

@@ -1,4 +1,4 @@
-import type { RoleDefinition, RoleId, Team } from '../types';
+import type { NightStep, RoleDefinition, RoleId, Team } from '../types';
 import { villager } from './villager';
 import { doctor } from './doctor';
 import { seer } from './seer';
@@ -37,6 +37,20 @@ export function getRole(id: RoleId): RoleDefinition {
 
 export function teamOf(id: RoleId): Team {
   return ROLES[id].team;
+}
+
+/**
+ * Bu rol, bu gece adımında hangi aksiyonu oynar?
+ *
+ * Özel vampirlerin kendi adımı vardır (lord → 'lord') AMA hepsi ayrıca
+ * ortak kurban oylamasına katılır. Yalnız `role.nightAction.step`e bakmak
+ * onları oylamadan dışlıyordu.
+ */
+export function nightActionFor(roleId: RoleId, step: NightStep): RoleDefinition['nightAction'] {
+  const role = ROLES[roleId];
+  if (role.nightAction?.step === step) return role.nightAction;
+  if (step === 'vampireVote' && role.team === 'vampire') return ROLES.vampire.nightAction;
+  return undefined;
 }
 
 /** Sınırlı kullanımlı roller için başlangıç hakkı. */

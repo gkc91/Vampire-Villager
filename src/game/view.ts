@@ -11,7 +11,7 @@ import type {
   SeerResult,
   Team,
 } from './types';
-import { ROLES } from './roles';
+import { ROLES, nightActionFor } from './roles';
 import { alivePlayers, isVampire, playerById } from './roles/helpers';
 import { eligibleActors } from './stateMachine';
 
@@ -114,19 +114,19 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
   }));
 
   const myRole = me?.role;
-  const roleDef = myRole ? ROLES[myRole] : undefined;
   const step = state.nightStep;
 
+  // Adımın aksiyon tanımı role göre değişir: özel vampirler kendi
+  // adımlarının yanı sıra kurban oylamasına da katılır.
+  const stepAction = myRole && step ? nightActionFor(myRole, step) : undefined;
   const isMyStep =
     state.phase === 'NIGHT' &&
     step !== null &&
     eligibleActors(state, step).includes(viewerId) &&
-    roleDef?.nightAction?.step === step;
+    Boolean(stepAction);
 
-  const alreadyActed =
-    state.night.woke.includes(viewerId) ||
-    viewerId in state.night.vampireVotes ||
-    (step !== null && state.night.doneSteps.includes(step) && !isMyStep);
+  // Adım bazlı: lord kendi adımında oynasa bile kurban oylamasına katılır.
+  const alreadyActed = step !== null && state.night.acted.includes(`${viewerId}:${step}`);
 
   const teammates =
     me && myRole && ROLES[myRole].knowsTeammates
@@ -194,10 +194,10 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     vampirePicks,
     nightAction: {
       canAct: isMyStep && !alreadyActed,
-      selfCast: Boolean(roleDef?.nightAction?.selfCast),
+      selfCast: Boolean(stepAction?.selfCast),
       validTargets:
-        isMyStep && !alreadyActed && roleDef?.nightAction
-          ? roleDef.nightAction.validTargets(state, viewerId)
+        isMyStep && !alreadyActed && stepAction
+          ? stepAction.validTargets(state, viewerId)
           : [],
       submitted: alreadyActed,
     },
