@@ -51,7 +51,7 @@ interface GameStore {
   roleSeen: () => void;
   nightAction: (targetId: PlayerId | null) => void;
   vote: (targetId: PlayerId | 'abstain') => void;
-  hunterShot: (targetId: PlayerId | null) => void;
+  castSpell: (targetId: PlayerId) => void;
 
   // yalnız host
   startGame: () => void;
@@ -249,11 +249,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       else sendIntent({ type: 'vote', token: get().myToken, targetId });
     },
 
-    hunterShot(targetId) {
+    castSpell(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'HUNTER_SHOT', playerId: controller.hostPlayerId, targetId });
-      else sendIntent({ type: 'hunterShot', token: get().myToken, targetId });
+        controller.dispatch({ type: 'CAST_SPELL', playerId: controller.hostPlayerId, targetId });
+      else sendIntent({ type: 'castSpell', token: get().myToken, targetId });
     },
 
     startGame() {

@@ -7,12 +7,18 @@ import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
-import type { PlayerId, RoleId } from '../../game/types';
+import type { NightStep, PlayerId } from '../../game/types';
 
-const PROMPT_KEY: Partial<Record<RoleId, string>> = {
-  vampire: 'night.vampirePrompt',
-  seer: 'night.seerPrompt',
+/** Her gece adımının kendi sorusu var (03-roles.md sırası). */
+const STEP_PROMPT: Record<NightStep, string> = {
+  lord: 'night.lordPrompt',
+  bloodWizard: 'night.sealPrompt',
+  mist: 'night.mistPrompt',
+  vampireVote: 'night.vampirePrompt',
   doctor: 'night.doctorPrompt',
+  seer: 'night.seerPrompt',
+  detective: 'night.detectivePrompt',
+  thief: 'night.thiefPrompt',
 };
 
 export function NightScreen({ view }: { view: PlayerView }) {
@@ -20,9 +26,10 @@ export function NightScreen({ view }: { view: PlayerView }) {
   const nightAction = useGameStore((s) => s.nightAction);
   const [selected, setSelected] = useState<PlayerId | null>(null);
 
-  const alive = view.players.filter((p) => p.isPlayer && !p.left);
-  const roleId = view.nightAction.roleId;
-  const promptKey = roleId ? PROMPT_KEY[roleId] : undefined;
+  const alive = view.players.filter((p) => p.isPlayer && p.alive && !p.left);
+  const step = view.nightStep;
+  const promptKey = step ? STEP_PROMPT[step] : null;
+  const acting = view.nightAction.canAct && promptKey !== null;
 
   const teamPicks: Record<PlayerId, string> = {};
   for (const [voterId, targetId] of Object.entries(view.vampirePicks)) {
@@ -31,11 +38,8 @@ export function NightScreen({ view }: { view: PlayerView }) {
     teamPicks[targetId] = voter ? voter.name.slice(0, 6) : '🧛';
   }
 
-  const showTargetPicker = view.nightAction.canAct && Boolean(promptKey);
-
-  const submit = () => {
-    if (!selected) return;
-    nightAction(selected);
+  const submit = (targetId: PlayerId | null) => {
+    nightAction(targetId);
     setSelected(null);
   };
 
@@ -44,43 +48,59 @@ export function NightScreen({ view }: { view: PlayerView }) {
       backdrop="night"
       title={t('night.title', { count: view.round })}
       footer={
-        view.nightAction.canAct ? (
+        acting ? (
           <>
-            <button type="button" className="btn-primary" disabled={!selected} onClick={submit}>
-              {t('night.confirm')}
-            </button>
-            <button type="button" className="btn-ghost text-sm" onClick={() => nightAction(null)}>
+            {view.nightAction.selfCast ? (
+              <button type="button" className="btn-primary" onClick={() => submit(view.me.id)}>
+                {t('night.mistConfirm')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={!selected}
+                onClick={() => selected && submit(selected)}
+              >
+                {t('night.confirm')}
+              </button>
+            )}
+            <button type="button" className="btn-ghost text-sm" onClick={() => submit(null)}>
               {t('night.pass')}
             </button>
           </>
         ) : undefined
       }
     >
-      <PhaseTimer endsAt={view.phaseEndsAt} totalSeconds={view.settings.nightSeconds} />
+      <PhaseTimer endsAt={view.phaseEndsAt} totalSeconds={view.settings.nightStepSeconds} />
       <NarrationBanner log={view.log} />
 
       {view.me.ghost && <GhostNote view={view} />}
 
-      {showTargetPicker ? (
+      {acting && promptKey ? (
         <>
           <Card>
-            <p className="text-center text-base font-semibold">
-              {t(promptKey ?? 'night.chooseTarget')}
-            </p>
-            {roleId === 'doctor' && (
+            <p className="text-center text-base font-semibold">{t(promptKey)}</p>
+            {view.me.usesLeft !== null && (
+              <p className="mt-1 text-center text-xs text-moon-200/60">
+                {t('night.usesLeft', { count: view.me.usesLeft })}
+              </p>
+            )}
+            {step === 'doctor' && (
               <p className="mt-1 text-center text-xs text-moon-200/50">
                 {t('night.doctorRepeatBlocked')}
               </p>
             )}
           </Card>
-          <PlayerGrid
-            players={alive}
-            meId={view.me.id}
-            selectable={view.nightAction.validTargets}
-            selected={selected}
-            onSelect={setSelected}
-            badges={teamPicks}
-          />
+          {!view.nightAction.selfCast && (
+            <PlayerGrid
+              players={alive}
+              meId={view.me.id}
+              selectable={view.nightAction.validTargets}
+              selected={selected}
+              onSelect={setSelected}
+              badges={teamPicks}
+            />
+          )}
         </>
       ) : (
         <Card>
@@ -92,19 +112,12 @@ export function NightScreen({ view }: { view: PlayerView }) {
       )}
 
       <SeerNotes view={view} />
+      <DetectiveNotes view={view} />
 
-      {/* Seçim ızgarası zaten listeyi gösteriyor; iki kez basmayalım. */}
-      {!showTargetPicker && (
+      {!acting && (
         <section>
           <SectionTitle>{t('day.alive')}</SectionTitle>
-          <PlayerGrid
-            players={alive}
-            meId={view.me.id}
-            badges={Object.fromEntries(
-              alive.filter((p) => p.hasActed).map((p) => [p.id, '✓']),
-            )}
-            roleNames={roleNames(view, t)}
-          />
+          <PlayerGrid players={alive} meId={view.me.id} roleNames={roleNames(view, t)} />
         </section>
       )}
     </Screen>
@@ -140,6 +153,35 @@ function SeerNotes({ view }: { view: PlayerView }) {
   );
 }
 
+function DetectiveNotes({ view }: { view: PlayerView }) {
+  const { t } = useTranslation();
+  if (view.detectiveResults.length === 0) return null;
+  return (
+    <section>
+      <SectionTitle>{t('roles:detective.name')}</SectionTitle>
+      <ul className="space-y-1">
+        {view.detectiveResults.map((result) => {
+          const target = view.players.find((p) => p.id === result.targetId);
+          return (
+            <li
+              key={`${result.round}-${result.targetId}`}
+              className={`rounded-lg border px-3 py-2 text-sm ${
+                result.woke
+                  ? 'border-moon-200/40 bg-night-800/70 text-moon-100'
+                  : 'border-night-600 bg-night-900/70 text-moon-200/70'
+              }`}
+            >
+              {t(result.woke ? 'night.detectiveWoke' : 'night.detectiveSlept', {
+                name: target?.name ?? '',
+              })}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 export function GhostNote({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   if (!view.me.ghost || view.phase === 'GAME_END') return null;
@@ -155,15 +197,8 @@ export function roleNames(
   view: PlayerView,
   t: (key: string) => string,
 ): Record<PlayerId, string> | undefined {
-  const source = view.allRoles;
-  if (!source) {
-    const revealed: Record<PlayerId, string> = {};
-    for (const p of view.players) {
-      if (p.role) revealed[p.id] = t(`roles:${p.role}.name`);
-    }
-    return Object.keys(revealed).length > 0 ? revealed : undefined;
-  }
+  if (!view.allRoles) return undefined;
   return Object.fromEntries(
-    Object.entries(source).map(([id, roleId]) => [id, t(`roles:${roleId}.name`)]),
+    Object.entries(view.allRoles).map(([id, roleId]) => [id, t(`roles:${roleId}.name`)]),
   );
 }

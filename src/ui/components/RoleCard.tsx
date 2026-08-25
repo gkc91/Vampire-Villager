@@ -1,14 +1,24 @@
 import { useTranslation } from 'react-i18next';
 import type { RoleId } from '../../game/types';
+import { ROLES } from '../../game/roles';
 import { AssetImage } from './atoms';
 
 /** Asset gelene kadar kullanılan emoji/renk yer tutucuları (06-assets.md). */
 const ROLE_PLACEHOLDER: Record<RoleId, { emoji: string; from: string; to: string }> = {
-  vampire: { emoji: '🧛', from: '#3b0d12', to: '#c1121f' },
+  // Köy
   villager: { emoji: '🧑‍🌾', from: '#1b1233', to: '#4b6043' },
-  seer: { emoji: '🔮', from: '#1b1233', to: '#5f27cd' },
   doctor: { emoji: '⚕️', from: '#1b1233', to: '#2980b9' },
+  seer: { emoji: '🔮', from: '#1b1233', to: '#5f27cd' },
+  detective: { emoji: '🕵️', from: '#1b1233', to: '#34495e' },
+  wizard: { emoji: '🪄', from: '#1b1233', to: '#6c3483' },
   hunter: { emoji: '🏹', from: '#1b1233', to: '#b8860b' },
+  // Vampirler
+  vampire: { emoji: '🧛', from: '#3b0d12', to: '#c1121f' },
+  vampireLord: { emoji: '👑', from: '#3b0d12', to: '#8e0e1a' },
+  bloodWizard: { emoji: '🩸', from: '#3b0d12', to: '#7b1e2b' },
+  mistVampire: { emoji: '🌫️', from: '#2a1030', to: '#5b3a63' },
+  // Tarafsız
+  thief: { emoji: '🗝️', from: '#1b1233', to: '#7f8c8d' },
 };
 
 export function RoleCard({ roleId, compact }: { roleId: RoleId; compact?: boolean }) {
@@ -40,15 +50,11 @@ export function RoleCard({ roleId, compact }: { roleId: RoleId; compact?: boolea
       <div className="space-y-1 p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="text-xl font-bold">{t(`roles:${roleId}.name`)}</h3>
-          <span className="chip">{t(`roles:team.${teamKey(roleId)}`)}</span>
+          <span className="chip">{t(`roles:team.${ROLES[roleId].team}`)}</span>
         </div>
         <p className="text-sm text-moon-200/80">{t(`roles:${roleId}.short`)}</p>
         {!compact && <p className="pt-1 text-sm text-moon-200/60">{t(`roles:${roleId}.description`)}</p>}
       </div>
     </div>
   );
-}
-
-function teamKey(roleId: RoleId): string {
-  return roleId === 'vampire' ? 'vampire' : 'village';
 }

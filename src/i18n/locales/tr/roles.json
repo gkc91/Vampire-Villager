@@ -21,12 +21,42 @@
   },
   "doctor": {
     "name": "Doktor",
-    "short": "Her gece bir kişiyi korursun.",
-    "description": "Her gece bir oyuncuyu vampir saldırısından korursun. Kendini de koruyabilirsin ama aynı kişiyi üst üste iki gece koruyamazsın."
+    "short": "Oyun boyunca 2 kez korursun.",
+    "description": "Gece bir oyuncuyu vampir saldırısından korursun; bu hakkın oyun boyunca yalnız iki kez. Kendini de koruyabilirsin ama aynı kişiyi üst üste iki gece koruyamazsın. Koruma gündüz asılmasını engellemez."
   },
   "hunter": {
     "name": "Avcı",
-    "short": "Ölürsen yanında birini götürürsün.",
-    "description": "Nasıl ölürsen öl — gece saldırısı ya da asılma — son bir ok atarsın ve seçtiğin oyuncu da ölür."
+    "short": "Vampirler sana dokunamaz.",
+    "description": "Gece aksiyonun yok. Vampirler seni öldürmeye kalkarsa saldırı geri teper: aralarından biri gizlice düz köylüye döner ve o gece kimse ölmez. Ama gündüz asılabilirsin."
+  },
+  "detective": {
+    "name": "Dedektif",
+    "short": "Kimin gece uyandığını görürsün.",
+    "description": "Her gece bir oyuncu seçersin ve oyun sana o kişinin o gece uyanıp uyanmadığını söyler. Rolünü ya da takımını söylemez — uyanan biri kâhin de olabilir vampir de."
+  },
+  "wizard": {
+    "name": "Büyücü",
+    "short": "Bir kez asılmayı durdurursun.",
+    "description": "Oyun boyunca bir kez, gündüz tartışma sırasında büyü yaparsın. O gün kimse asılmaz, tartışmaya bir dakika eklenir ve seçtiğin oyuncu o gece uyanamaz. Kimin yaptığı gizli kalır."
+  },
+  "vampireLord": {
+    "name": "Vampir Lordu",
+    "short": "Bir kez birini vampire çevirirsin.",
+    "description": "Oyun boyunca bir kez gece bir oyuncuyu vampire dönüştürürsün; o kişi bunu öğrenir ve takıma katılır ama o gece kurban seçimine giremez. Avcıyı çevirmeye kalkarsan geri teper."
+  },
+  "bloodWizard": {
+    "name": "Kan Büyücüsü",
+    "short": "İki gece birini mühürlersin.",
+    "description": "Oyun boyunca iki gece, vampir olmayan bir oyuncuyu mühürlersin: o gece uyanamaz, yeteneğini kullanamaz. Avcıyı mühürlemeye çalışırsan mühür tutmaz ve avcı bunu fark eder."
+  },
+  "mistVampire": {
+    "name": "Sisler Vampiri",
+    "short": "Sis basar, bilgi rollerini kör edersin.",
+    "description": "Sis çöktüğü gece kâhin ve dedektif hiç uyanamaz. İlk sisi istediğin gece basarsın; sonrasında iki gece beklemen gerekir."
+  },
+  "thief": {
+    "name": "Hırsız",
+    "short": "Bir kez birinin rolünü çalarsın.",
+    "description": "Gece en son sen uyanırsın. Seçtiğin oyuncunun rolünü çalarsın; o kişi vampir bile olsa düz köylüye döner. Çaldığın andan itibaren o rolsün ve o takımdasın."
   }
 }

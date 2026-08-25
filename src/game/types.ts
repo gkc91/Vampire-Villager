@@ -1,11 +1,25 @@
 /**
- * Oyun motoru tipleri. Bu dosya UI ve ağ katmanından bağımsızdır;
- * yalnız 02-game-flow.md ve 03-roles.md'deki kuralları yansıtır.
+ * Oyun motoru tipleri — 11 rollük set (03-roles.md).
+ * Bu dosya UI ve ağ katmanından bağımsızdır.
  */
 
 export type PlayerId = string;
 
-export type RoleId = 'vampire' | 'villager' | 'seer' | 'doctor' | 'hunter';
+export type RoleId =
+  // Köy
+  | 'villager'
+  | 'doctor'
+  | 'seer'
+  | 'detective'
+  | 'wizard'
+  | 'hunter'
+  // Vampirler
+  | 'vampire'
+  | 'vampireLord'
+  | 'bloodWizard'
+  | 'mistVampire'
+  // Tarafsız
+  | 'thief';
 
 export type Team = 'village' | 'vampire' | 'neutral';
 
@@ -17,64 +31,82 @@ export type Phase =
   | 'DAY_DISCUSSION'
   | 'VOTE'
   | 'VOTE_RESULT'
-  | 'HUNTER_SHOT'
   | 'GAME_END';
 
-export type DeathCause = 'vampire' | 'hanging' | 'hunter';
+/**
+ * Gece sırayla işler ve her adım SEÇİM ANINDA uygulanır (03-roles.md).
+ * Adımın oyuncusu yoksa / ölmüşse / hakkı bittiyse adım atlanır.
+ */
+export type NightStep =
+  | 'lord'
+  | 'bloodWizard'
+  | 'mist'
+  | 'vampireVote'
+  | 'doctor'
+  | 'seer'
+  | 'detective'
+  | 'thief';
+
+export const NIGHT_ORDER: NightStep[] = [
+  'lord',
+  'bloodWizard',
+  'mist',
+  'vampireVote',
+  'doctor',
+  'seer',
+  'detective',
+  'thief',
+];
+
+export type DeathCause = 'vampire' | 'hanging';
 
 export interface Player {
   id: PlayerId;
   name: string;
-  /** Avatar dairesinin rengi (MVP'de görsel avatar yok). */
   color: string;
   isHost: boolean;
-  /** Host "sadece anlatıcı" ise false; rol dağıtımına girmez. */
   isPlayer: boolean;
   connected: boolean;
   ready: boolean;
   alive: boolean;
-  /** "Tek cihazda dene" modundaki otomatik oyuncu. */
   isBot?: boolean;
-  /** 90 sn içinde dönmedi → "köyü terk etti". Ölüm sayılmaz. */
   left: boolean;
   role?: RoleId;
+  /** Sınırlı roller için kalan hak (doktor 2, büyücü 1, lord 1, kan büy. 2). */
+  usesLeft?: number;
   deathCause?: DeathCause;
   deathRound?: number;
 }
 
 export interface GameSettings {
-  /** Gündüz tartışma süresi (sn). */
   discussionSeconds: number;
-  /** Gece aksiyon süresi (sn) — 02-game-flow.md: 60. */
-  nightSeconds: number;
-  /** Oylama süresi (sn) — 45. */
+  /** Her gece adımı için süre. */
+  nightStepSeconds: number;
   voteSeconds: number;
-  /** Avcının son ok süresi (sn) — 30. */
-  hunterSeconds: number;
-  /** Rol gösterme ekranı üst sınırı (sn). */
   roleRevealSeconds: number;
-  /** Anlatım ekranlarının ekranda kalma süresi (sn). */
   resultSeconds: number;
+  /** Büyü yapılınca tartışmaya eklenen süre. */
+  spellBonusSeconds: number;
+  /** Odaya alınacak azami oyuncu (üst sınır yok, kurucu belirler). */
   maxPlayers: number;
-  /** Host aynı zamanda oyuncu mu, yoksa sadece anlatıcı mı. */
   hostPlays: boolean;
+  /** Kurucunun seçtiği rol listesi; oyuncu sayısı kadar olmalı. */
+  roleSetup: RoleId[];
 }
 
 export interface NarrationEvent {
-  /** i18n `narration` namespace anahtarı. */
   key: string;
-  /** İnterpolasyon parametreleri; rol adı `roleKey` olarak taşınır. */
   params?: { name?: string; roleKey?: RoleId };
   round: number;
   at: number;
+  /** Yalnız bu oyunculara gösterilir (boşsa herkese). */
+  onlyFor?: PlayerId[];
 }
 
 export interface DeathRecord {
   playerId: PlayerId;
   cause: DeathCause;
   round: number;
-  /** Avcı okuysa tetikleyen oyuncu. */
-  byPlayerId?: PlayerId;
 }
 
 export interface SeerResult {
@@ -83,68 +115,88 @@ export interface SeerResult {
   isVampire: boolean;
 }
 
-export interface NightState {
-  /** vampir id → hedef id */
-  vampireVotes: Record<PlayerId, PlayerId>;
-  /** kâhin id → hedef id */
-  seerChecks: Record<PlayerId, PlayerId>;
-  /** doktor id → korunan id */
-  doctorSaves: Record<PlayerId, PlayerId>;
-  /** Bilinçli "pas" diyenler (süre dolması da pas sayılır). */
-  passed: PlayerId[];
+export interface DetectiveResult {
+  round: number;
+  targetId: PlayerId;
+  /** O gece fiilen seçim yaptı mı (03-roles.md). */
+  woke: boolean;
 }
 
-export interface PendingHunter {
-  hunterId: PlayerId;
-  /** Son ok çözüldükten sonra dönülecek faz. */
-  nextPhase: Phase;
+export interface NightState {
+  /** vampir id → hedef id (ortak kurban oylaması) */
+  vampireVotes: Record<PlayerId, PlayerId>;
+  /** O gece korunan oyuncu. */
+  protectedId: PlayerId | null;
+  /** Mühür / sis / büyü ile uyanamayanlar. */
+  blocked: PlayerId[];
+  /** Sis var mı (bilgi rollerini kapatır). */
+  fog: boolean;
+  /** O gece fiilen seçim yapanlar — dedektif bunu okur. */
+  woke: PlayerId[];
+  /** Bu gece hangi adımlar tamamlandı. */
+  doneSteps: NightStep[];
+  /** Vampir oylamasının sonucu; ölüm gece sonunda çözülür. */
+  attackTarget: PlayerId | null;
+  /** Lord bu gece dönüştürdüyse: kurban seçimine katılamaz. */
+  convertedTonight: PlayerId | null;
 }
 
 export interface GameState {
   phase: Phase;
-  /** Gece 1 = round 1. LOBBY'de 0. */
+  /** Gece 1 = round 1. */
   round: number;
+  /** NIGHT fazındaysa hangi adımdayız. */
+  nightStep: NightStep | null;
   players: Player[];
   settings: GameSettings;
   night: NightState;
   /** doktor id → bir önceki gece koruduğu kişi (üst üste yasak). */
   lastProtected: Record<PlayerId, PlayerId>;
-  /** kâhin id → aldığı cevaplar. */
   seerResults: Record<PlayerId, SeerResult[]>;
-  /** oy veren id → hedef id | 'abstain' */
+  detectiveResults: Record<PlayerId, DetectiveResult[]>;
+  /** Sisler vampiri en erken bu turda tekrar kullanabilir. */
+  mistReadyRound: number;
+  /** Büyü yapıldıysa o gün oylama açılmaz. */
+  spellCastThisDay: boolean;
+  /** Büyücünün seçtiği hedef — o gece uyanamaz. */
+  spellBlockTarget: PlayerId | null;
   votes: Record<PlayerId, PlayerId | 'abstain'>;
-  pendingHunter: PendingHunter | null;
   deaths: DeathRecord[];
   log: NarrationEvent[];
-  /** Faz bitiş zamanı (epoch ms). null = süresiz. */
   phaseEndsAt: number | null;
   winner: Team | null;
-  /** Deterministik rastgelelik (yalnız host'ta üretilir). */
   seed: number;
 }
 
-/** Rollerin gece/ölüm çözümlemesinde ürettiği yan etkiler. */
 export type StateEffect =
-  | { type: 'attack'; targetId: PlayerId; source: 'vampire' }
+  | { type: 'attack'; targetId: PlayerId }
   | { type: 'protect'; targetId: PlayerId }
+  | { type: 'block'; targetId: PlayerId }
+  | { type: 'fog' }
+  | { type: 'convert'; targetId: PlayerId }
+  | { type: 'steal'; actorId: PlayerId; targetId: PlayerId }
   | { type: 'reveal'; actorId: PlayerId; targetId: PlayerId; isVampire: boolean }
-  | { type: 'kill'; targetId: PlayerId; cause: DeathCause; byPlayerId?: PlayerId }
-  | { type: 'hunterTrigger'; hunterId: PlayerId };
+  | { type: 'investigate'; actorId: PlayerId; targetId: PlayerId };
 
 export interface RoleDefinition {
   id: RoleId;
   team: Team;
+  /** Vampirler birbirini bilir. */
+  knowsTeammates?: boolean;
+  /** Sınırlı kullanım hakkı; tanımsızsa sınırsız. */
+  maxUses?: number;
   nightAction?: {
-    /** Çözümleme sırası: vampir 10, kâhin 20, doktor 30. */
-    phase: number;
-    targetType: 'player' | 'none';
+    /** Hangi gece adımında oynar. */
+    step: NightStep;
+    /** Hedef seçmez, kendi üstünde tetiklenir (sis gibi). */
+    selfCast?: boolean;
     validTargets: (state: GameState, actorId: PlayerId) => PlayerId[];
     resolve: (state: GameState, actorId: PlayerId, targetId: PlayerId) => StateEffect[];
   };
-  onDeath?: (state: GameState, playerId: PlayerId) => StateEffect[];
-  /** Vampirler birbirini bilir. */
-  knowsTeammates?: boolean;
-  /** Yer tutucu bayrak — MVP'de hepsi false (bkz. 05-monetization.md). */
+  /** Büyücü gündüz oynar. */
+  dayAction?: {
+    validTargets: (state: GameState, actorId: PlayerId) => PlayerId[];
+  };
   premium?: boolean;
 }
 
@@ -158,8 +210,8 @@ export type GameAction =
   | { type: 'START_GAME' }
   | { type: 'ROLE_SEEN'; playerId: PlayerId }
   | { type: 'NIGHT_ACTION'; playerId: PlayerId; targetId: PlayerId | null }
+  | { type: 'CAST_SPELL'; playerId: PlayerId; targetId: PlayerId }
   | { type: 'VOTE'; playerId: PlayerId; targetId: PlayerId | 'abstain' }
-  | { type: 'HUNTER_SHOT'; playerId: PlayerId; targetId: PlayerId | null }
   | { type: 'PLAYER_LEFT'; playerId: PlayerId }
   | { type: 'END_DISCUSSION' }
   | { type: 'TIMEOUT' }

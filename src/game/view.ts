@@ -1,8 +1,10 @@
 import type {
   DeathRecord,
+  DetectiveResult,
   GameSettings,
   GameState,
   NarrationEvent,
+  NightStep,
   Phase,
   PlayerId,
   RoleId,
@@ -10,8 +12,8 @@ import type {
   Team,
 } from './types';
 import { ROLES } from './roles';
-import { alivePlayers, playerById } from './roles/helpers';
-import { hunterTargets } from './stateMachine';
+import { alivePlayers, isVampire, playerById } from './roles/helpers';
+import { eligibleActors } from './stateMachine';
 
 /**
  * Oyuncuya giden filtrelenmiş görünüm. Host dışındaki hiçbir istemci ham
@@ -29,16 +31,16 @@ export interface PublicPlayer {
   alive: boolean;
   left: boolean;
   isBot?: boolean;
-  /** Yalnız herkese açıklanmış roller (asılan oyuncu, oyun sonu, hayalet modu). */
+  /** Yalnız hayalet modunda / oyun sonunda dolu. */
   role?: RoleId;
   deathRound?: number;
-  hasActed?: boolean;
   hasVoted?: boolean;
 }
 
 export interface PlayerView {
   roomId: string;
   phase: Phase;
+  nightStep: NightStep | null;
   round: number;
   settings: GameSettings;
   phaseEndsAt: number | null;
@@ -49,70 +51,43 @@ export interface PlayerView {
     name: string;
     role?: RoleId;
     team?: Team;
+    /** Sınırlı roller için kalan hak; sınırsızsa null. */
+    usesLeft: number | null;
     alive: boolean;
     left: boolean;
     isHost: boolean;
     isPlayer: boolean;
     ready: boolean;
-    /** Ölü veya oyun bitti → her şeyi görür. */
     ghost: boolean;
   };
-  /** Yalnız vampirlere gider. */
+  /** Vampirler birbirini görür. */
   teammates: PlayerId[];
-  /** Yalnız kendi kâhin sonuçları. */
   seerResults: SeerResult[];
-  /** Yalnız vampirlere: takım arkadaşlarının bu geceki seçimleri. */
+  detectiveResults: DetectiveResult[];
+  /** Vampir oylamasında takım arkadaşlarının seçimi. */
   vampirePicks: Record<PlayerId, PlayerId>;
   nightAction: {
+    /** Şu anki adım bana mı ait ve henüz oynamadım mı. */
     canAct: boolean;
-    roleId?: RoleId;
+    /** Hedef seçmiyorum, yalnız onaylıyorum (sis). */
+    selfCast: boolean;
     validTargets: PlayerId[];
     submitted: boolean;
-    myTarget: PlayerId | null;
+  };
+  spell: {
+    canCast: boolean;
+    validTargets: PlayerId[];
+    /** Bugün büyü yapıldı mı (kim yaptığı gizli). */
+    castToday: boolean;
   };
   vote: {
     canVote: boolean;
     myVote: PlayerId | 'abstain' | null;
-    /** Yalnız oylama bitince dolar. */
     tally: Record<PlayerId, number> | null;
-  };
-  hunter: {
-    active: boolean;
-    isMe: boolean;
-    hunterName: string | null;
-    validTargets: PlayerId[];
   };
   deaths: DeathRecord[];
   log: NarrationEvent[];
-  /** Hayalet modu / oyun sonu: herkesin rolü. */
   allRoles: Record<PlayerId, RoleId> | null;
-}
-
-function myNightTarget(state: GameState, playerId: PlayerId): PlayerId | null {
-  return (
-    state.night.vampireVotes[playerId] ??
-    state.night.seerChecks[playerId] ??
-    state.night.doctorSaves[playerId] ??
-    null
-  );
-}
-
-function hasActed(state: GameState, playerId: PlayerId): boolean {
-  return (
-    state.night.passed.includes(playerId) ||
-    playerId in state.night.vampireVotes ||
-    playerId in state.night.seerChecks ||
-    playerId in state.night.doctorSaves
-  );
-}
-
-/**
- * Roller oyun bitene kadar HERKESE kapalıdır: ne gece ölümünde ne de
- * asılmada açıklanır. Oyun bitince (bir taraf tükenince) herkesin ekranında
- * tüm roller açılır. Ölü oyuncular ayrıca hayalet modunda her şeyi görür.
- */
-function isRolePublic(state: GameState, _playerId: PlayerId): boolean {
-  return state.phase === 'GAME_END';
 }
 
 export function buildPlayerView(state: GameState, roomId: string, viewerId: PlayerId): PlayerView {
@@ -121,42 +96,47 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
   const ghost = Boolean(me && me.isPlayer && (!me.alive || me.left)) || gameOver;
   const seeEverything = ghost;
 
-  const players: PublicPlayer[] = state.players.map((p) => {
-    const revealed = seeEverything || isRolePublic(state, p.id);
-    return {
-      id: p.id,
-      name: p.name,
-      color: p.color,
-      isHost: p.isHost,
-      isPlayer: p.isPlayer,
-      connected: p.connected,
-      ready: p.ready,
-      alive: p.alive,
-      left: p.left,
-      isBot: p.isBot,
-      role: revealed ? p.role : undefined,
-      deathRound: p.deathRound,
-      hasActed: state.phase === 'NIGHT' ? hasActed(state, p.id) : undefined,
-      hasVoted: state.phase === 'VOTE' ? p.id in state.votes : undefined,
-    };
-  });
+  const players: PublicPlayer[] = state.players.map((p) => ({
+    id: p.id,
+    name: p.name,
+    color: p.color,
+    isHost: p.isHost,
+    isPlayer: p.isPlayer,
+    connected: p.connected,
+    ready: p.ready,
+    alive: p.alive,
+    left: p.left,
+    isBot: p.isBot,
+    // Roller yalnız oyun sonunda / hayalet modunda açılır (03-roles.md).
+    role: seeEverything ? p.role : undefined,
+    deathRound: p.deathRound,
+    hasVoted: state.phase === 'VOTE' ? p.id in state.votes : undefined,
+  }));
 
   const myRole = me?.role;
   const roleDef = myRole ? ROLES[myRole] : undefined;
-  const canAct =
+  const step = state.nightStep;
+
+  const isMyStep =
     state.phase === 'NIGHT' &&
-    Boolean(me?.alive && !me?.left && roleDef?.nightAction) &&
-    !hasActed(state, viewerId);
+    step !== null &&
+    eligibleActors(state, step).includes(viewerId) &&
+    roleDef?.nightAction?.step === step;
+
+  const alreadyActed =
+    state.night.woke.includes(viewerId) ||
+    viewerId in state.night.vampireVotes ||
+    (step !== null && state.night.doneSteps.includes(step) && !isMyStep);
 
   const teammates =
     me && myRole && ROLES[myRole].knowsTeammates
-      ? state.players.filter((p) => p.role === myRole && p.id !== me.id).map((p) => p.id)
+      ? state.players.filter((p) => p.id !== me.id && isVampire(p)).map((p) => p.id)
       : [];
 
   const vampirePicks: Record<PlayerId, PlayerId> = {};
-  if (myRole === 'vampire' && state.phase === 'NIGHT') {
+  if (myRole && ROLES[myRole].knowsTeammates && state.phase === 'NIGHT') {
     for (const [voterId, targetId] of Object.entries(state.night.vampireVotes)) {
-      vampirePicks[voterId] = targetId;
+      if (targetId) vampirePicks[voterId] = targetId;
     }
   }
 
@@ -170,9 +150,6 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     }
   }
 
-  const pending = state.pendingHunter;
-  const hunterPlayer = pending ? playerById(state, pending.hunterId) : undefined;
-
   const allRoles: Record<PlayerId, RoleId> | null = seeEverything ? {} : null;
   if (allRoles) {
     for (const p of state.players) {
@@ -180,9 +157,19 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     }
   }
 
+  const canCastSpell =
+    state.phase === 'DAY_DISCUSSION' &&
+    myRole === 'wizard' &&
+    Boolean(me?.alive && !me.left) &&
+    !state.spellCastThisDay &&
+    (me?.usesLeft ?? 0) > 0;
+
+  const maxUses = myRole ? ROLES[myRole].maxUses : undefined;
+
   return {
     roomId,
     phase: state.phase,
+    nightStep: state.nightStep,
     round: state.round,
     settings: state.settings,
     phaseEndsAt: state.phaseEndsAt,
@@ -193,6 +180,7 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
       name: me?.name ?? '',
       role: myRole,
       team: myRole ? ROLES[myRole].team : undefined,
+      usesLeft: maxUses === undefined ? null : (me?.usesLeft ?? 0),
       alive: me?.alive ?? false,
       left: me?.left ?? false,
       isHost: me?.isHost ?? false,
@@ -202,35 +190,35 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     },
     teammates,
     seerResults: myRole === 'seer' ? (state.seerResults[viewerId] ?? []) : [],
+    detectiveResults: myRole === 'detective' ? (state.detectiveResults[viewerId] ?? []) : [],
     vampirePicks,
     nightAction: {
-      canAct,
-      roleId: roleDef?.nightAction ? myRole : undefined,
+      canAct: isMyStep && !alreadyActed,
+      selfCast: Boolean(roleDef?.nightAction?.selfCast),
       validTargets:
-        state.phase === 'NIGHT' && roleDef?.nightAction && me?.alive && !me.left
+        isMyStep && !alreadyActed && roleDef?.nightAction
           ? roleDef.nightAction.validTargets(state, viewerId)
           : [],
-      submitted: state.phase === 'NIGHT' ? hasActed(state, viewerId) : false,
-      myTarget: state.phase === 'NIGHT' ? myNightTarget(state, viewerId) : null,
+      submitted: alreadyActed,
+    },
+    spell: {
+      canCast: canCastSpell,
+      validTargets: canCastSpell ? ROLES.wizard.dayAction!.validTargets(state, viewerId) : [],
+      castToday: state.spellCastThisDay,
     },
     vote: {
-      canVote: state.phase === 'VOTE' && Boolean(me?.alive && !me?.left) && !(viewerId in state.votes),
+      canVote:
+        state.phase === 'VOTE' && Boolean(me?.alive && !me?.left) && !(viewerId in state.votes),
       myVote: state.votes[viewerId] ?? null,
       tally,
     },
-    hunter: {
-      active: state.phase === 'HUNTER_SHOT',
-      isMe: pending?.hunterId === viewerId,
-      hunterName: hunterPlayer?.name ?? null,
-      validTargets: pending?.hunterId === viewerId ? hunterTargets(state) : [],
-    },
     deaths: state.deaths,
-    log: state.log,
+    // Gizli anlatımlar (dönüşüm, mühür uyarısı, çalınan rol) yalnız sahibine.
+    log: state.log.filter((e) => !e.onlyFor || e.onlyFor.includes(viewerId)),
     allRoles,
   };
 }
 
-/** Lobi ekranı için oyuncu sayısı özeti. */
 export function livingCount(state: GameState): number {
   return alivePlayers(state).length;
 }

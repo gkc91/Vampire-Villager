@@ -1,20 +1,32 @@
 import type { RoleDefinition, RoleId, Team } from '../types';
-import { vampire } from './vampire';
 import { villager } from './villager';
-import { seer } from './seer';
 import { doctor } from './doctor';
+import { seer } from './seer';
+import { detective } from './detective';
+import { wizard } from './wizard';
 import { hunter } from './hunter';
+import { vampire } from './vampire';
+import { vampireLord } from './vampireLord';
+import { bloodWizard } from './bloodWizard';
+import { mistVampire } from './mistVampire';
+import { thief } from './thief';
 
 /**
- * Rol kayıt defteri. Yeni rol eklemek = yeni dosya + buraya bir satır +
- * i18n anahtarları + asset. Çekirdek koda dokunulmaz (03-roles.md).
+ * Rol kayıt defteri (03-roles.md). Yeni rol eklemek = yeni dosya +
+ * buraya bir satır + i18n anahtarları + asset. Çekirdek koda dokunulmaz.
  */
 export const ROLES: Record<RoleId, RoleDefinition> = {
-  vampire,
   villager,
-  seer,
   doctor,
+  seer,
+  detective,
+  wizard,
   hunter,
+  vampire,
+  vampireLord,
+  bloodWizard,
+  mistVampire,
+  thief,
 };
 
 export const ROLE_IDS = Object.keys(ROLES) as RoleId[];
@@ -27,9 +39,7 @@ export function teamOf(id: RoleId): Team {
   return ROLES[id].team;
 }
 
-/** Gece aksiyonu olan roller, çözümleme sırasına göre. */
-export function nightRolesInOrder(): RoleDefinition[] {
-  return ROLE_IDS.map((id) => ROLES[id])
-    .filter((r) => r.nightAction)
-    .sort((a, b) => a.nightAction!.phase - b.nightAction!.phase);
+/** Sınırlı kullanımlı roller için başlangıç hakkı. */
+export function initialUses(id: RoleId): number | undefined {
+  return ROLES[id].maxUses;
 }

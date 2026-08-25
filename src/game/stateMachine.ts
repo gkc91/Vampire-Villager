@@ -1,43 +1,66 @@
 import type {
-  DeathCause,
   GameAction,
   GameSettings,
   GameState,
   NarrationEvent,
+  NightStep,
   Phase,
   Player,
   PlayerId,
   RoleId,
-  StateEffect,
 } from './types';
-import { ROLES } from './roles';
-import { alivePlayers, aliveWithRole, playerById } from './roles/helpers';
-import { distributionFor, isSupportedPlayerCount, TABLE_MAX_PLAYERS } from './distribution';
+import { NIGHT_ORDER } from './types';
+import { ROLES, initialUses } from './roles';
+import {
+  alivePlayers,
+  aliveVampires,
+  aliveWithRole,
+  isVampire,
+  playerById,
+} from './roles/helpers';
+import { MIN_PLAYERS, isSupportedPlayerCount, suggestedRoles, validateRoleSetup } from './distribution';
 import { createSeed, pick, shuffle } from './rng';
 
-/** 02-game-flow.md'deki süreler. */
 export const DEFAULT_SETTINGS: GameSettings = {
   discussionSeconds: 180,
-  nightSeconds: 60,
+  nightStepSeconds: 30,
   voteSeconds: 45,
-  hunterSeconds: 30,
   roleRevealSeconds: 60,
   resultSeconds: 8,
-  maxPlayers: TABLE_MAX_PLAYERS,
+  spellBonusSeconds: 60,
+  maxPlayers: 12,
   hostPlays: true,
+  roleSetup: [],
 };
+
+function emptyNight(): GameState['night'] {
+  return {
+    vampireVotes: {},
+    protectedId: null,
+    blocked: [],
+    fog: false,
+    woke: [],
+    doneSteps: [],
+    attackTarget: null,
+    convertedTonight: null,
+  };
+}
 
 export function createInitialState(seed: number = createSeed()): GameState {
   return {
     phase: 'LOBBY',
     round: 0,
+    nightStep: null,
     players: [],
     settings: { ...DEFAULT_SETTINGS },
-    night: { vampireVotes: {}, seerChecks: {}, doctorSaves: {}, passed: [] },
+    night: emptyNight(),
     lastProtected: {},
     seerResults: {},
+    detectiveResults: {},
+    mistReadyRound: 1,
+    spellCastThisDay: false,
+    spellBlockTarget: null,
     votes: {},
-    pendingHunter: null,
     deaths: [],
     log: [],
     phaseEndsAt: null,
@@ -57,11 +80,11 @@ function narrate(
   key: string,
   now: number,
   params?: NarrationEvent['params'],
+  onlyFor?: PlayerId[],
 ): void {
-  state.log.push({ key, params, round: state.round, at: now });
+  state.log.push({ key, params, round: state.round, at: now, onlyFor });
 }
 
-/** Oyuna dahil olan (host anlatıcıysa host hariç), terk etmemiş oyuncular. */
 export function participants(state: GameState): Player[] {
   return state.players.filter((p) => p.isPlayer && !p.left);
 }
@@ -73,20 +96,20 @@ function setPhase(state: GameState, phase: Phase, now: number, seconds: number |
 
 export function checkWinner(state: GameState): 'village' | 'vampire' | null {
   const alive = alivePlayers(state);
-  const vampires = alive.filter((p) => p.role === 'vampire').length;
-  const villagers = alive.length - vampires;
+  const vampires = alive.filter(isVampire).length;
+  const others = alive.length - vampires;
   if (vampires === 0) return 'village';
-  if (vampires >= villagers) return 'vampire';
+  if (vampires >= others) return 'vampire';
   return null;
 }
 
 function endGame(state: GameState, winner: 'village' | 'vampire', now: number): void {
   state.winner = winner;
+  state.nightStep = null;
   setPhase(state, 'GAME_END', now, null);
   narrate(state, winner === 'village' ? 'win_village' : 'win_vampires', now);
 }
 
-/** Kazanan varsa oyunu bitirir; bitti mi bilgisini döndürür. */
 function finishIfWon(state: GameState, now: number): boolean {
   const winner = checkWinner(state);
   if (!winner) return false;
@@ -94,68 +117,114 @@ function finishIfWon(state: GameState, now: number): boolean {
   return true;
 }
 
-/** Ölümleri uygular, tetiklenen `onDeath` etkilerini döndürür. */
-function applyDeaths(
-  state: GameState,
-  kills: { targetId: PlayerId; cause: DeathCause; byPlayerId?: PlayerId }[],
-  now: number,
-): StateEffect[] {
-  const triggered: StateEffect[] = [];
-  for (const kill of kills) {
-    const player = playerById(state, kill.targetId);
-    if (!player || !player.alive || player.left) continue;
-    player.alive = false;
-    player.deathCause = kill.cause;
-    player.deathRound = state.round;
-    state.deaths.push({
-      playerId: player.id,
-      cause: kill.cause,
-      round: state.round,
-      byPlayerId: kill.byPlayerId,
-    });
-    const role = player.role ? ROLES[player.role] : undefined;
-    if (role?.onDeath) triggered.push(...role.onDeath(state, player.id));
-    void now;
+function usesLeftOf(player: Player | undefined): number {
+  if (!player?.role) return 0;
+  const max = ROLES[player.role].maxUses;
+  if (max === undefined) return Infinity;
+  return player.usesLeft ?? 0;
+}
+
+function consumeUse(player: Player): void {
+  if (player.role && ROLES[player.role].maxUses !== undefined) {
+    player.usesLeft = Math.max(0, (player.usesLeft ?? 0) - 1);
   }
-  return triggered;
 }
 
-/** Avcı tetiklendiyse son ok fazına geçer; geçilmediyse false döner. */
-function enterHunterPhaseIfTriggered(
-  state: GameState,
-  effects: StateEffect[],
-  nextPhase: Phase,
-  now: number,
-): boolean {
-  const trigger = effects.find((e) => e.type === 'hunterTrigger');
-  if (!trigger || trigger.type !== 'hunterTrigger') return false;
-  const hunter = playerById(state, trigger.hunterId);
-  if (!hunter) return false;
-  state.pendingHunter = { hunterId: trigger.hunterId, nextPhase };
-  setPhase(state, 'HUNTER_SHOT', now, state.settings.hunterSeconds);
-  narrate(state, 'hunter_triggered', now, { name: hunter.name });
-  return true;
+function isBlocked(state: GameState, playerId: PlayerId): boolean {
+  return state.night.blocked.includes(playerId);
 }
 
-export function hunterTargets(state: GameState): PlayerId[] {
-  if (!state.pendingHunter) return [];
-  return alivePlayers(state)
-    .filter((p) => p.id !== state.pendingHunter!.hunterId)
-    .map((p) => p.id);
+/** Bu adımda oynayabilecek oyuncular (ölü/engelli/hakkı biten hariç). */
+export function eligibleActors(state: GameState, step: NightStep): PlayerId[] {
+  const usable = (p: Player) => p.alive && !p.left && !isBlocked(state, p.id);
+
+  switch (step) {
+    case 'lord':
+      return aliveWithRole(state, 'vampireLord')
+        .filter((p) => usable(p) && usesLeftOf(p) > 0)
+        .map((p) => p.id);
+    case 'bloodWizard':
+      return aliveWithRole(state, 'bloodWizard')
+        .filter((p) => usable(p) && usesLeftOf(p) > 0)
+        .map((p) => p.id);
+    case 'mist':
+      return state.round >= state.mistReadyRound
+        ? aliveWithRole(state, 'mistVampire').filter(usable).map((p) => p.id)
+        : [];
+    case 'vampireVote':
+      return aliveVampires(state)
+        .filter((p) => usable(p) && p.id !== state.night.convertedTonight)
+        .map((p) => p.id);
+    case 'doctor':
+      return aliveWithRole(state, 'doctor')
+        .filter((p) => usable(p) && usesLeftOf(p) > 0)
+        .map((p) => p.id);
+    case 'seer':
+      return state.night.fog
+        ? []
+        : aliveWithRole(state, 'seer').filter(usable).map((p) => p.id);
+    case 'detective':
+      return state.night.fog
+        ? []
+        : aliveWithRole(state, 'detective').filter(usable).map((p) => p.id);
+    case 'thief':
+      return aliveWithRole(state, 'thief')
+        .filter((p) => usable(p) && usesLeftOf(p) > 0)
+        .map((p) => p.id);
+    default:
+      return [];
+  }
+}
+
+/** Adımda beklenen herkes seçimini yaptı mı? */
+function stepComplete(state: GameState, step: NightStep): boolean {
+  const actors = eligibleActors(state, step);
+  if (step === 'vampireVote') {
+    return actors.every((id) => id in state.night.vampireVotes);
+  }
+  return actors.every((id) => state.night.woke.includes(id) || state.night.doneSteps.includes(step));
 }
 
 // ------------------------------------------------------------- faz geçişleri
 
+function beginStep(state: GameState, step: NightStep, now: number): void {
+  state.nightStep = step;
+  setPhase(state, 'NIGHT', now, state.settings.nightStepSeconds);
+}
+
+/** Sıradaki oynanabilir adıma geçer; kalmadıysa geceyi çözer. */
+function advanceNight(state: GameState, now: number): void {
+  const current = state.nightStep;
+  const startIndex = current ? NIGHT_ORDER.indexOf(current) + 1 : 0;
+  for (let i = startIndex; i < NIGHT_ORDER.length; i++) {
+    const step = NIGHT_ORDER[i];
+    if (eligibleActors(state, step).length > 0) {
+      beginStep(state, step, now);
+      return;
+    }
+  }
+  resolveNight(state, now);
+}
+
 function startNight(state: GameState, now: number): void {
   state.round += 1;
-  state.night = { vampireVotes: {}, seerChecks: {}, doctorSaves: {}, passed: [] };
+  state.night = emptyNight();
   state.votes = {};
-  state.pendingHunter = null;
-  setPhase(state, 'NIGHT', now, state.settings.nightSeconds);
+  state.spellCastThisDay = false;
+
+  // Büyücünün gündüz seçtiği hedef bu gece uyanamaz.
+  if (state.spellBlockTarget) {
+    state.night.blocked.push(state.spellBlockTarget);
+    state.spellBlockTarget = null;
+  }
+
   narrate(state, 'night_start', now);
+  state.nightStep = null;
+  advanceNight(state, now);
 }
 
 function startDay(state: GameState, now: number): void {
+  state.nightStep = null;
   setPhase(state, 'DAY_DISCUSSION', now, state.settings.discussionSeconds);
   narrate(state, 'day_start', now);
 }
@@ -166,106 +235,114 @@ function startVote(state: GameState, now: number): void {
   narrate(state, 'vote_start', now);
 }
 
-/** Gece aksiyonu olan, hâlâ hayatta olan oyuncular. */
-export function expectedNightActors(state: GameState): PlayerId[] {
-  return alivePlayers(state)
-    .filter((p) => p.role && ROLES[p.role].nightAction)
-    .map((p) => p.id);
+/** Gündüz bitti: büyü yapıldıysa oylama açılmaz, doğrudan geceye geçilir. */
+function leaveDiscussion(state: GameState, now: number): void {
+  if (state.spellCastThisDay) {
+    narrate(state, 'spell_no_vote', now);
+    startNight(state, now);
+    return;
+  }
+  startVote(state, now);
 }
 
-export function hasSubmittedNightAction(state: GameState, playerId: PlayerId): boolean {
-  if (state.night.passed.includes(playerId)) return true;
-  return (
-    playerId in state.night.vampireVotes ||
-    playerId in state.night.seerChecks ||
-    playerId in state.night.doctorSaves
-  );
+// ------------------------------------------------------------- gece etkileri
+
+/** Avcıya saldırı geri teper: rastgele bir vampir gizlice köylü olur. */
+function hunterBackfire(state: GameState, now: number): void {
+  const vampires = aliveVampires(state);
+  if (vampires.length === 0) return; // dönüştürülecek vampir yok, saldırı boşa gider
+  const [victim, seed] = pick(vampires, state.seed);
+  state.seed = seed;
+  const player = playerById(state, victim.id);
+  if (!player) return;
+  player.role = 'villager';
+  player.usesLeft = undefined;
+  // Dönüşüm GİZLİ: yalnız dönüşen oyuncuya bildirilir.
+  narrate(state, 'hunter_backfire_self', now, undefined, [player.id]);
 }
 
-function allNightActionsIn(state: GameState): boolean {
-  return expectedNightActors(state).every((id) => hasSubmittedNightAction(state, id));
+function applyConvert(state: GameState, targetId: PlayerId, now: number): void {
+  const target = playerById(state, targetId);
+  if (!target) return;
+
+  if (target.role === 'hunter') {
+    hunterBackfire(state, now);
+    return;
+  }
+
+  target.role = 'vampire';
+  target.usesLeft = undefined;
+  state.night.convertedTonight = targetId;
+  narrate(state, 'converted_self', now, undefined, [targetId]);
 }
 
-function allVotesIn(state: GameState): boolean {
-  return alivePlayers(state).every((p) => p.id in state.votes);
+function applyBlock(state: GameState, targetId: PlayerId, now: number): void {
+  const target = playerById(state, targetId);
+  if (!target) return;
+  if (target.role === 'hunter') {
+    // Mühür işlemez; avcı uyarılır.
+    narrate(state, 'seal_failed_hunter', now, undefined, [targetId]);
+    return;
+  }
+  if (!state.night.blocked.includes(targetId)) state.night.blocked.push(targetId);
 }
 
-/**
- * NIGHT_RESULT çözümlemesi — 02-game-flow.md sırası:
- * 1) vampir hedefi 2) doktor koruması 3) avcı kontrolü 4) kazanma kontrolü
- */
-function resolveNight(state: GameState, now: number): void {
-  const effects: StateEffect[] = [];
+function applySteal(state: GameState, actorId: PlayerId, targetId: PlayerId, now: number): void {
+  const actor = playerById(state, actorId);
+  const target = playerById(state, targetId);
+  if (!actor || !target || !target.role) return;
 
-  // 1) Vampirlerin ortak hedefi: çoğunluk, eşitlikte rastgele.
-  const vampires = aliveWithRole(state, 'vampire');
+  const stolen = target.role;
+  actor.role = stolen;
+  actor.usesLeft = target.usesLeft; // kalan hakkıyla birlikte çalınır
+  target.role = 'villager';
+  target.usesLeft = undefined;
+
+  narrate(state, 'stole_role_self', now, { roleKey: stolen }, [actorId]);
+  narrate(state, 'role_stolen_self', now, undefined, [targetId]);
+}
+
+function resolveVampireVote(state: GameState): void {
   const tally = new Map<PlayerId, number>();
-  for (const v of vampires) {
-    const target = state.night.vampireVotes[v.id];
-    if (!target) continue;
+  for (const [, target] of Object.entries(state.night.vampireVotes)) {
     tally.set(target, (tally.get(target) ?? 0) + 1);
   }
-  let vampireTarget: PlayerId | null = null;
-  if (tally.size > 0) {
-    const max = Math.max(...tally.values());
-    const tied = [...tally.entries()].filter(([, n]) => n === max).map(([id]) => id);
-    if (tied.length === 1) {
-      vampireTarget = tied[0];
-    } else {
-      const [chosen, seed] = pick(tied, state.seed);
-      state.seed = seed;
-      vampireTarget = chosen;
-    }
+  if (tally.size === 0) return;
+
+  const max = Math.max(...tally.values());
+  const tied = [...tally.entries()].filter(([, n]) => n === max).map(([id]) => id);
+  if (tied.length === 1) {
+    state.night.attackTarget = tied[0];
+    return;
   }
-  if (vampireTarget && vampires.length > 0) {
-    effects.push(...ROLES.vampire.nightAction!.resolve(state, vampires[0].id, vampireTarget));
-  }
+  const [chosen, seed] = pick(tied, state.seed);
+  state.seed = seed;
+  state.night.attackTarget = chosen;
+}
 
-  // 2) Doktor korumaları (kâhin sonuçları seçim anında verildi).
-  for (const doc of aliveWithRole(state, 'doctor')) {
-    const target = state.night.doctorSaves[doc.id];
-    if (target) {
-      effects.push(...ROLES.doctor.nightAction!.resolve(state, doc.id, target));
-      state.lastProtected[doc.id] = target;
-    } else {
-      delete state.lastProtected[doc.id];
-    }
-  }
+/** Gece sonu: ölüm çözümlenir (doktor koruması bu aşamada işler). */
+function resolveNight(state: GameState, now: number): void {
+  resolveVampireVote(state);
+  const targetId = state.night.attackTarget;
+  const target = targetId ? playerById(state, targetId) : null;
 
-  const protectedIds = new Set(
-    effects.filter((e) => e.type === 'protect').map((e) => (e as { targetId: PlayerId }).targetId),
-  );
-  const attacks = effects.filter((e) => e.type === 'attack') as {
-    type: 'attack';
-    targetId: PlayerId;
-  }[];
-
-  const kills: { targetId: PlayerId; cause: DeathCause }[] = [];
-  let savedSomeone = false;
-  for (const attack of attacks) {
-    if (protectedIds.has(attack.targetId)) {
-      savedSomeone = true;
-      continue;
-    }
-    kills.push({ targetId: attack.targetId, cause: 'vampire' });
-  }
-
-  const killedNames = kills
-    .map((k) => playerById(state, k.targetId)?.name)
-    .filter((n): n is string => Boolean(n));
-  const triggered = applyDeaths(state, kills, now);
-
-  if (killedNames.length > 0) {
-    for (const name of killedNames) narrate(state, 'night_death', now, { name });
-  } else if (savedSomeone) {
+  if (!target) {
+    narrate(state, 'no_death', now);
+  } else if (target.role === 'hunter') {
+    // Saldırı geri teper: kimse ölmez, gizlice bir vampir köylü olur.
+    hunterBackfire(state, now);
+    narrate(state, 'no_death', now);
+  } else if (state.night.protectedId === target.id) {
     narrate(state, 'night_saved', now);
   } else {
-    narrate(state, 'no_death', now);
+    target.alive = false;
+    target.deathCause = 'vampire';
+    target.deathRound = state.round;
+    state.deaths.push({ playerId: target.id, cause: 'vampire', round: state.round });
+    narrate(state, 'night_death', now, { name: target.name });
   }
 
-  // 3) Avcı kontrolü
-  if (enterHunterPhaseIfTriggered(state, triggered, 'NIGHT_RESULT', now)) return;
-
+  state.nightStep = null;
   setPhase(state, 'NIGHT_RESULT', now, state.settings.resultSeconds);
 }
 
@@ -285,8 +362,6 @@ function resolveVote(state: GameState, now: number): void {
 
   const max = Math.max(...tally.values());
   const tied = [...tally.entries()].filter(([, n]) => n === max).map(([id]) => id);
-
-  // MVP kuralı: eşitlikte kimse asılmaz (runoff sonraki faz).
   if (tied.length > 1) {
     narrate(state, 'vote_tie', now);
     setPhase(state, 'VOTE_RESULT', now, state.settings.resultSeconds);
@@ -294,39 +369,17 @@ function resolveVote(state: GameState, now: number): void {
   }
 
   const hanged = playerById(state, tied[0]);
-  if (!hanged) {
-    setPhase(state, 'VOTE_RESULT', now, state.settings.resultSeconds);
-    return;
+  if (hanged) {
+    hanged.alive = false;
+    hanged.deathCause = 'hanging';
+    hanged.deathRound = state.round;
+    state.deaths.push({ playerId: hanged.id, cause: 'hanging', round: state.round });
+    // Rol açıklanmaz (kullanıcı kararı).
+    narrate(state, 'vote_hanged', now, { name: hanged.name });
   }
-  // Rol açıklanmaz; kimlik yalnız oyun sonunda ortaya çıkar.
-  narrate(state, 'vote_hanged', now, { name: hanged.name });
-  const triggered = applyDeaths(state, [{ targetId: hanged.id, cause: 'hanging' }], now);
-
-  if (enterHunterPhaseIfTriggered(state, triggered, 'VOTE_RESULT', now)) return;
   setPhase(state, 'VOTE_RESULT', now, state.settings.resultSeconds);
 }
 
-function resolveHunterShot(state: GameState, targetId: PlayerId | null, now: number): void {
-  const pending = state.pendingHunter;
-  if (!pending) return;
-  const nextPhase = pending.nextPhase;
-  state.pendingHunter = null;
-
-  if (targetId && hunterTargets({ ...state, pendingHunter: pending }).includes(targetId)) {
-    const target = playerById(state, targetId);
-    if (target) {
-      // Avcı kurbanının rolü açıklanmaz; yalnız asılanın rolü açıklanır.
-      narrate(state, 'hunter_kill', now, { name: target.name });
-      applyDeaths(state, [{ targetId, cause: 'hunter', byPlayerId: pending.hunterId }], now);
-    }
-  } else {
-    narrate(state, 'hunter_pass', now);
-  }
-
-  setPhase(state, nextPhase, now, state.settings.resultSeconds);
-}
-
-/** Sonuç ekranından sonraki adım: kazanan var mı, yoksa devam. */
 function leaveResultPhase(state: GameState, now: number): void {
   if (finishIfWon(state, now)) return;
   if (state.phase === 'NIGHT_RESULT') startDay(state, now);
@@ -342,7 +395,6 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
     case 'ADD_PLAYER': {
       const existing = playerById(s, action.player.id);
       if (existing) {
-        // Yeniden bağlanma: kimlik korunur, durum geri verilir.
         existing.connected = true;
         existing.left = false;
         existing.name = action.player.name;
@@ -393,23 +445,34 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       const playing = s.players.filter((p) => p.isPlayer && !p.left);
       if (!isSupportedPlayerCount(playing.length)) return s;
 
-      const [roles, seed] = shuffle(distributionFor(playing.length), s.seed);
+      const setup =
+        s.settings.roleSetup.length === playing.length
+          ? s.settings.roleSetup
+          : suggestedRoles(playing.length);
+      if (validateRoleSetup(setup, playing.length)) return s;
+
+      const [roles, seed] = shuffle(setup, s.seed);
       s.seed = seed;
       playing.forEach((p, i) => {
         p.role = roles[i];
+        p.usesLeft = initialUses(roles[i]);
         p.alive = true;
         p.ready = false;
         delete p.deathCause;
         delete p.deathRound;
       });
+
       s.deaths = [];
       s.log = [];
       s.seerResults = {};
+      s.detectiveResults = {};
       s.lastProtected = {};
       s.votes = {};
       s.round = 0;
+      s.mistReadyRound = 1;
+      s.spellCastThisDay = false;
+      s.spellBlockTarget = null;
       s.winner = null;
-      s.pendingHunter = null;
       narrate(s, 'game_start', now);
       setPhase(s, 'ROLE_REVEAL', now, s.settings.roleRevealSeconds);
       return s;
@@ -425,44 +488,90 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
     }
 
     case 'NIGHT_ACTION': {
-      if (s.phase !== 'NIGHT') return s;
+      if (s.phase !== 'NIGHT' || !s.nightStep) return s;
+      const step = s.nightStep;
       const actor = playerById(s, action.playerId);
-      if (!actor || !actor.alive || actor.left || !actor.role) return s;
-      const role = ROLES[actor.role];
-      if (!role.nightAction) return s;
-      if (hasSubmittedNightAction(s, actor.id)) return s;
+      if (!actor || !actor.role) return s;
+      if (!eligibleActors(s, step).includes(actor.id)) return s;
+      if (s.night.woke.includes(actor.id) || actor.id in s.night.vampireVotes) return s;
 
+      // Pas: uyanmış sayılmaz (dedektif "uyanmadı" görür).
       if (action.targetId === null) {
-        s.night.passed.push(actor.id);
-      } else {
-        const valid = role.nightAction.validTargets(s, actor.id);
-        if (!valid.includes(action.targetId)) return s;
+        if (step === 'vampireVote') s.night.vampireVotes[actor.id] = '';
+        else s.night.doneSteps.push(step);
+        if (stepComplete(s, step)) advanceNight(s, now);
+        return s;
+      }
 
-        switch (actor.role) {
-          case 'vampire':
-            s.night.vampireVotes[actor.id] = action.targetId;
-            break;
-          case 'doctor':
-            s.night.doctorSaves[actor.id] = action.targetId;
-            break;
-          case 'seer': {
-            s.night.seerChecks[actor.id] = action.targetId;
-            // Kâhin cevabını anında alır (02-game-flow.md).
-            const effects = role.nightAction.resolve(s, actor.id, action.targetId);
-            for (const effect of effects) {
-              if (effect.type !== 'reveal') continue;
-              const list = s.seerResults[actor.id] ?? [];
+      const role = ROLES[actor.role];
+      const nightAction = role.nightAction;
+      if (!nightAction || nightAction.step !== step) return s;
+      if (!nightAction.validTargets(s, actor.id).includes(action.targetId)) return s;
+
+      s.night.woke.push(actor.id);
+
+      if (step === 'vampireVote') {
+        s.night.vampireVotes[actor.id] = action.targetId;
+      } else {
+        consumeUse(actor);
+        for (const effect of nightAction.resolve(s, actor.id, action.targetId)) {
+          switch (effect.type) {
+            case 'protect':
+              s.night.protectedId = effect.targetId;
+              s.lastProtected[actor.id] = effect.targetId;
+              break;
+            case 'block':
+              applyBlock(s, effect.targetId, now);
+              break;
+            case 'fog':
+              s.night.fog = true;
+              s.mistReadyRound = s.round + 3;
+              break;
+            case 'convert':
+              applyConvert(s, effect.targetId, now);
+              break;
+            case 'steal':
+              applySteal(s, effect.actorId, effect.targetId, now);
+              break;
+            case 'reveal': {
+              const list = s.seerResults[effect.actorId] ?? [];
               list.push({ round: s.round, targetId: effect.targetId, isVampire: effect.isVampire });
-              s.seerResults[actor.id] = list;
+              s.seerResults[effect.actorId] = list;
+              break;
             }
-            break;
+            case 'investigate': {
+              const list = s.detectiveResults[effect.actorId] ?? [];
+              list.push({
+                round: s.round,
+                targetId: effect.targetId,
+                woke: s.night.woke.includes(effect.targetId),
+              });
+              s.detectiveResults[effect.actorId] = list;
+              break;
+            }
+            default:
+              break;
           }
-          default:
-            return s;
         }
       }
 
-      if (allNightActionsIn(s)) resolveNight(s, now);
+      if (stepComplete(s, step)) advanceNight(s, now);
+      return s;
+    }
+
+    case 'CAST_SPELL': {
+      if (s.phase !== 'DAY_DISCUSSION' || s.spellCastThisDay) return s;
+      const actor = playerById(s, action.playerId);
+      if (!actor || actor.role !== 'wizard' || !actor.alive || actor.left) return s;
+      if (usesLeftOf(actor) <= 0) return s;
+      if (!ROLES.wizard.dayAction!.validTargets(s, actor.id).includes(action.targetId)) return s;
+
+      consumeUse(actor);
+      s.spellCastThisDay = true;
+      s.spellBlockTarget = action.targetId;
+      // Tartışmaya ek süre; kimin yaptığı gizli.
+      if (s.phaseEndsAt !== null) s.phaseEndsAt += s.settings.spellBonusSeconds * 1000;
+      narrate(s, 'spell_cast', now);
       return s;
     }
 
@@ -476,20 +585,13 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
         if (!target || !target.alive || target.left) return s;
       }
       s.votes[voter.id] = action.targetId;
-      if (allVotesIn(s)) resolveVote(s, now);
-      return s;
-    }
-
-    case 'HUNTER_SHOT': {
-      if (s.phase !== 'HUNTER_SHOT') return s;
-      if (!s.pendingHunter || s.pendingHunter.hunterId !== action.playerId) return s;
-      resolveHunterShot(s, action.targetId, now);
+      if (alivePlayers(s).every((p) => p.id in s.votes)) resolveVote(s, now);
       return s;
     }
 
     case 'END_DISCUSSION': {
       if (s.phase !== 'DAY_DISCUSSION') return s;
-      startVote(s, now);
+      leaveDiscussion(s, now);
       return s;
     }
 
@@ -504,19 +606,13 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       player.left = true;
       player.connected = false;
       narrate(s, 'player_left', now, { name: player.name });
-
       delete s.night.vampireVotes[player.id];
-      delete s.night.seerChecks[player.id];
-      delete s.night.doctorSaves[player.id];
       delete s.votes[player.id];
 
-      if (s.phase === 'HUNTER_SHOT' && s.pendingHunter?.hunterId === player.id) {
-        resolveHunterShot(s, null, now);
-      }
       if (finishIfWon(s, now)) return s;
 
-      if (s.phase === 'NIGHT' && allNightActionsIn(s)) resolveNight(s, now);
-      else if (s.phase === 'VOTE' && allVotesIn(s)) resolveVote(s, now);
+      if (s.phase === 'NIGHT' && s.nightStep && stepComplete(s, s.nightStep)) advanceNight(s, now);
+      else if (s.phase === 'VOTE' && alivePlayers(s).every((p) => p.id in s.votes)) resolveVote(s, now);
       else if (s.phase === 'ROLE_REVEAL' && participants(s).every((p) => p.ready)) startNight(s, now);
       return s;
     }
@@ -527,20 +623,18 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
           startNight(s, now);
           break;
         case 'NIGHT':
-          resolveNight(s, now);
+          // Adım süresi doldu: seçim yapmayanlar pas sayılır.
+          advanceNight(s, now);
           break;
         case 'NIGHT_RESULT':
         case 'VOTE_RESULT':
           leaveResultPhase(s, now);
           break;
         case 'DAY_DISCUSSION':
-          startVote(s, now);
+          leaveDiscussion(s, now);
           break;
         case 'VOTE':
           resolveVote(s, now);
-          break;
-        case 'HUNTER_SHOT':
-          resolveHunterShot(s, null, now);
           break;
         default:
           break;
@@ -558,6 +652,7 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
           alive: true,
           ready: false,
           role: undefined,
+          usesLeft: undefined,
           deathCause: undefined,
           deathRound: undefined,
         }));
@@ -569,7 +664,8 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
   }
 }
 
-/** Rol dağılımının doğrulaması için dışa açık yardımcı. */
+export { MIN_PLAYERS };
+
 export function rolesInPlay(state: GameState): RoleId[] {
   return participants(state)
     .map((p) => p.role)

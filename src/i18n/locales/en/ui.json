@@ -49,14 +49,17 @@
     "hostPlays": "Host plays too",
     "hostNarrates": "Host only narrates",
     "discussionTime": "Discussion time",
-    "maxPlayers": "Player limit",
-    "bigRoomLocked": "More than 12 players is coming later.",
     "hostDeviceHint": "A computer or tablet is recommended for the host; the game pauses if the screen turns off.",
     "connecting": "Connecting to the room…",
     "waitingPlayers": "Waiting for players…",
     "addBot": "Add bot",
-    "bigRoomHint": "Above 12 players there is still one Seer, Doctor and Hunter; everyone else is a villager. Very large rooms make the P2P mesh heavier.",
-    "botHint": "Bots act randomly at night and vote at random. For testing."
+    "botHint": "Bots act randomly at night and vote at random. For testing.",
+    "playerCount": "Players: {{count}}",
+    "roleSetup": "Roles",
+    "useSuggestion": "Use suggestion",
+    "setupCount": "{{total}} roles / {{players}} players",
+    "addRole": "Add role",
+    "removeRole": "Remove role"
   },
   "role": {
     "title": "Your role",
@@ -81,14 +84,26 @@
     "teamPicks": "Your fellow vampires' picks",
     "doctorRepeatBlocked": "You cannot protect the same person two nights in a row.",
     "seerResultVampire": "{{name}} is a VAMPIRE.",
-    "seerResultClean": "{{name}} is NOT a vampire."
+    "seerResultClean": "{{name}} is NOT a vampire.",
+    "lordPrompt": "Who do you turn into a vampire?",
+    "sealPrompt": "Who do you seal tonight?",
+    "mistPrompt": "Bring the fog? The seer and detective stay blind tonight.",
+    "detectivePrompt": "Whose night do you want to look into?",
+    "thiefPrompt": "Whose role do you steal?",
+    "mistConfirm": "Bring the fog",
+    "usesLeft": "Uses left: {{count}}",
+    "detectiveWoke": "{{name}} WOKE up tonight.",
+    "detectiveSlept": "{{name}} did not wake tonight."
   },
   "day": {
     "title": "Day {{count}}",
     "discussion": "Discussion",
     "alive": "Still alive",
     "endEarly": "End discussion",
-    "hint": "Talk, accuse, defend. Voting starts when the timer ends."
+    "hint": "Talk, accuse, defend. Voting starts when the timer ends.",
+    "castSpell": "Cast the spell",
+    "spellTarget": "Who cannot wake tonight?",
+    "spellCastBanner": "A spell was cast today: nobody will hang."
   },
   "vote": {
     "title": "Vote",
@@ -99,12 +114,6 @@
     "waitingOthers": "The others are voting…",
     "tally": "Votes",
     "votesFor": "{{count}} votes"
-  },
-  "hunter": {
-    "title": "Last Shot",
-    "prompt": "Who are you taking with you?",
-    "pass": "Choose no one",
-    "waiting": "The hunter is taking their last shot…"
   },
   "result": {
     "preparing": "Preparing the results…",

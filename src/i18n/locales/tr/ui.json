@@ -49,14 +49,17 @@
     "hostPlays": "Kurucu da oynuyor",
     "hostNarrates": "Kurucu sadece anlatıcı",
     "discussionTime": "Tartışma süresi",
-    "maxPlayers": "Oyuncu sınırı",
-    "bigRoomLocked": "12'den fazla oyuncu ileride açılacak.",
     "hostDeviceHint": "Kurucu olarak bilgisayar veya tablet önerilir; ekran kapanırsa oyun duraklar.",
     "connecting": "Odaya bağlanılıyor…",
     "waitingPlayers": "Oyuncular bekleniyor…",
     "addBot": "Bot ekle",
-    "bigRoomHint": "12 üstü odalarda Kâhin/Doktor/Avcı yine birer tane; kalan herkes köylü olur. Çok kalabalık odalarda P2P bağlantı ağırlaşabilir.",
-    "botHint": "Botlar gece rastgele hareket eder, oylamada rastgele oy verir. Test için."
+    "botHint": "Botlar gece rastgele hareket eder, oylamada rastgele oy verir. Test için.",
+    "playerCount": "Oyuncu sayısı: {{count}}",
+    "roleSetup": "Roller",
+    "useSuggestion": "Öneriye dön",
+    "setupCount": "{{total}} rol / {{players}} oyuncu",
+    "addRole": "Rol ekle",
+    "removeRole": "Rol çıkar"
   },
   "role": {
     "title": "Rolün",
@@ -81,14 +84,26 @@
     "teamPicks": "Vampir arkadaşlarının seçimi",
     "doctorRepeatBlocked": "Aynı kişiyi üst üste iki gece koruyamazsın.",
     "seerResultVampire": "{{name}} bir VAMPİR.",
-    "seerResultClean": "{{name}} vampir DEĞİL."
+    "seerResultClean": "{{name}} vampir DEĞİL.",
+    "lordPrompt": "Kimi vampire dönüştürüyorsun?",
+    "sealPrompt": "Bu gece kimi mühürlüyorsun?",
+    "mistPrompt": "Sis basılsın mı? Kâhin ve dedektif bu gece kör kalır.",
+    "detectivePrompt": "Kimin gecesine bakmak istiyorsun?",
+    "thiefPrompt": "Kimin rolünü çalıyorsun?",
+    "mistConfirm": "Sisi bas",
+    "usesLeft": "Kalan hakkın: {{count}}",
+    "detectiveWoke": "{{name}} bu gece UYANDI.",
+    "detectiveSlept": "{{name}} bu gece uyanmadı."
   },
   "day": {
     "title": "Gündüz {{count}}",
     "discussion": "Tartışma",
     "alive": "Hayatta kalanlar",
     "endEarly": "Tartışmayı bitir",
-    "hint": "Konuşun, suçlayın, savunun. Sayaç bitince oylama başlar."
+    "hint": "Konuşun, suçlayın, savunun. Sayaç bitince oylama başlar.",
+    "castSpell": "Büyü yap",
+    "spellTarget": "Kim bu gece uyanamasın?",
+    "spellCastBanner": "Bugün büyü yapıldı: kimse asılmayacak."
   },
   "vote": {
     "title": "Oylama",
@@ -99,12 +114,6 @@
     "waitingOthers": "Diğerleri oy veriyor…",
     "tally": "Oylar",
     "votesFor": "{{count}} oy"
-  },
-  "hunter": {
-    "title": "Son Ok",
-    "prompt": "Yanında kimi götürüyorsun?",
-    "pass": "Kimseyi seçme",
-    "waiting": "Avcı son okunu çekiyor…"
   },
   "result": {
     "preparing": "Sonuçlar hazırlanıyor…",

@@ -1,12 +1,10 @@
-import type { GameAction, GameState, PlayerId, RoleId } from './types';
+import type { GameAction, GameState, NightStep, PlayerId, RoleId } from './types';
 import { createInitialState, reduce } from './stateMachine';
+import { initialUses } from './roles';
 
 export const T0 = 1_700_000_000_000;
 
-/**
- * Test yardımcıları: rol dağıtımı rastgele olduğu için testlerde roller
- * START_GAME sonrası deterministik olarak sabitlenir.
- */
+/** Rol dağıtımı rastgele olduğu için testlerde roller sabitlenir. */
 export function seatPlayers(count: number, seed = 42): GameState {
   let state = createInitialState(seed);
   for (let i = 0; i < count; i++) {
@@ -29,18 +27,22 @@ export function seatPlayers(count: number, seed = 42): GameState {
   return state;
 }
 
-/** Belirtilen rollerle, gece 1'e hazır bir oyun kurar (ROLE_REVEAL'da bırakır). */
+/** Belirtilen rollerle ROLE_REVEAL fazında bir oyun. */
 export function startWithRoles(roles: RoleId[], seed = 42): GameState {
   let state = seatPlayers(roles.length, seed);
+  state = reduce(state, { type: 'UPDATE_SETTINGS', settings: { maxPlayers: roles.length } }, T0);
   state = reduce(state, { type: 'START_GAME' }, T0);
-  state = {
+  return {
     ...state,
-    players: state.players.map((p, i) => ({ ...p, role: roles[i] })),
+    players: state.players.map((p, i) => ({
+      ...p,
+      role: roles[i],
+      usesLeft: initialUses(roles[i]),
+    })),
   };
-  return state;
 }
 
-/** Rolleri sabitleyip herkesin rolü gördüğü, NIGHT fazındaki oyun. */
+/** Roller sabit, herkes rolünü gördü → gecenin ilk adımında. */
 export function startNightWithRoles(roles: RoleId[], seed = 42): GameState {
   let state = startWithRoles(roles, seed);
   for (const p of state.players) {
@@ -53,20 +55,46 @@ export function apply(state: GameState, actions: GameAction[], now = T0): GameSt
   return actions.reduce((s, a) => reduce(s, a, now), state);
 }
 
-export function idsWithRole(state: GameState, role: RoleId): PlayerId[] {
-  return state.players.filter((p) => p.role === role).map((p) => p.id);
-}
-
 export function player(state: GameState, id: PlayerId) {
   const found = state.players.find((p) => p.id === id);
   if (!found) throw new Error(`player ${id} not found`);
   return found;
 }
 
-export function lastNarration(state: GameState): string {
-  return state.log[state.log.length - 1]?.key ?? '';
-}
-
 export function narrationKeys(state: GameState): string[] {
   return state.log.map((e) => e.key);
+}
+
+/** Bir oyuncuya özel gönderilen anlatımlar (gizli bildirimler). */
+export function privateKeys(state: GameState, playerId: PlayerId): string[] {
+  return state.log.filter((e) => e.onlyFor?.includes(playerId)).map((e) => e.key);
+}
+
+/** Belirtilen adıma gelene kadar süreyi doldurarak ilerler. */
+export function skipToStep(state: GameState, step: NightStep, now = T0): GameState {
+  let s = state;
+  for (let i = 0; i < 12 && s.phase === 'NIGHT' && s.nightStep !== step; i++) {
+    s = reduce(s, { type: 'TIMEOUT' }, now);
+  }
+  return s;
+}
+
+/** Geceyi sonuna kadar boş geçirir (herkes pas). */
+export function skipNight(state: GameState, now = T0): GameState {
+  let s = state;
+  for (let i = 0; i < 12 && s.phase === 'NIGHT'; i++) {
+    s = reduce(s, { type: 'TIMEOUT' }, now);
+  }
+  return s;
+}
+
+/** NIGHT_RESULT → DAY → (oylama) → NIGHT döngüsünü boş geçirir. */
+export function quietDay(state: GameState, now = T0): GameState {
+  let s = reduce(state, { type: 'TIMEOUT' }, now); // NIGHT_RESULT → DAY
+  s = reduce(s, { type: 'END_DISCUSSION' }, now); // DAY → VOTE (ya da gece)
+  if (s.phase === 'VOTE') {
+    s = reduce(s, { type: 'TIMEOUT' }, now); // VOTE → VOTE_RESULT
+    s = reduce(s, { type: 'TIMEOUT' }, now); // VOTE_RESULT → NIGHT
+  }
+  return s;
 }

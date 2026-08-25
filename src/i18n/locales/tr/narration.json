@@ -10,10 +10,14 @@
   "vote_hanged": "İp gerildi… {{name}} artık köyün bir parçası değil.",
   "vote_tie": "Köy karar veremedi. Kimse asılmadı… bu gece kim bilir kim ölecek.",
   "vote_none": "Kimse oy vermedi. İp bu gün boş kaldı.",
-  "hunter_triggered": "{{name}} son nefesinde silahına davrandı…",
-  "hunter_kill": "Avcının oku {{name}} adlı oyuncuyu buldu.",
-  "hunter_pass": "Avcının eli titredi, ok boşluğa gitti.",
   "player_left": "{{name}} sırra kadem bastı. Köyü terk etti.",
   "win_village": "Köy zafer kazandı! Son vampir de yok edildi.",
-  "win_vampires": "Artık köyü vampirler yönetiyor…"
+  "win_vampires": "Artık köyü vampirler yönetiyor…",
+  "spell_cast": "Havada bir uğultu… Bugün kimse asılmayacak.",
+  "spell_no_vote": "İp bugün boş kaldı. Karanlık yaklaşıyor.",
+  "converted_self": "Boynunda bir yanma… Artık onlardansın.",
+  "hunter_backfire_self": "Avcının izini sürerken içinde bir şey kırıldı. Artık sıradan bir köylüsün.",
+  "seal_failed_hunter": "Biri seni mühürlemeye çalıştı ama tutmadı. Gözünü dört aç.",
+  "stole_role_self": "Cebinde yeni bir hayat var: artık {{role}} sensin.",
+  "role_stolen_self": "Bir şey çalındı senden. Elinde ne varsa gitti; sıradan bir köylüsün."
 }

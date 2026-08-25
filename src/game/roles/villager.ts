@@ -1,8 +1,7 @@
 import type { RoleDefinition } from '../types';
 
-/** Köylü — 03-roles.md: yeteneksiz, tek silahı gündüz oyu. */
+/** Köylü — yeteneksiz. Tek silahı gündüz konuşması ve oyu. */
 export const villager: RoleDefinition = {
   id: 'villager',
   team: 'village',
-  premium: false,
 };

@@ -136,8 +136,8 @@ export class HostController {
       case 'vote':
         this.dispatch({ type: 'VOTE', playerId, targetId: msg.targetId });
         break;
-      case 'hunterShot':
-        this.dispatch({ type: 'HUNTER_SHOT', playerId, targetId: msg.targetId });
+      case 'castSpell':
+        this.dispatch({ type: 'CAST_SPELL', playerId, targetId: msg.targetId });
         break;
       case 'leave':
         this.dispatch({ type: 'PLAYER_LEFT', playerId });

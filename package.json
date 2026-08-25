@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:relay": "wrangler dev --port 8787 --local",
-    "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prebuild": "node -e \"try{require('fs').rmSync('dist',{recursive:true,force:true,maxRetries:5,retryDelay:200})}catch(e){console.warn('dist temizlenemedi:',e.code)}\"",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",

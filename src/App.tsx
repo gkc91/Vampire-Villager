@@ -13,7 +13,6 @@ import { NightScreen } from './ui/screens/NightScreen';
 import { NarrationScreen } from './ui/screens/NarrationScreen';
 import { DayScreen } from './ui/screens/DayScreen';
 import { VoteScreen } from './ui/screens/VoteScreen';
-import { HunterScreen } from './ui/screens/HunterScreen';
 import { ResultScreen } from './ui/screens/ResultScreen';
 
 export default function App() {
@@ -79,8 +78,6 @@ function PhaseScreen() {
       return <DayScreen view={view} />;
     case 'VOTE':
       return <VoteScreen view={view} />;
-    case 'HUNTER_SHOT':
-      return <HunterScreen view={view} />;
     case 'GAME_END':
       return <ResultScreen view={view} />;
     default:

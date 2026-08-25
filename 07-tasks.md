@@ -72,28 +72,28 @@ Her milestone tek başına test edilebilir biter. Sıra atlanmaz — özellikle 
       gerektirir, kullanıcının makinesinde yapılacak
 - [ ] iOS (macOS + Xcode gerekir)
 
-## M7 — Yeni Rol Seti (11 rol) — SIRADAKİ
+## M7 — Yeni Rol Seti (11 rol) ✅ (görseller hariç)
 
-Kural seti 03-roles.md'de tamam, açık soru yok. Bu, gece fazının yeniden
-yazımını gerektiriyor; parça parça değil tek seferde yapılmalı.
-
-- [ ] Motor: gece fazını **sıralı adımlara** böl (lord → kan büyücüsü →
-      sisler → vampir oylaması → doktor → kâhin → dedektif → hırsız),
-      her adım **seçim anında** uygulansın
-- [ ] Rol başına kullanım sayacı (doktor 2, büyücü 1, lord 1, kan büy. 2)
-      ve bekleme sayacı (sisler: 2 gece)
-- [ ] Engelleme durumları: mühür, sis, büyü — "o gece uyanamaz"
-- [ ] Gizli rol değişimleri: lord dönüşümü, avcı geri tepmesi, hırsız çalma
-- [ ] 6 yeni rol dosyası (dedektif, büyücü, lord, kan büyücüsü, sisler,
-      hırsız) + doktor/avcı kurallarının yeniden yazımı
-- [ ] Tarafsız kazanma koşulu (hırsız çalana kadar)
-- [ ] Büyücünün gündüz aksiyonu: bildirim + oylamasız gün + 60 sn ek süre
-- [ ] Lobi: oyuncu sayısı kaydırmalı denetim (min 4, üst sınır yok) +
-      **rol seçim arayüzü** (öneri gelir, kurucu ekler/çıkarır)
-- [ ] Dedektif için "o gece uyandı" izleme
-- [ ] i18n: 6 yeni rol + yeni anlatım anahtarları (tr + en)
-- [ ] Motor testlerinin yeni kurallara göre yeniden yazımı
-- [ ] 6 yeni rol kartı görseli (docs/ASSET-PROMPTS.md şablonuyla)
+- [x] Motor: gece sıralı adımlara bölündü (lord → kan büyücüsü → sisler →
+      vampir oylaması → doktor → kâhin → dedektif → hırsız), her adım
+      seçim anında uygulanıyor; oyuncusu olmayan adım atlanıyor
+- [x] Rol başına kullanım sayacı + sisler için bekleme sayacı
+- [x] Engelleme durumları: mühür, sis, büyü
+- [x] Gizli rol değişimleri: lord dönüşümü, avcı geri tepmesi, hırsız çalma
+      (yalnız ilgili oyuncuya giden anlatım kanalı eklendi)
+- [x] 11 rol dosyası; doktor/avcı yeni kurallarla yeniden yazıldı
+- [x] Tarafsız hırsız: çaldığı rolün takımına geçer
+- [x] Büyücünün gündüz aksiyonu: bildirim + oylamasız gün + 60 sn ek süre
+- [x] Lobi: oyuncu sayısı kaydırmalı denetim (min 4) + rol seçim arayüzü
+      (öneri gelir, kurucu ekler/çıkarır)
+- [x] Dedektif için "o gece uyandı" izleme (fiilen seçim yapmak)
+- [x] i18n: 11 rol + yeni anlatım anahtarları (tr + en)
+- [x] Motor testleri yeniden yazıldı — 70 test, 100 rastgele oyun gerçek
+      bot mantığıyla oynanıyor
+- [ ] 6 yeni rol kartı görseli (docs/ASSET-PROMPTS.md şablonuyla) —
+      kullanıcı üretecek
+- Test: solo modda 10 kişilik oyun oynandı; hırsız doktorun rolünü kalan
+      hakkıyla birlikte çaldı, gece adımları ve gündüz döngüsü çalıştı.
 
 ## Backlog (MVP sonrası, sırasız)
 - Host devri (host koparsa oyun ölmesin)

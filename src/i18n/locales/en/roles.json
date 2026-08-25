@@ -21,12 +21,42 @@
   },
   "doctor": {
     "name": "Doctor",
-    "short": "Each night you protect someone.",
-    "description": "Each night you shield one player from the vampire attack. You may protect yourself, but never the same person two nights in a row."
+    "short": "Two protections for the whole game.",
+    "description": "At night you shield a player from the vampire attack — but only twice in the whole game. You may protect yourself, never the same person two nights in a row, and it does not stop a hanging."
   },
   "hunter": {
     "name": "Hunter",
-    "short": "If you die, you take someone with you.",
-    "description": "However you die — night attack or hanging — you fire one last shot, and the player you choose dies too."
+    "short": "Vampires cannot touch you.",
+    "description": "You have no night action. If the vampires come for you the attack backfires: one of them quietly drops to plain villager and nobody dies that night. You can still be hanged by day."
+  },
+  "detective": {
+    "name": "Detective",
+    "short": "You see who woke up at night.",
+    "description": "Each night you pick a player and the game tells you whether they woke that night. It never reveals the role or the team — someone awake could be the seer or a vampire."
+  },
+  "wizard": {
+    "name": "Wizard",
+    "short": "Once, you stop a hanging.",
+    "description": "Once per game, during the day discussion, you cast your spell. Nobody hangs that day, a minute is added to the discussion, and the player you choose cannot wake that night. Nobody learns it was you."
+  },
+  "vampireLord": {
+    "name": "Vampire Lord",
+    "short": "Once, you turn someone into a vampire.",
+    "description": "Once per game you turn a player at night; they learn it and join the team, but cannot join the kill that same night. Try it on the hunter and it backfires."
+  },
+  "bloodWizard": {
+    "name": "Blood Sorcerer",
+    "short": "Two nights, you seal someone.",
+    "description": "On two nights of the game you seal a non-vampire: they cannot wake or use their ability that night. Seal the hunter and it fails — and the hunter notices."
+  },
+  "mistVampire": {
+    "name": "Mist Vampire",
+    "short": "Fog blinds the information roles.",
+    "description": "On a foggy night the seer and the detective never wake at all. Your first fog can be any night; after that you must wait two nights."
+  },
+  "thief": {
+    "name": "Thief",
+    "short": "Once, you steal a role.",
+    "description": "You wake last. You steal the role of the player you choose; even a vampire drops to plain villager. From that moment you are that role — and on that team."
   }
 }

@@ -5,8 +5,8 @@ import { Card, SectionTitle, Spinner } from '../components/atoms';
 import { PlayerGrid } from '../components/PlayerGrid';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
-import { MIN_PLAYERS, ROOM_SIZE_OPTIONS, TABLE_MAX_PLAYERS } from '../../game/distribution';
-import { hasEntitlement } from '../../monetization/entitlements';
+import { MIN_PLAYERS, suggestedRoles } from '../../game/distribution';
+import { RoleSetup } from '../components/RoleSetup';
 import { joinLink } from '../../util/identity';
 
 const BOT_NAMES = ['Ada', 'Boran', 'Ceren', 'Deniz', 'Ege', 'Fikret', 'Gizem', 'Hakan', 'Irmak', 'Jale', 'Kerem'];
@@ -162,24 +162,35 @@ function HostSettings({ view }: { view: PlayerView }) {
       </div>
 
       <div>
-        <p className="mb-2 text-sm text-moon-200/70">{t('lobby.maxPlayers')}</p>
-        <div className="flex flex-wrap gap-2">
-          {ROOM_SIZE_OPTIONS.map((count) => {
-            // 12 üstü oda 05-monetization.md'deki big_room kapısından geçer.
-            const locked = count > TABLE_MAX_PLAYERS && !hasEntitlement('big_room');
-            return (
-              <Choice
-                key={count}
-                active={view.settings.maxPlayers === count}
-                disabled={locked}
-                label={locked ? `🔒 ${count}` : String(count)}
-                onClick={() => store.updateSettings({ maxPlayers: count })}
-              />
-            );
-          })}
+        <p className="mb-2 text-sm text-moon-200/70">
+          {t('lobby.playerCount', { count: view.settings.maxPlayers })}
+        </p>
+        {/* Kaydırmalı denetim: minimum 4, üst sınır yok (03-roles.md). */}
+        <input
+          type="range"
+          min={MIN_PLAYERS}
+          max={24}
+          step={1}
+          value={view.settings.maxPlayers}
+          onChange={(e) => store.updateSettings({ maxPlayers: Number(e.target.value) })}
+          className="w-full accent-blood-500"
+          aria-label={t('lobby.playerCount', { count: view.settings.maxPlayers })}
+        />
+        <div className="flex justify-between text-[11px] text-moon-200/40">
+          <span>{MIN_PLAYERS}</span>
+          <span>24</span>
         </div>
-        <p className="mt-2 text-[11px] text-moon-200/40">{t('lobby.bigRoomHint')}</p>
       </div>
+
+      <RoleSetup
+        roleSetup={
+          view.settings.roleSetup.length > 0
+            ? view.settings.roleSetup
+            : suggestedRoles(Math.max(MIN_PLAYERS, view.players.filter((p) => p.isPlayer && !p.left).length))
+        }
+        playerCount={view.players.filter((p) => p.isPlayer && !p.left).length}
+        onChange={(roleSetup) => store.updateSettings({ roleSetup })}
+      />
 
       {/* Bot her odada eklenebilir: az kişiyle test için. Botlar host
           cihazında çalışır, taşıma katmanından bağımsızdır. */}

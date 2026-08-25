@@ -10,10 +10,14 @@
   "vote_hanged": "The rope went taut… {{name}} is no longer part of the village.",
   "vote_tie": "The village could not decide. No one hangs… and tonight, who knows.",
   "vote_none": "Nobody voted. The rope stayed empty today.",
-  "hunter_triggered": "With their last breath, {{name}} reached for a weapon…",
-  "hunter_kill": "The hunter's shot found {{name}}.",
-  "hunter_pass": "The hunter's hand shook, and the shot went wide.",
   "player_left": "{{name}} vanished into thin air. They left the village.",
   "win_village": "The village prevails! The last vampire is destroyed.",
-  "win_vampires": "The vampires rule the village now…"
+  "win_vampires": "The vampires rule the village now…",
+  "spell_cast": "A hum in the air… nobody hangs today.",
+  "spell_no_vote": "The rope stayed empty today. Darkness is coming.",
+  "converted_self": "A burn on your neck… you are one of them now.",
+  "hunter_backfire_self": "Something broke in you on the hunter trail. You are an ordinary villager now.",
+  "seal_failed_hunter": "Someone tried to seal you and failed. Keep your eyes open.",
+  "stole_role_self": "A new life in your pocket: you are the {{role}} now.",
+  "role_stolen_self": "Something was taken from you. Whatever you had is gone; you are an ordinary villager."
 }

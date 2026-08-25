@@ -17,7 +17,7 @@ export type ClientMessage =
   | { type: 'roleSeen'; token: Token }
   | { type: 'nightAction'; token: Token; targetId: PlayerId | null }
   | { type: 'vote'; token: Token; targetId: PlayerId | 'abstain' }
-  | { type: 'hunterShot'; token: Token; targetId: PlayerId | null }
+  | { type: 'castSpell'; token: Token; targetId: PlayerId }
   | { type: 'leave'; token: Token };
 
 export type ServerMessage =
