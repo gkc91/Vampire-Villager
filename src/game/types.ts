@@ -98,6 +98,12 @@ export interface GameSettings {
    * boştur. Seçilen rol dağıtım listesinde yoksa listeden biri feda edilir.
    */
   forcedRoles?: Record<PlayerId, RoleId>;
+  /**
+   * TEST ARACI: kurucuya gecenin gerçek durumunu (kim engellendi, kim
+   * uyandı, hedef kim) gösterir. Yalnız kurucunun kendi görünümüne eklenir,
+   * asla başka oyuncuya gitmez.
+   */
+  testMode?: boolean;
 }
 
 export interface NarrationEvent {

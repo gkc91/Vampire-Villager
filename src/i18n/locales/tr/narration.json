@@ -19,5 +19,10 @@
   "hunter_backfire_self": "Avcının izini sürerken içinde bir şey kırıldı. Artık sıradan bir köylüsün.",
   "seal_failed_hunter": "Biri seni mühürlemeye çalıştı ama tutmadı. Gözünü dört aç.",
   "stole_role_self": "Cebinde yeni bir hayat var: artık {{role}} sensin.",
-  "role_stolen_self": "Bir şey çalındı senden. Elinde ne varsa gitti; sıradan bir köylüsün."
+  "role_stolen_self": "Bir şey çalındı senden. Elinde ne varsa gitti; sıradan bir köylüsün.",
+  "acted_vampire_self": "Bu gece {{name}} için oy verdin.",
+  "acted_protect_self": "{{name}} adlı oyuncuyu korumaya aldın.",
+  "acted_seal_self": "{{name}} adlı oyuncuyu mühürledin.",
+  "acted_convert_self": "{{name}} adlı oyuncuyu dönüştürmeyi denedin.",
+  "acted_fog_self": "Sisi bastın; bu gece bilgi rolleri kör."
 }

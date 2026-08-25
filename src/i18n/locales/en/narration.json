@@ -19,5 +19,10 @@
   "hunter_backfire_self": "Something broke in you on the hunter trail. You are an ordinary villager now.",
   "seal_failed_hunter": "Someone tried to seal you and failed. Keep your eyes open.",
   "stole_role_self": "A new life in your pocket: you are the {{role}} now.",
-  "role_stolen_self": "Something was taken from you. Whatever you had is gone; you are an ordinary villager."
+  "role_stolen_self": "Something was taken from you. Whatever you had is gone; you are an ordinary villager.",
+  "acted_vampire_self": "You voted for {{name}} tonight.",
+  "acted_protect_self": "You put {{name}} under your protection.",
+  "acted_seal_self": "You sealed {{name}}.",
+  "acted_convert_self": "You tried to turn {{name}}.",
+  "acted_fog_self": "You brought the fog; the information roles are blind tonight."
 }

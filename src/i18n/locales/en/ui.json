@@ -17,7 +17,9 @@
     "dead": "Dead",
     "left": "Left",
     "offline": "Offline",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "yes": "Yes",
+    "no": "No"
   },
   "home": {
     "create": "Create Room",
@@ -178,6 +180,15 @@
   "test": {
     "title": "Test tool",
     "hint": "Force your own role. Only visible with ?test=1; hidden in normal games.",
-    "random": "Random (normal deal)"
+    "random": "Random (normal deal)",
+    "dbgTitle": "Night x-ray — round {{round}}",
+    "dbgStep": "Step",
+    "dbgBlocked": "Blocked",
+    "dbgWoke": "Woke",
+    "dbgFog": "Fog",
+    "dbgProtected": "Protected",
+    "dbgAttack": "Vampire target",
+    "dbgConverted": "Turned",
+    "dbgRoles": "Roles"
   }
 }

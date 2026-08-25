@@ -37,6 +37,25 @@ export interface PublicPlayer {
   hasVoted?: boolean;
 }
 
+/**
+ * TEST ARACI — gecenin gizli durumu. Botlarla test ederken mührün tutup
+ * tutmadığını, kimin uyandığını başka türlü görmek mümkün değil.
+ * `buildPlayerView` bunu YALNIZ `settings.testMode` açıkken ve yalnız
+ * kurucunun görünümüne koyar.
+ */
+export interface NightDebug {
+  round: number;
+  step: NightStep | null;
+  fog: boolean;
+  blocked: string[];
+  woke: string[];
+  protectedName: string | null;
+  attackName: string | null;
+  convertedName: string | null;
+  /** oyuncu adı → rol adı anahtarı */
+  roles: [string, RoleId][];
+}
+
 export interface PlayerView {
   roomId: string;
   phase: Phase;
@@ -74,6 +93,8 @@ export interface PlayerView {
     validTargets: PlayerId[];
     submitted: boolean;
   };
+  /** TEST ARACI: yalnız testMode + kurucu. */
+  debug?: NightDebug;
   spell: {
     canCast: boolean;
     validTargets: PlayerId[];
@@ -166,6 +187,25 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
 
   const maxUses = myRole ? ROLES[myRole].maxUses : undefined;
 
+  const nameOf = (id: PlayerId | null) =>
+    id ? (playerById(state, id)?.name ?? null) : null;
+  const debug: NightDebug | undefined =
+    state.settings.testMode && me?.isHost
+      ? {
+          round: state.round,
+          step: state.nightStep,
+          fog: state.night.fog,
+          blocked: state.night.blocked.map((id) => nameOf(id) ?? id),
+          woke: state.night.woke.map((id) => nameOf(id) ?? id),
+          protectedName: nameOf(state.night.protectedId),
+          attackName: nameOf(state.night.attackTarget),
+          convertedName: nameOf(state.night.convertedTonight),
+          roles: state.players
+            .filter((p) => p.isPlayer && p.role)
+            .map((p) => [p.name, p.role as RoleId] as [string, RoleId]),
+        }
+      : undefined;
+
   return {
     roomId,
     phase: state.phase,
@@ -192,6 +232,7 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     seerResults: myRole === 'seer' ? (state.seerResults[viewerId] ?? []) : [],
     detectiveResults: myRole === 'detective' ? (state.detectiveResults[viewerId] ?? []) : [],
     vampirePicks,
+    debug,
     nightAction: {
       canAct: isMyStep && !alreadyActed,
       selfCast: Boolean(stepAction?.selfCast),

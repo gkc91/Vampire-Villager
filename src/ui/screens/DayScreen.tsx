@@ -7,6 +7,7 @@ import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
 import { GhostNote, roleNames } from './NightScreen';
 import { PrivateNotes } from '../components/PrivateNotes';
+import { NightDebugPanel } from '../components/NightDebugPanel';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import type { PlayerId } from '../../game/types';
@@ -49,6 +50,7 @@ export function DayScreen({ view }: { view: PlayerView }) {
       <NarrationBanner log={view.log} lines={2} />
       <GhostNote view={view} />
       <PrivateNotes view={view} />
+      <NightDebugPanel view={view} />
 
       {view.spell.castToday && (
         <Card className="border-moon-200/40">

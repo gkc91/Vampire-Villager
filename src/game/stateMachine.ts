@@ -529,6 +529,19 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       s.night.woke.push(actor.id);
       s.night.acted.push(`${actor.id}:${step}`);
 
+      // Oyuncu ne yaptığını görebilmeli. Yalnız kendisine gider ve sonucu
+      // ele vermez (ör. mühür tuttu mu bilgisi kurala göre verilmez).
+      const targetName = playerById(s, action.targetId)?.name;
+      const CONFIRM: Partial<Record<NightStep, string>> = {
+        vampireVote: 'acted_vampire_self',
+        doctor: 'acted_protect_self',
+        bloodWizard: 'acted_seal_self',
+        lord: 'acted_convert_self',
+        mist: 'acted_fog_self',
+      };
+      const confirmKey = CONFIRM[step];
+      if (confirmKey) narrate(s, confirmKey, now, { name: targetName }, [actor.id]);
+
       if (step === 'vampireVote') {
         s.night.vampireVotes[actor.id] = action.targetId;
       } else {

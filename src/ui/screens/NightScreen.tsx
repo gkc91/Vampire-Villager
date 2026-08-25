@@ -6,6 +6,7 @@ import { PhaseTimer } from '../components/PhaseTimer';
 import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
 import { PrivateNotes } from '../components/PrivateNotes';
+import { NightDebugPanel } from '../components/NightDebugPanel';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import type { NightStep, PlayerId } from '../../game/types';
@@ -113,6 +114,7 @@ export function NightScreen({ view }: { view: PlayerView }) {
       )}
 
       <PrivateNotes view={view} />
+      <NightDebugPanel view={view} />
 
       {!acting && (
         <section>

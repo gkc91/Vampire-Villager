@@ -5,6 +5,7 @@ import { PlayerGrid } from '../components/PlayerGrid';
 import { NarrationBanner } from '../components/NarrationBanner';
 import { GhostNote, roleNames } from './NightScreen';
 import { PrivateNotes } from '../components/PrivateNotes';
+import { NightDebugPanel } from '../components/NightDebugPanel';
 import type { PlayerView } from '../../game/view';
 
 /** NIGHT_RESULT ve VOTE_RESULT: yalnız anlatım gösterilir. */
@@ -24,6 +25,7 @@ export function NarrationScreen({ view }: { view: PlayerView }) {
       </div>
       <GhostNote view={view} />
       <PrivateNotes view={view} />
+      <NightDebugPanel view={view} />
 
       <section className="pt-2">
         <SectionTitle>{t('day.alive')}</SectionTitle>

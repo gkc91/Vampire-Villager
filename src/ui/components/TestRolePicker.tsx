@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RoleId } from '../../game/types';
 import { ROLE_IDS, ROLES } from '../../game/roles';
@@ -16,6 +17,13 @@ import { Card, SectionTitle } from './atoms';
 export function TestRolePicker({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   const updateSettings = useGameStore((s) => s.updateSettings);
+
+  // Panel görünüyorsa gece röntgeni de açık olsun; kurucu ayrıca bir düğmeye
+  // basmak zorunda kalmasın.
+  const testMode = view.settings.testMode;
+  useEffect(() => {
+    if (!testMode) updateSettings({ testMode: true });
+  }, [testMode, updateSettings]);
 
   const forced = view.settings.forcedRoles ?? {};
   const mine = forced[view.me.id];
