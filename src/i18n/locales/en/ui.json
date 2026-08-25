@@ -183,8 +183,11 @@
     "probeSiteFail": "Cannot reach the site — you are offline. (The page may have opened from cache, which is why the game loads but will not connect.)",
     "probeSocketOk": "Server connection opened ({{ms}} ms).",
     "probeSocketFail": "Server connection failed (code {{code}}).",
-    "probeBlocked": "Internet works but the game connection is blocked: an ad/content blocker, VPN, corporate or family filter. Turn it off, or switch networks.",
-    "probeAllOk": "This device is fine. If the problem persists, run the same test on the other device."
+    "probeBlocked": "Internet works but the game connection is blocked: an ad/content blocker, VPN, corporate or family filter. Try WiFi first; if nothing changes, turn the blockers off.",
+    "probeAllOk": "This device is fine. If the problem persists, run the same test on the other device.",
+    "probeSocketSlow": "The server connection did not open within 8 seconds (very slow network, or silently dropped).",
+    "probeSseOk": "But an HTTP stream gets through: the block is WebSocket-specific. Send me this screen — the game can connect over HTTP on this device.",
+    "probeSseFail": "HTTP streaming is blocked too: this network allows no long-lived connections. You need to switch to WiFi."
   },
   "test": {
     "title": "Test tool",

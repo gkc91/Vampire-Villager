@@ -69,10 +69,14 @@ export function ConnectionDiagnostics() {
             text={
               relayProbe.socket
                 ? t('connect.probeSocketOk', { ms: relayProbe.ms ?? 0 })
-                : t('connect.probeSocketFail', { code: relayProbe.closeCode ?? 0 })
+                : relayProbe.timedOut
+                  ? t('connect.probeSocketSlow')
+                  : t('connect.probeSocketFail', { code: relayProbe.closeCode ?? 0 })
             }
             bad={!relayProbe.socket}
           />
+          {relayProbe.sse === true && <Note text={t('connect.probeSseOk')} bad />}
+          {relayProbe.sse === false && <Note text={t('connect.probeSseFail')} bad />}
           {relayProbe.site && !relayProbe.socket && <Note text={t('connect.probeBlocked')} bad />}
           {relayProbe.site && relayProbe.socket && <Note text={t('connect.probeAllOk')} />}
         </div>

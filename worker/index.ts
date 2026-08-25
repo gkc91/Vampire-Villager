@@ -61,6 +61,9 @@ function isAllowedOrigin(origin: string | null, requestUrl: string): boolean {
   }
 }
 
+/** SSE ölçüm yanıtı — tek olay, sonra akış kapanır. */
+const SSE_PROBE_PAYLOAD = 'data: ok\n\n';
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -76,6 +79,30 @@ export default {
       const roomId = match[1].toUpperCase();
       const id = env.ROOMS.idFromName(roomId);
       return env.ROOMS.get(id).fetch(request);
+    }
+
+    /**
+     * Teşhis: uzun ömürlü bir HTTP akışı (SSE) açılabiliyor mu?
+     *
+     * Bir cihazda HTTPS çalışıp WebSocket açılmıyorsa (gerçek vaka: kod
+     * 1006) engelin WebSocket'e mi özel olduğunu bilmek gerekir. SSE
+     * geçiyorsa oyunu o cihaza HTTP üzerinden taşımak mümkün demektir;
+     * SSE de geçmiyorsa o ağda yapılabilecek bir şey yoktur.
+     */
+    if (url.pathname === '/probe/sse') {
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(SSE_PROBE_PAYLOAD));
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          'content-type': 'text/event-stream',
+          'cache-control': 'no-store',
+          'access-control-allow-origin': '*',
+        },
+      });
     }
 
     // Diğer her şey statik site (aynı Worker'dan servis ediliyorsa).

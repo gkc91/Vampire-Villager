@@ -183,8 +183,11 @@
     "probeSiteFail": "Siteye ulaşılamıyor — internet kopuk. (Sayfa önbellekten açılmış olabilir, bu yüzden oyun açılıyor ama bağlanmıyor.)",
     "probeSocketOk": "Sunucu bağlantısı açıldı ({{ms}} ms).",
     "probeSocketFail": "Sunucu bağlantısı açılamadı (kod {{code}}).",
-    "probeBlocked": "İnternet çalışıyor ama oyun bağlantısı engelleniyor: reklam/içerik engelleyici, VPN, kurumsal ya da aile filtresi olabilir. Kapatıp dene ya da başka ağa geç.",
-    "probeAllOk": "Bu cihazda sorun yok. Sorun karşı taraftaysa aynı testi onda da çalıştır."
+    "probeBlocked": "İnternet çalışıyor ama oyun bağlantısı engelleniyor: reklam/içerik engelleyici, VPN, kurumsal ya da aile filtresi olabilir. Önce WiFi'a geçmeyi dene; sonuç değişmiyorsa engelleyicileri kapat.",
+    "probeAllOk": "Bu cihazda sorun yok. Sorun karşı taraftaysa aynı testi onda da çalıştır.",
+    "probeSocketSlow": "Sunucu bağlantısı 8 saniyede açılamadı (ağ çok yavaş ya da sessizce kesiliyor).",
+    "probeSseOk": "Ama HTTP akışı geçiyor: engel WebSocket'e özel. Bu ekranı bana gönder — oyunu bu cihaz için HTTP üzerinden bağlayabilirim.",
+    "probeSseFail": "HTTP akışı da geçmiyor: bu ağ kalıcı bağlantılara hiç izin vermiyor. WiFi'a geçmek gerekiyor."
   },
   "test": {
     "title": "Test aracı",

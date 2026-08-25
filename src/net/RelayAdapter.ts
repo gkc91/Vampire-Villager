@@ -56,6 +56,10 @@ export interface RelayProbe {
   closeCode?: number;
   /** Soketin açılma süresi (ms). */
   ms?: number;
+  /** Soket 8 sn içinde ne açıldı ne kapandı (yavaş ağ / sessiz engel). */
+  timedOut?: boolean;
+  /** Uzun ömürlü HTTP akışı (SSE) geçiyor mu — null: denenmedi. */
+  sse: boolean | null;
 }
 
 /**
@@ -65,7 +69,7 @@ export interface RelayProbe {
  * engellenmiştir. Bu ölçüm ikisini ayırır.
  */
 export async function probeRelay(): Promise<RelayProbe> {
-  const result: RelayProbe = { site: false, socket: false };
+  const result: RelayProbe = { site: false, socket: false, sse: null };
   const base = relayBaseUrl();
 
   try {
@@ -95,6 +99,7 @@ export async function probeRelay(): Promise<RelayProbe> {
       return;
     }
     const timer = setTimeout(() => {
+      result.timedOut = true;
       try {
         socket.close();
       } catch {
@@ -123,6 +128,19 @@ export async function probeRelay(): Promise<RelayProbe> {
       finish();
     };
   });
+
+  // Soket açılmadıysa: engel WebSocket'e mi özel, yoksa ağ hiçbir kalıcı
+  // bağlantıya izin vermiyor mu? Cevap çözümü belirliyor.
+  if (!result.socket && result.site) {
+    const httpBase = base.replace(/^ws/, 'http');
+    try {
+      const res = await fetch(`${httpBase}/probe/sse?t=${Date.now()}`, { cache: 'no-store' });
+      const type = res.headers.get('content-type') ?? '';
+      result.sse = res.ok && type.includes('text/event-stream');
+    } catch {
+      result.sse = false;
+    }
+  }
 
   return result;
 }
