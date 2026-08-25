@@ -15,6 +15,12 @@
     // 200 + index.html dönüyor ve ölçüm "engelli" sanıyor.
     "run_worker_first": ["/room/*", "/stream/*", "/send/*", "/probe/*"]
   },
+  // Worker günlükleri. Kapalıyken console.log çıktısı hiçbir yere düşmez ve
+  // panelde "No events found" görünür. Panelden elle açılabilir ama bir
+  // sonraki yayında geri kapanabilir; kalıcı yeri burasıdır.
+  // Ücretsiz planda günde 200.000 olay; yalnız yaşam döngüsü olayları
+  // yazdığımız için bu sınıra yaklaşmak zor.
+  "observability": { "enabled": true },
   "durable_objects": {
     "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
   },
