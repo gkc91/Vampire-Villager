@@ -92,6 +92,12 @@ export interface GameSettings {
   hostPlays: boolean;
   /** Kurucunun seçtiği rol listesi; oyuncu sayısı kadar olmalı. */
   roleSetup: RoleId[];
+  /**
+   * TEST ARACI: belirli oyunculara sabit rol verir (oyuncu id → rol).
+   * Yalnız `?test=1` bayrağıyla açılan arayüzden ayarlanır; normal oyunda
+   * boştur. Seçilen rol dağıtım listesinde yoksa listeden biri feda edilir.
+   */
+  forcedRoles?: Record<PlayerId, RoleId>;
 }
 
 export interface NarrationEvent {

@@ -174,5 +174,10 @@
     "tRelay": "Sinyal sunucusuna bağlanıldı",
     "tPeer": "Karşı cihaz bulundu",
     "title": "Bağlantı"
+  },
+  "test": {
+    "title": "Test aracı",
+    "hint": "Kendine sabit rol ver. Yalnız ?test=1 adresinde görünür, normal oyunda kapalıdır.",
+    "random": "Rastgele (normal dağıtım)"
   }
 }

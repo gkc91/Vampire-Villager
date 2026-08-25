@@ -7,6 +7,8 @@ import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import { MIN_PLAYERS, suggestedRoles } from '../../game/distribution';
 import { RoleSetup } from '../components/RoleSetup';
+import { TestRolePicker } from '../components/TestRolePicker';
+import { testToolsEnabled } from '../../util/testTools';
 import { joinLink } from '../../util/identity';
 
 const BOT_NAMES = ['Ada', 'Boran', 'Ceren', 'Deniz', 'Ege', 'Fikret', 'Gizem', 'Hakan', 'Irmak', 'Jale', 'Kerem'];
@@ -111,6 +113,8 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
       </section>
 
       {view.me.isHost && <HostSettings view={view} />}
+
+      {view.me.isHost && view.me.isPlayer && testToolsEnabled() && <TestRolePicker view={view} />}
 
       {!view.me.isHost && (
         <p className="text-center text-xs text-moon-200/50">{t('lobby.waitingHost')}</p>

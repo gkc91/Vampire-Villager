@@ -174,5 +174,10 @@
     "tRelay": "Signalling connected",
     "tPeer": "Peer found",
     "title": "Connection"
+  },
+  "test": {
+    "title": "Test tool",
+    "hint": "Force your own role. Only visible with ?test=1; hidden in normal games.",
+    "random": "Random (normal deal)"
   }
 }

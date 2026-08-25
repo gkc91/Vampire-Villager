@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   maxPlayers: 12,
   hostPlays: true,
   roleSetup: [],
+  forcedRoles: {},
 };
 
 function emptyNight(): GameState['night'] {
@@ -454,11 +455,26 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
           : suggestedRoles(playing.length);
       if (validateRoleSetup(setup, playing.length)) return s;
 
-      const [roles, seed] = shuffle(setup, s.seed);
+      // TEST ARACI: sabitlenmiş roller havuzdan düşülür, kalanı karışır.
+      const forced = s.settings.forcedRoles ?? {};
+      const pool = [...setup];
+      const fixed = new Map<PlayerId, RoleId>();
+      for (const p of playing) {
+        const wanted = forced[p.id];
+        if (!wanted) continue;
+        const index = pool.indexOf(wanted);
+        if (index !== -1) pool.splice(index, 1);
+        else pool.pop(); // havuzda yoksa birini feda et
+        fixed.set(p.id, wanted);
+      }
+
+      const [roles, seed] = shuffle(pool, s.seed);
       s.seed = seed;
-      playing.forEach((p, i) => {
-        p.role = roles[i];
-        p.usesLeft = initialUses(roles[i]);
+      let next = 0;
+      playing.forEach((p) => {
+        const role = fixed.get(p.id) ?? roles[next++];
+        p.role = role;
+        p.usesLeft = initialUses(role);
         p.alive = true;
         p.ready = false;
         delete p.deathCause;

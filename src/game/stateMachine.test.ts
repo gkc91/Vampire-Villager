@@ -73,6 +73,28 @@ describe('rol önerisi ve kurulum (03-roles.md)', () => {
     expect(dealt).toEqual([...setup].sort());
   });
 
+  it('TEST ARACI: sabitlenen rol o oyuncuya verilir', () => {
+    let state = seatPlayers(6);
+    state = reduce(
+      state,
+      { type: 'UPDATE_SETTINGS', settings: { forcedRoles: { p0: 'vampireLord' } } },
+      T0,
+    );
+    state = reduce(state, { type: 'START_GAME' }, T0);
+
+    expect(player(state, 'p0').role).toBe('vampireLord');
+    expect(player(state, 'p0').usesLeft).toBe(1);
+    // Diğer herkes yine geçerli bir rol alır
+    expect(state.players.every((p) => Boolean(p.role))).toBe(true);
+    expect(state.players.filter((p) => p.role === 'vampireLord')).toHaveLength(1);
+  });
+
+  it('TEST ARACI: sabitlenmezse dağıtım normal', () => {
+    let state = seatPlayers(6);
+    state = reduce(state, { type: 'START_GAME' }, T0);
+    expect(state.players.every((p) => Boolean(p.role))).toBe(true);
+  });
+
   it('4 kişiden az oyuncuyla başlamaz', () => {
     const state = reduce(seatPlayers(3), { type: 'START_GAME' }, T0);
     expect(state.phase).toBe('LOBBY');
