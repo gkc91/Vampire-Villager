@@ -79,7 +79,17 @@ export default {
         return new Response('origin not allowed', { status: 403 });
       }
       const id = env.ROOMS.idFromName(httpMatch[2].toUpperCase());
-      return env.ROOMS.get(id).fetch(request);
+      const response = await env.ROOMS.get(id).fetch(request);
+      // Site aktarıcıyla farklı origin'deyse (geliştirme: 5173 ↔ 8787, ya da
+      // siteyi başka yere taşırsan) EventSource ve POST CORS ister.
+      // Origin süzgecinden zaten geçtik; burada yalnız izni bildiriyoruz.
+      const origin = request.headers.get('Origin');
+      if (origin) {
+        const withCors = new Response(response.body, response);
+        withCors.headers.set('access-control-allow-origin', origin);
+        return withCors;
+      }
+      return response;
     }
 
     if (match) {

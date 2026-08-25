@@ -49,6 +49,34 @@ hedefe ya odaya. Rol dağıtımı, gece çözümlemesi, görünüm filtresi hâl
 yalnız host cihazında çalışır — host-otoriter model her iki taşımada da
 aynen korunur.
 
+### WebSocket engelli ağlar — HTTP taşıması
+
+Sahada çıktı: bir telefonda HTTPS çalışırken WebSocket 1006 ile kapandı
+(içerik engelleyici / filtre / operatör). Oyun QR ile bara asılacaksa
+misafire "ağını değiştir" denemez, bu yüzden aktarıcının ikinci bir kapısı
+var:
+
+| | WebSocket | HTTP taşıması |
+|---|---|---|
+| Sunucu → istemci | `/room/KOD` | `/stream/KOD` (SSE) |
+| İstemci → sunucu | aynı soket | `/send/KOD` (POST) |
+| peerId'yi kim atar | sunucu | istemci (kopunca kimlik korunur) |
+| DO hibernation | girer | **giremez** (akış açık kalır) |
+
+Seçim otomatiktir: soket 6 saniyede açılmazsa ya da hiç açılmadan
+kapanırsa istemci HTTP'ye geçer ve kararı sekme boyunca hatırlar.
+Kullanıcı bir şey seçmez, fark etmez. İki taşımadaki oyuncular **aynı
+odada** oynar; mesaj yönlendirme tek `route()` fonksiyonundan geçer.
+
+Hibernation'a girememesi ücret açısından tek dikkat noktasıdır: akış açık
+olduğu sürece Durable Object uyanık durur. Bu yüzden HTTP yolu yalnız
+soketi açılmayan cihazlarda devreye girer, varsayılan değildir.
+
+> Karşılaştırma: codenames.game aynı sorunu socket.io ile çözüyor (önce
+> HTTP polling, sonra WebSocket'e yükseltme) ama oyun sunucularını
+> Kubernetes'te kiralıyor. Buradaki çözüm aynı davranışı ücretsiz
+> katmanda verir.
+
 Ücretsiz katman sınırları (doğrulandı): günde 100.000 istek, WebSocket
 mesajları 20:1 sayılır, boştaki bağlantılar uyutulur (Hibernation API).
 6 kişilik bir oyun ≈ 800 mesaj ≈ 50 istek → günde ~2.000 oyun. Limit
