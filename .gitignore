@@ -9,3 +9,4 @@ dist-ssr
 android
 ios
 .wrangler
+assets-raw
