@@ -61,6 +61,7 @@ public/assets/    görseller, sesler (eksikse placeholder ile çalışır)
 - `06-assets.md` — Görsel/ses üretim listesi (Banana + Suno checklist)
 - `07-tasks.md` — Milestone durumu
 - `CLAUDE.md` — Claude Code'un her oturumda okuyacağı proje kuralları
+- `docs/ASSET-PROMPTS.md` — Görsel/ses üretimi için hazır prompt'lar ve komutlar
 - `docs/TESTING.md` — Gerçek cihazlarla test senaryoları
 - `docs/DEPLOY.md` — GitHub Pages / Cloudflare Pages yayınlama
 - `docs/NATIVE.md` — Capacitor, derin link, mağaza hazırlığı
