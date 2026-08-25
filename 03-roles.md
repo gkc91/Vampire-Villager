@@ -107,7 +107,11 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 - Mühürlenen oyuncu o gece **uyanamaz ve özelliğini kullanamaz.**
 - **Aynı kişiyi iki kez mühürleyebilir.**
 - **Özel durum:** avcıyı mühürlemeye çalışırsa mühür işlemez ve **avcıya bir
-  uyarı gösterilir.**
+  uyarı gösterilir.** Hak yine de harcanır.
+- **Kan büyücüsü mührün tuttuğunu ÖĞRENMEZ.** Yalnız kimi seçtiğini görür.
+  Bu bilinçli bir karardır (kullanıcı onayı, 2026-08-25): "mühür tutmadı"
+  bildirimi doğrudan "bu oyuncu avcı" demek olurdu ve vampir takımına
+  bedava kâhin bilgisi verirdi. Eksik geri bildirim sanılıp eklenmemeli.
 
 ### Sisler Vampiri — Vampirler
 - İlk sisi **istediği gece** kullanır (1. gece dahil).
