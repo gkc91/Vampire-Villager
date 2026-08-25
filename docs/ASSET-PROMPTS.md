@@ -21,15 +21,30 @@ Son satırı üretme; istersen sonra koda bağlarım, o zaman üretirsin.
 
 ## Stil tutarlılığı — önce bunu oku
 
-1. Önce **vampire** kartını üret. Beğenene kadar tekrarla.
-2. Beğendiğin kartı Gemini'ye **referans görsel** olarak yükle ve sonraki
-   kartlarda prompt'un başına şunu ekle:
-   *"Match the exact art style, palette, lighting and framing of the
-   reference image."*
-3. Diğer dördünü böyle üret. Kartların birbirine benzemesi, tek tek
-   güzel olmalarından daha önemli.
+**Referans kart hazır ve depoda:** `public/assets/roles/vampire.webp`
+Bu dosyayı Gemini'ye yükle ve her yeni kartta prompt'un başına şunu koy:
+
+```
+Match the exact art style, palette, lighting and framing of the reference image.
+```
+
+Kartların birbirine benzemesi, tek tek güzel olmalarından daha önemli.
+Set gibi durmayan kartlar oyunda ucuz görünür.
 
 Arka planlarda da aynı yöntem: önce `night`, sonra diğerleri referansla.
+
+### Kadraj kuralı (ölçülmüş)
+
+Oyunda kart tam 2:3 oranında, kırpılmadan gösteriliyor; kırpma gerekirse
+üstten hizalanıyor. Bu yüzden:
+
+- **Baş kadrajın üst üçte birinde olmalı.** Referans kartta öyle; diğerleri
+  kaymazsa kartlar arasında geçerken zıplama olmaz.
+- Bel üstü, izleyiciye dönük, ortada.
+- Arka plan koyu ve sade — kartın altında rol adı ve açıklama yazısı var.
+
+Her prompt'ta şu satır zaten var, silme:
+`head positioned in the upper third of the frame`
 
 ### Ortak stil cümlesi
 
@@ -57,7 +72,8 @@ Waist-up portrait of an aristocratic vampire: pale grey skin, sharp
 cheekbones, sunken crimson eyes, subtle fangs, high-collared black cloak
 with deep red silk lining, gloved hand resting at the collar. Standing in
 cold moonlight, thin fog behind. Dramatic side lighting, dark vignette
-background, vertical 2:3 composition.
+background, vertical 2:3 composition, head positioned in the upper third
+of the frame.
 ```
 
 ### `roles/villager.webp`
@@ -68,7 +84,8 @@ framing of the reference image.
 Waist-up portrait of a weary village peasant: sheepskin vest over a coarse
 linen shirt, flat cap, calloused hands holding an oil lantern that lights
 the face from below, suspicious sideways glance, tired eyes. Dark vignette
-background, vertical 2:3 composition, no text.
+background, vertical 2:3 composition, head positioned in the upper third of
+the frame, no text.
 ```
 
 ### `roles/seer.webp`
@@ -79,7 +96,8 @@ framing of the reference image.
 Waist-up portrait of an old fortune teller woman: layered shawls, coin
 jewellery on the forehead, hands hovering over a glowing crystal ball,
 swirling smoke, candle flames out of focus behind. Violet glow lighting the
-face from below. Dark vignette background, vertical 2:3 composition, no text.
+face from below. Dark vignette background, vertical 2:3 composition, head
+positioned in the upper third of the frame, no text.
 ```
 
 ### `roles/doctor.webp`
@@ -90,7 +108,8 @@ framing of the reference image.
 Waist-up portrait of a village healer: leather apron over a long dark coat,
 satchel of dried herbs and small glass vials, a low-burning oil lamp in one
 hand, calm determined expression. Warm amber light on the face against the
-cold background. Dark vignette background, vertical 2:3 composition, no text.
+cold background. Dark vignette background, vertical 2:3 composition, head
+positioned in the upper third of the frame, no text.
 ```
 
 ### `roles/hunter.webp`
@@ -101,8 +120,31 @@ framing of the reference image.
 Waist-up portrait of a rugged hunter: wolf-pelt cape over one shoulder,
 crossbow held across the chest, quiver of bolts, a scar across the cheek,
 hard narrowed eyes. Standing in fog with moonlight from behind creating a
-strong rim light. Dark vignette background, vertical 2:3 composition, no text.
+strong rim light. Dark vignette background, vertical 2:3 composition, head
+positioned in the upper third of the frame, no text.
 ```
+
+### Yeni rol kartı şablonu
+
+Faz-2 rolleri (senin 14'lük setin) geldiğinde her biri için bu kalıp
+doldurulur — `[...]` yerlerini rolün kimliği belirler:
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of [KİM: yaş, cinsiyet, mizaç],
+wearing [KIYAFET: dönem uyumlu, köylü/gotik],
+holding [NESNE: rolün yeteneğini ele veren tek eşya],
+[IŞIK: nereden gelen ne renk ışık, yüzü nasıl aydınlatıyor],
+[İFADE: bakış ve duruş].
+Dark vignette background, vertical 2:3 composition, head positioned in the
+upper third of the frame, no text.
+```
+
+Kural: **her rolün tek bir ayırt edici nesnesi olsun** (kâhinde küre,
+avcıda tatar yayı gibi). Oyuncu kartı yarım saniyede tanıyabilmeli.
+Vampir tarafındaki roller kırmızı aksanı taşısın, köy tarafı taşımasın —
+oyunda takım bakışta anlaşılır.
 
 ## Arka Planlar (1080×1920 · 9:16 dikey)
 
