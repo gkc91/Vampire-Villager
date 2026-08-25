@@ -13,7 +13,7 @@
     // /room/* WebSocket yükseltmesi ve /probe/* ölçüm uçları Worker'a
     // gitmeli, statik dosyaya değil. Aksi halde SPA yedeği devreye girip
     // 200 + index.html dönüyor ve ölçüm "engelli" sanıyor.
-    "run_worker_first": ["/room/*", "/probe/*"]
+    "run_worker_first": ["/room/*", "/stream/*", "/send/*", "/probe/*"]
   },
   "durable_objects": {
     "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
