@@ -4,14 +4,9 @@
 Yayınlamadan (özellikle mağazaya çıkmadan) önce buranın dolu olduğundan
 emin ol.
 
-## ⚠️ Eksik / Düzeltilecek
-
-- **`audio/sfx/wolf_howl.mp3` kaynağı yanlış.** Şu an horoz sesinin linki
-  yazılı (`nature-rooster-crowing-364473`), yani uluma dosyasının gerçek
-  kaynağı kayıtlı değil. Doğru Pixabay linkini bul ve aşağıdaki tabloya yaz.
-- Görsel ve müzik tablolarındaki üretim tarihleri boş. Kendi ürettiğin
-  içerik oldukları için lisans sorunu yok, ama hangi tarihte hangi araçla
-  üretildiği not düşülürse ileride işine yarar.
+> Tüm SFX kaynakları kayıtlı ve doğrulandı. Görsel/müzik tablolarındaki
+> üretim tarihleri isteğe bağlı — kendi ürettiğin içerik oldukları için
+> lisans sorunu yok, yalnız ileride hatırlamak istersen işine yarar.
 
 ## Görseller (Banana / Gemini ile üretildi)
 
@@ -53,7 +48,7 @@ yine de kaynağı burada tutuyoruz. Sesleri olduğu gibi yeniden dağıtmak
 
 | Dosya | Kaynak linki | Lisans |
 |---|---|---|
-| audio/sfx/wolf_howl.mp3 | **⚠️ eksik — aşağıdaki not** | [Pixabay](https://pixabay.com/service/license-summary/) |
+| audio/sfx/wolf_howl.mp3 | [horror-wolf-howl-2-359870](https://pixabay.com/sound-effects/horror-wolf-howl-2-359870/) | [Pixabay](https://pixabay.com/service/license-summary/) |
 | audio/sfx/rooster.mp3 | [nature-rooster-crowing-364473](https://pixabay.com/sound-effects/nature-rooster-crowing-364473/) | [Pixabay](https://pixabay.com/service/license-summary/) |
 | audio/sfx/bell.mp3 | [musical-single-church-bell-156463](https://pixabay.com/sound-effects/musical-single-church-bell-156463/) | [Pixabay](https://pixabay.com/service/license-summary/) |
 | audio/sfx/death.mp3 | [horror-horror-impact-hit-567238](https://pixabay.com/sound-effects/horror-horror-impact-hit-567238/) | [Pixabay](https://pixabay.com/service/license-summary/) |
