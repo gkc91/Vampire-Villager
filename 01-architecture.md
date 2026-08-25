@@ -28,7 +28,7 @@ Neden bu yol:
 | i18n | i18next + JSON dosyaları | bkz. 04-i18n.md |
 | Ses | Howler.js | Ambiyans + SFX |
 | TTS (opsiyonel) | Web Speech API | Moderatör sesli anlatımı, cihaz-yerel, bedava |
-| Barındırma | Cloudflare Pages veya GitHub Pages | Statik, bedava, sınırsız |
+| Barındırma | Cloudflare Workers (statik site + oda aktarıcısı) | Ücretsiz katman |
 
 ## Taşıma Katmanı: Aktarıcı ve P2P
 

@@ -4,97 +4,33 @@
 `.github/workflows/deploy.yml` main'e her push'ta derler, testleri ve
 i18n taramasını çalıştırır, sonra yayınlar.
 
-## Hangi yol?
+## Yayın: Cloudflare Workers
 
-Üçü de ücretsiz ve statik; aynı `dist/` çıktısını sunar. Fark yalnız
-adres ve kurulum kolaylığıdır — **hosting seçimi oyunun P2P bağlantı
-kalitesini etkilemez**, dosyaları servis etmekten başka iş yapmaz.
+Site ve oyun aktarıcısı **aynı Worker'dan** servis edilir:
+`vampire-villager.<hesap>.workers.dev`. Depo Cloudflare'e bağlı olduğu için
+`main`'e her push otomatik yayınlanır (build `npm run build`,
+deploy `npx wrangler deploy`; ayarlar `wrangler.jsonc`'de).
 
-| Yol | Adres | Not |
-|---|---|---|
-| **Vercel** | `proje-adi.vercel.app` | En temiz adres, private depoda ücretsiz |
-| Cloudflare Workers | `proje.hesap.workers.dev` | Kurulu; adres hesap adını içerir |
-| GitHub Pages | `kullanici.github.io/depo` | Depo public olmalı |
+Yayınlanan Worker iki işi birden yapar:
 
-## Vercel (önerilen — adres en temizi)
+- `/` ve statik dosyalar → `dist/` (SPA yönlendirmesi dahil)
+- `/room/:kod` → WebSocket aktarıcısı (Durable Object)
 
-1. vercel.com → GitHub ile giriş yap (ücretsiz Hobby planı, kart istemez).
-2. **Add New → Project** → `Vampire-Villager` deposunu içe aktar.
-3. Vercel Vite'ı otomatik tanır; ayarları değiştirme (depodaki
-   `vercel.json` build komutunu, çıktı dizinini ve SPA yönlendirmesini
-   zaten tanımlıyor).
-4. **Project Name** alanına ne yazarsan adres o olur:
-   `vampire-villager` → `vampire-villager.vercel.app`.
-5. Deploy. Ortam değişkeni **eklemene gerek yok**; oyun bağlantısı
-   Cloudflare'deki aktarıcıya kendiliğinden gider.
+### Özel alan adı bağlamak
 
-Bundan sonra her push hem Vercel'e (site) hem Cloudflare'e (aktarıcı)
-yayınlanır. Cloudflare Worker'ı silme — oyun bağlantısı oradan geçiyor.
+Alan adını aldıktan sonra (Cloudflare Registrar maliyetine satar, .com için
+yıllık ~10–12 $) Cloudflare panelinden Worker'a **Custom Domain** olarak
+bağlanır. Kod tarafında değişiklik gerekmez: aktarıcı adresi siteyi sunan
+origin'den türetilir, origin süzgeci de aynı-origin kuralıyla çalışır.
 
-Aynı depoyu hem Vercel'de hem Cloudflare'de tutabilirsin; ikisi de aynı
-commit'ten yayınlar. Cloudflare'i bırakacaksan panelden Worker'ı silmen
-yeterli.
+> Siteyi aktarıcıdan FARKLI bir sunucuya taşırsan iki yerde ayar gerekir:
+> istemcide `VITE_RELAY_URL`, Worker'da `isAllowedOrigin` listesi.
 
-GitHub Pages ücretsiz planda **yalnız public depolarda** çalışır. Depo private
-kaldığı sürece workflow'daki `github-pages` işi kendiliğinden atlanır, CI
-kırmızı yanmaz; depoyu public yaptığın an devreye girer.
+### GitHub Pages (yedek yol)
 
-## GitHub Pages (depo public ise)
-
-1. Repo → Settings → General → Danger Zone → **Change visibility** → Public.
-2. Repo → Settings → Pages → Source: **GitHub Actions**.
-3. main'e push → `github-pages` işi yayınlar.
-
-Proje sitesi alt yolda (`/repo-adi/`) yayınlandığı için workflow
-`BASE_PATH` değişkenini otomatik ayarlar. Elle derlerken:
-
-```bash
-BASE_PATH=/repo-adi/ npm run build
-```
-
-## Cloudflare Pages (private depo veya özel alan adı)
-
-Workflow'daki `cloudflare-pages` işi yalnız şu değişken tanımlıysa çalışır:
-
-- Repo → Settings → Secrets and variables → **Variables**:
-  `CLOUDFLARE_PROJECT_NAME` = Pages proje adın
-- **Secrets**:
-  `CLOUDFLARE_API_TOKEN` (Pages: Edit yetkili token)
-  `CLOUDFLARE_ACCOUNT_ID`
-
-**Panelden bağla (secret gerekmez, önerilen):**
-dash.cloudflare.com → Workers & Pages → Create → Connect to Git →
-depoyu seç (private depolar da listelenir). Ayarlar:
-
-- Build command: `npm run build`
-- Deploy command: `npx wrangler deploy`
-
-Cloudflare artık yeni projeleri "Workers" olarak kuruyor; yayın ayarları
-depodaki **`wrangler.jsonc`** dosyasından okunur:
-
-```jsonc
-{
-  "name": "vampire-villager",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  }
-}
-```
-
-Bu dosya olmadan `wrangler deploy` projeyi otomatik yapılandırmaya çalışır ve
-"Vite 6.0.0+ gerekli" hatası verir. Dosya varsa Vite sürümüne bakmaz.
-
-> `public/_redirects` KULLANMA. O dosya Cloudflare **Pages**'e aitti; Workers
-> assets onu farklı yorumluyor ve `/*  /index.html  200` kuralını "sonsuz
-> döngü" sayıp yayını reddediyor. SPA yönlendirmesi `not_found_handling`
-> ile zaten çözülüyor.
-
-Yerelde doğrulamak için:
-
-```bash
-npm run build && npx wrangler deploy --dry-run
-```
+`.github/workflows/deploy.yml` içindeki Pages işi depo public olduğunda
+kendiliğinden devreye girer. Pages yalnız statik dosya sunar; oyun
+bağlantısı yine Cloudflare'deki aktarıcıya gider.
 
 ## Aktarıcı (oyun bağlantısı) nerede çalışıyor?
 
@@ -103,16 +39,13 @@ Oyun mesajları Cloudflare Worker'daki Durable Object üzerinden geçer
 
 | Site nerede | Ayar |
 |---|---|
-| Cloudflare Worker (aynı adres) | Yok — origin'den bulunur |
-| Vercel / Pages / özel alan adı | **Yok** — üretim aktarıcı adresi kodda gömülü (`src/net/RelayAdapter.ts`) |
+| Cloudflare Worker (aynı adres) | Yok — aktarıcı adresi origin'den türetilir |
 | Yerel geliştirme | `.env` içine `VITE_RELAY_URL=ws://localhost:8787` |
 
-Aktarıcı adresi değişirse `PRODUCTION_RELAY` sabitini güncelle ya da
-`VITE_RELAY_URL` ortam değişkenini tanımla (o her zaman önceliklidir).
-
-Aktarıcı yalnız kendi barındırma alanlarımızdan gelen bağlantıları kabul
-eder (`*.vercel.app`, `*.workers.dev`, `*.pages.dev`, localhost, native
-kabuk). Başka sitelerden gelen istek 403 alır — ücretsiz kota korunur.
+Aktarıcı yalnız siteyi sunan origin'den, `*.workers.dev` adreslerinden,
+yerel geliştirmeden ve native kabuktan (Origin başlığı yok) gelen
+bağlantıları kabul eder. Başka sitelerden gelen istek 403 alır — ücretsiz
+kota böyle korunur.
 
 Aktarıcıyı yayınlamak için Cloudflare tarafında `npx wrangler deploy`
 çalışır (depo bağlıysa her push'ta kendiliğinden).
