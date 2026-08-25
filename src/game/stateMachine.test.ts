@@ -417,6 +417,20 @@ describe('hırsız', () => {
     expect(player(state, 'p0').role).toBe('villager');
   });
 
+  it('çalınan rol TAM hakla devralınır', () => {
+    const withLord: RoleId[] = ['vampireLord', 'thief', 'seer', 'doctor', 'villager', 'villager'];
+    let state = startNightWithRoles(withLord);
+    // Lord tek dönüştürme hakkını kullanır
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p0', targetId: 'p4' }, T0);
+    expect(player(state, 'p0').usesLeft).toBe(0);
+
+    state = skipToStep(state, 'thief');
+    state = reduce(state, { type: 'NIGHT_ACTION', playerId: 'p1', targetId: 'p0' }, T0);
+
+    expect(player(state, 'p1').role).toBe('vampireLord');
+    expect(player(state, 'p1').usesLeft).toBe(1); // sıfırdan başlar
+  });
+
   it('yalnız bir kez çalar', () => {
     let state = startNightWithRoles(roles);
     state = skipToStep(state, 'thief');

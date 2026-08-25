@@ -125,6 +125,9 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 - **Çalma bir kezdir.** Çaldığı andan itibaren hırsız o roldür ve o rolün
   takımındadır; kazanma koşulu da o takımın koşuludur. Çalmadan ölürse
   tarafsız olarak kaybeder.
+- Çalınan rol **tam hakla** devralınır. Kurban hakkını tüketmiş olsa bile
+  hırsız sıfırdan başlar; aksi hâlde hakkı bitmiş bir rolü çalmanın anlamı
+  kalmazdı (ör. tek dönüştürmesini kullanmış Vampir Lordu).
 
 ## Rol Seçimi: Öneri + Kurucu İnisiyatifi
 

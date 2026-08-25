@@ -294,7 +294,9 @@ function applySteal(state: GameState, actorId: PlayerId, targetId: PlayerId, now
 
   const stolen = target.role;
   actor.role = stolen;
-  actor.usesLeft = target.usesLeft; // kalan hakkıyla birlikte çalınır
+  // Rol TAM hakla devralınır: kurban hakkını tüketmişse çalmanın anlamı
+  // kalmazdı (ör. lord tek dönüştürmesini kullanmış olabilir).
+  actor.usesLeft = initialUses(stolen);
   target.role = 'villager';
   target.usesLeft = undefined;
 

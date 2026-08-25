@@ -7,11 +7,12 @@ değişikliği gerekmez, eksik dosya varsa yer tutucu gösterilir.
 **Prompt'lar İngilizce.** Görsel modelleri İngilizce'de belirgin biçimde
 daha iyi sonuç veriyor; çevirme.
 
-## Gerçekten gereken 11 görsel
+## Gereken görseller (17)
 
 | Dosya | Boyut | Koda bağlı mı |
 |---|---|---|
 | `roles/vampire.webp` `villager` `seer` `doctor` `hunter` | 512×768 | ✅ rol kartı ekranı |
+| `roles/detective` `wizard` `vampireLord` `bloodWizard` `mistVampire` `thief` | 512×768 | ✅ yeni roller |
 | `bg/night.webp` `day` `lobby` `death` | 1080×1920 | ✅ ekran arka planları |
 | `icon/app-icon.png` | 1024×1024 | ✅ PWA / ana ekrana ekle |
 | `icon/favicon.png` | 512×512 | ✅ sekme ikonu |
@@ -145,6 +146,115 @@ Kural: **her rolün tek bir ayırt edici nesnesi olsun** (kâhinde küre,
 avcıda tatar yayı gibi). Oyuncu kartı yarım saniyede tanıyabilmeli.
 Vampir tarafındaki roller kırmızı aksanı taşısın, köy tarafı taşımasın —
 oyunda takım bakışta anlaşılır.
+
+## Yeni Roller (6 kart)
+
+11 rollük set 03-roles.md'de tanımlı. Aşağıdakiler ilk beşle **aynı stilde**
+üretilmeli: `public/assets/roles/vampire.webp` dosyasını referans yükle ve
+her prompt'un başındaki eşleştirme satırını silme.
+
+Takım rengi kuralı — oyuncu kartı yarım saniyede tanımalı:
+
+| Taraf | Aksan |
+|---|---|
+| Köy | Kırmızı **yok**; sıcak amber / soğuk mavi ışık |
+| Vampir | Kanlı kırmızı aksan **belirgin** |
+| Tarafsız (hırsız) | Kırmızı yok, sıcak da yok — soluk pirinç/altın |
+
+### `roles/detective.webp` — Dedektif (köy)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a village detective: a worn long coat with the collar
+turned up, a small leather notebook in one hand and a brass magnifying
+glass in the other, stubble, tired but sharp eyes studying something
+off-frame. Cold blue lantern light from the side, no red accents.
+Dark vignette background, vertical 2:3 composition, head positioned in the
+upper third of the frame, no text.
+```
+
+### `roles/wizard.webp` — Büyücü (köy)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a village hedge-wizard: an old woman in layered wool
+robes and a beaded shawl, holding a carved wooden staff topped with a
+softly glowing amber charm, chalk sigils drawn on the back of her hand,
+calm knowing expression. Warm amber glow on the face against the cold
+background, no red accents.
+Dark vignette background, vertical 2:3 composition, head positioned in the
+upper third of the frame, no text.
+```
+
+### `roles/vampireLord.webp` — Vampir Lordu (vampir)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a vampire lord — older and far more regal than the
+reference vampire: a thin blackened crown, a heavy fur-trimmed mantle over
+dark armour, a large blood-red signet ring on a raised hand, one eyebrow
+lifted in cold amusement. Strong blood-red accent in the mantle lining and
+the ring. Dark vignette background, vertical 2:3 composition, head
+positioned in the upper third of the frame, no text.
+```
+
+### `roles/bloodWizard.webp` — Kan Büyücüsü (vampir)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a blood sorcerer: hooded dark robes, sleeves pushed
+back to show forearms covered in crimson sigils, holding a shallow stone
+bowl of dark blood with a curved ritual dagger resting across it, a thin
+red thread of blood floating upward from the bowl. Face lit from below by
+the red glow. Dark vignette background, vertical 2:3 composition, head
+positioned in the upper third of the frame, no text.
+```
+
+### `roles/mistVampire.webp` — Sisler Vampiri (vampir)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a mist vampire: the lower half of the body and the
+edges of a tattered cloak dissolving into thick swirling fog, pale face
+still sharp and solid, red eyes glowing through the haze, one hand
+outstretched with fingers already turning to vapour. Heavy fog fills the
+frame around the figure. Dark vignette background, vertical 2:3
+composition, head positioned in the upper third of the frame, no text.
+```
+
+### `roles/thief.webp` — Hırsız (tarafsız)
+
+```
+[referans görseli ekle] Match the exact art style, palette, lighting and
+framing of the reference image.
+Waist-up portrait of a thief: a deep hood shadowing the upper face so only
+a smirk and one glinting eye show, a dark travel cloak, a ring of old brass
+keys hanging from the belt and a lockpick held between two fingers. Muted
+brass and pale gold accents — deliberately neither the warm village light
+nor the vampire red, so the card reads as belonging to no side.
+Dark vignette background, vertical 2:3 composition, head positioned in the
+upper third of the frame, no text.
+```
+
+### Üretim sırası önerisi
+
+1. `vampireLord` — referans vampirle yan yana en çok görülecek kart,
+   ikisinin ayrı ayrı tanınması önemli.
+2. `mistVampire`, `bloodWizard` — vampir tarafı tamamlanır.
+3. `detective`, `wizard` — köy tarafı.
+4. `thief` — en son; diğerlerinin hiçbirine benzememesi gerekiyor,
+   elinde tüm set varken kontrol etmek kolay olur.
+
+Her kartı ürettikten sonra dönüştür:
+
+```bash
+ffmpeg -i indirilen.png -vf "scale=512:768:force_original_aspect_ratio=increase,crop=512:768" -c:v libwebp -quality 82 public/assets/roles/detective.webp
+```
 
 ## Arka Planlar (1080×1920 · 9:16 dikey)
 
