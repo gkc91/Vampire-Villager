@@ -201,7 +201,10 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
           step: state.nightStep,
           fog: state.night.fog,
           blocked: state.night.blocked.map((id) => nameOf(id) ?? id),
-          woke: state.night.woke.map((id) => nameOf(id) ?? id),
+          // Bir oyuncu iki adımda oynayabiliyor (lord: dönüştürme + oylama),
+          // listede iki kez görünüyordu. Kim ne yaptı sorusuna zaten adım
+          // dökümü cevap veriyor; burada tekrarı gösterme.
+          woke: [...new Set(state.night.woke)].map((id) => nameOf(id) ?? id),
           protectedName: nameOf(state.night.protectedId),
           attackName: nameOf(state.night.attackTarget),
           convertedName: nameOf(state.night.convertedTonight),
