@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:strings": "node scripts/check-hardcoded-strings.mjs",
-    "check": "npm run lint:strings && npm run test && npm run build"
+    "check": "npm run lint:strings && npm run test && npm run build && npm run lint:build",
+    "lint:build": "node scripts/check-build.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^6.0.3",

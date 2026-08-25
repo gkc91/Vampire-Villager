@@ -191,5 +191,17 @@
     "dbgConverted": "Dönüştürülen",
     "dbgRoles": "Roller",
     "dbgSteps": "Adım dökümü (⨯ = pas/süre doldu)"
+  },
+  "diag": {
+    "title": "Bağlantı bilgisi",
+    "version": "Sürüm",
+    "address": "Adres",
+    "relay": "Aktarıcı",
+    "mode": "Taşıma",
+    "state": "Durum",
+    "peers": "Eş sayısı",
+    "relayMs": "Bağlanma",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı"
   }
 }

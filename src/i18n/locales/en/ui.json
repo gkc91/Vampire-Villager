@@ -191,5 +191,17 @@
     "dbgConverted": "Turned",
     "dbgRoles": "Roles",
     "dbgSteps": "Step log (⨯ = passed/timed out)"
+  },
+  "diag": {
+    "title": "Connection info",
+    "version": "Build",
+    "address": "Address",
+    "relay": "Relay",
+    "mode": "Transport",
+    "state": "State",
+    "peers": "Peers",
+    "relayMs": "Connected in",
+    "copy": "Copy",
+    "copied": "Copied"
   }
 }

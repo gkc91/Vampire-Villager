@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '../components/Screen';
 import { Card } from '../components/atoms';
+import { ConnectionInfo } from '../components/ConnectionInfo';
 import { useGameStore } from '../../store/gameStore';
 import {
   getSavedName,
@@ -115,7 +116,12 @@ export function HomeScreen() {
       <button type="button" className="btn-ghost text-sm" onClick={() => void onCreate(true)}>
         {t('home.solo')}
       </button>
-      <p className="pb-4 text-center text-xs text-moon-200/40">{t('home.soloHint')}</p>
+      <p className="text-center text-xs text-moon-200/40">{t('home.soloHint')}</p>
+
+      {/* Bağlanma sorunlarında iki cihazın satırlarını karşılaştırmak için. */}
+      <div className="pb-4">
+        <ConnectionInfo open={Boolean(shownError)} />
+      </div>
     </Screen>
   );
 }
