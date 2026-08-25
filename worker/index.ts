@@ -134,6 +134,18 @@ export default {
   },
 };
 
+/**
+ * Sahadaki arızaları uzaktan görebilmek için olay günlüğü.
+ *
+ * Yalnız YAŞAM DÖNGÜSÜ olayları yazılır (bağlanma, kopma, hedefi bulunamayan
+ * mesaj) — her mesajı yazmak hem gürültü hem masraf olurdu. Oyun içeriği
+ * ASLA yazılmaz: roller ve görünümler loglara düşmemeli.
+ */
+function logEvent(room: string, event: string, detail?: Record<string, unknown>): void {
+  const extra = detail ? ' ' + JSON.stringify(detail) : '';
+  console.log(`[oda ${room}] ${event}${extra}`);
+}
+
 export class GameRoom implements DurableObject {
   constructor(private state: DurableObjectState) {
     // Boşta duran WebSocket'leri ara sunucular (operatör/proxy) kapatabiliyor.
@@ -150,11 +162,14 @@ export class GameRoom implements DurableObject {
    * cihazlar bu yola düşer, herkes değil.
    */
   private streams = new Map<string, ReadableStreamDefaultController<Uint8Array>>();
+  /** Yalnız log okunabilirliği için; yönlendirmede kullanılmaz. */
+  private roomLabel = '?';
   private encoder = new TextEncoder();
   private keepAlive: ReturnType<typeof setInterval> | null = null;
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
+    this.roomLabel = url.pathname.split('/')[2] ?? '?';
     // HTTP taşımasında peerId'yi istemci taşır: akış koptuğunda aynı kimlikle
     // dönebilsin diye. (WebSocket'te sunucu atar, orada kopma = yeni kimlik.)
     const httpPeer = url.searchParams.get('peer');
@@ -168,6 +183,7 @@ export class GameRoom implements DurableObject {
       if (!httpPeer) return new Response('peer required', { status: 400 });
       if (!this.streams.has(httpPeer)) {
         // Akış kopmuş: istemci yeniden bağlanmalı, mesajı sessizce yutma.
+        logEvent(this.roomLabel, 'POST reddedildi (akış yok)', { peer: httpPeer.slice(0, 8) });
         return new Response('stream gone', { status: 409 });
       }
       let envelope: ClientEnvelope;
@@ -189,6 +205,7 @@ export class GameRoom implements DurableObject {
     this.state.acceptWebSocket(server, [peerId]);
 
     const others = this.allPeerIds().filter((id) => id !== peerId);
+    logEvent(this.roomLabel, 'WebSocket bağlandı', { peer: peerId, odadakiler: others.length });
     this.send(server, { t: 'welcome', peerId, peers: others });
     for (const id of others) {
       this.sendTo(id, { t: 'peerJoin', peerId });
@@ -215,11 +232,16 @@ export class GameRoom implements DurableObject {
       start(controller) {
         room.streams.set(peerId, controller);
         const others = room.allPeerIds().filter((id) => id !== peerId);
+        logEvent(room.roomLabel, 'HTTP akışı açıldı', {
+          peer: peerId.slice(0, 8),
+          odadakiler: others.length,
+        });
         room.sendTo(peerId, { t: 'welcome', peerId, peers: others });
         for (const id of others) room.sendTo(id, { t: 'peerJoin', peerId });
         room.startKeepAlive();
       },
       cancel() {
+        logEvent(room.roomLabel, 'HTTP akışı kapandı', { peer: peerId.slice(0, 8) });
         room.streams.delete(peerId);
         for (const id of room.allPeerIds()) room.sendTo(id, { t: 'peerLeave', peerId });
         if (room.streams.size === 0) room.stopKeepAlive();
@@ -308,7 +330,17 @@ export class GameRoom implements DurableObject {
       return;
     }
     const target = this.peers().find((p) => p.peerId === peerId);
-    if (target) this.send(target.socket, payload);
+    if (target) {
+      this.send(target.socket, payload);
+      return;
+    }
+    // Buraya düşmek, mesajın DÜŞTÜĞÜ anlamına gelir: hedef odada görünmüyor.
+    // "Host beni gördü ama ben bağlanıyorda kaldım" şikâyetinin izi budur.
+    logEvent(this.roomLabel, 'HEDEF BULUNAMADI — mesaj düştü', {
+      hedef: peerId.slice(0, 8),
+      tur: payload.t,
+      odadakiler: this.allPeerIds().length,
+    });
   }
 
   webSocketClose(ws: WebSocket): void {
@@ -322,6 +354,7 @@ export class GameRoom implements DurableObject {
   private announceLeave(ws: WebSocket): void {
     const peerId = this.peerIdOf(ws);
     if (!peerId) return;
+    logEvent(this.roomLabel, 'WebSocket koptu', { peer: peerId });
     for (const id of this.allPeerIds()) {
       if (id !== peerId) this.sendTo(id, { t: 'peerLeave', peerId });
     }
