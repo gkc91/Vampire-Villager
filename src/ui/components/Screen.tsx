@@ -23,11 +23,17 @@ export function backdropFor(phase: Phase | 'home'): Backdrop {
   }
 }
 
+/**
+ * Arka plan görselinin üstündeki karartma. Fazla koyu olursa görsel hiç
+ * görünmez (asset'ler gelmeden önce katman zaten "arka plan"ın kendisiydi
+ * ve alt kısım tamamen opaktı). Metinlerin okunaklılığını kartların kendi
+ * zeminleri sağlıyor; burada yalnız genel kontrast dengeleniyor.
+ */
 const OVERLAY: Record<Backdrop, string> = {
-  lobby: 'from-night-950/70 via-night-950/85 to-night-950',
-  night: 'from-night-950/60 via-night-950/85 to-night-950',
-  day: 'from-night-800/50 via-night-950/85 to-night-950',
-  death: 'from-blood-500/20 via-night-950/90 to-night-950',
+  lobby: 'from-night-950/45 via-night-950/65 to-night-950/90',
+  night: 'from-night-950/35 via-night-950/60 to-night-950/90',
+  day: 'from-night-800/25 via-night-950/60 to-night-950/90',
+  death: 'from-blood-500/15 via-night-950/65 to-night-950/90',
 };
 
 /** Mobil öncelikli ekran kabuğu: arka plan + üst bar + kaydırılabilir gövde. */
