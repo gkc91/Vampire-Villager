@@ -1,9 +1,8 @@
 # 03 — Roller
 
-> **Durum:** Bu dosya kullanıcının 14'lük setinden gelen yeni kural setiyle
-> güncellendi. Kodda şu an MVP'nin 5 rolü var (eski kurallarla); yeni set
-> henüz uygulanmadı. Uygulamadan önce "Açık Sorular" bölümü kapatılmalı.
-> Eski MVP kuralları için git geçmişine bakılabilir.
+> **Durum:** Kural seti tamamlandı, açık soru kalmadı. Kodda şu an MVP'nin
+> 5 rolü var (eski kurallarla); bu set henüz uygulanmadı — bkz. 07-tasks.md
+> M7. Eski MVP kuralları için git geçmişine bakılabilir.
 
 ## Rol Listesi (11 rol)
 
@@ -52,6 +51,7 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 - **Oyun boyunca yalnız 2 kez** kullanılabilir.
 - Koruma **yalnız gece işler**; gündüz asılmasını engellemez.
 - Kendini koruyabilir.
+- **Aynı kişiyi üst üste iki gece koruyamaz.**
 
 ### Kâhin — Köy
 - Her gece bir oyuncu seçer; oyun o kişinin **vampir olup olmadığını** söyler.
@@ -69,9 +69,12 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 ### Büyücü — Köy
 - **Oyun boyunca 1 kez** büyü yapar.
 - Büyü **gündüz, konuşma sırasında, asılmadan önce** yapılır.
-- Etkisi iki katmanlı:
-  1. O gün **kimse asılmaz.**
-  2. Seçtiği oyuncu **o gece uyanamaz ve özelliğini kullanamaz.**
+- Hedefini **büyüyü yaparken seçer.**
+- Etkisi:
+  1. Herkese **"büyü yapıldı"** bildirimi gider (kimin yaptığı gizli).
+  2. **O gün oylama hiç açılmaz.** Tartışma süresine **1 dakika eklenir**;
+     süre bitince doğrudan geceye geçilir.
+  3. Seçtiği oyuncu **o gece uyanamaz ve özelliğini kullanamaz.**
 
 ### Avcı — Köy
 - Pasiftir, gece aksiyonu yoktur.
@@ -91,19 +94,28 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
 ### Vampir Lordu — Vampirler
 - **Oyun boyunca 1 kez** gece bir oyuncuyu vampire dönüştürür.
 - Bunun dışında normal vampir oylamasına katılır, diğer özellikleri aynıdır.
+- Dönüştürülen oyuncuya **bildirilir**; o andan itibaren diğer vampirleri
+  görür, vampirler de onu görür.
+- Dönüştürüldüğü gece **kurban seçimine katılamaz**; sonraki gecelerden
+  itibaren normal vampir gibi oynar.
 - **Özel durum:** avcıyı dönüştürmeye çalışırsa dönüşüm olmaz; onun yerine
   **rastgele bir vampir düz köylü olur.**
 
 ### Kan Büyücüsü — Vampirler
-- **Oyun boyunca 2 gece**, köy takımından bir oyuncuyu mühürler.
+- **Oyun boyunca 2 gece**, vampir olmayan bir oyuncuyu mühürler
+  (köy tarafı ya da tarafsız hırsız).
 - Mühürlenen oyuncu o gece **uyanamaz ve özelliğini kullanamaz.**
+- **Aynı kişiyi iki kez mühürleyebilir.**
 - **Özel durum:** avcıyı mühürlemeye çalışırsa mühür işlemez ve **avcıya bir
   uyarı gösterilir.**
 
 ### Sisler Vampiri — Vampirler
-- Kullandığı geceden itibaren **her 3 gecede bir** sis oluşturabilir.
+- İlk sisi **istediği gece** kullanır (1. gece dahil).
+- Kullandıktan sonra **2 gece bekler**; tekrar kullanabileceği en erken gece
+  **kullandığı geceden sonraki 3. gecedir.**
 - Sis, **bilgi alan rollerin tamamını** (kâhin, dedektif) birden uyanmaktan
-  ve özelliklerini kullanmaktan alıkoyar.
+  ve özelliklerini kullanmaktan alıkoyar. Doktor gibi bilgi rolü olmayanlar
+  etkilenmez.
 
 ### Hırsız — Tarafsız
 - Gece **en son** uyanır; ondan önceki tüm etkiler uygulanmıştır.
@@ -114,57 +126,41 @@ Yeteneği yok. Tek silahı gündüz konuşması ve oyu.
   takımındadır; kazanma koşulu da o takımın koşuludur. Çalmadan ölürse
   tarafsız olarak kaybeder.
 
-## Açık Sorular (uygulamadan önce kapatılmalı)
+## Rol Seçimi: Öneri + Kurucu İnisiyatifi
 
-Aşağıdakiler listede belirtilmediği için kural uydurulmadı.
+**Dağılım dayatılmaz.** Oyun kurucusuna oyuncu sayısına göre bir **öneri**
+sunulur; kurucu istediği rolü ekler, çıkarır. Karar tamamen oyunculara ait.
 
-**D1 — Doktor:** Eski kuraldaki "aynı kişiyi üst üste iki gece koruyamaz"
-kısıtı kalktı mı? (Yeni metin "istediği kişiyi" diyor → kalktı varsayımı.)
+- **Minimum 4 oyuncu.** Üst sınır yok.
+- Oyuncu sayısı lobide **kaydırmalı bir denetimle** (slider) belirlenir.
+- Öneri, sayı değiştikçe kendiliğinden güncellenir; kurucu elle değişiklik
+  yaptıysa onun seçimi korunur.
+- Tek zorunlu kural: **en az 1 vampir ve en az 1 vampir olmayan** oyuncu.
+  Bunun dışında dengeyi kurucu üstlenir (2 vampire karşı 2 köylü isterse
+  oyun buna izin verir, uyarı gösterir).
 
-**B1 — Büyücü:** Büyü yapılınca oylama hiç açılmıyor mu, yoksa oylama olup
-sonucu mu geçersiz sayılıyor? Büyücü hedefini büyüyü yaparken mi seçiyor?
+### Önerilen Dağılım
 
-**VL1 — Vampir Lordu:** Dönüştürülen oyuncuya bildirilir mi? Diğer
-vampirler onu görür mü? Dönüştürme yapılan gece vampirler ayrıca kurban da
-öldürebilir mi?
-
-**KB1 — Kan Büyücüsü:** Aynı kişiyi iki kez mühürleyebilir mi? Tarafsız
-(hırsız) mühürlenebilir mi?
-
-**S1 — Sisler Vampiri:** İlk sis 1. gecede kullanılabilir mi? "3 gecede
-bir" = kullandıktan sonra 2 gece bekleyip 3. gecede tekrar mı? Sis doktoru
-etkiler mi (bilgi rolü değil)?
-
-## Dağılım Tablosu (TASLAK — onay bekliyor)
-
-Vampir sayısı `floor((n-1)/3)` formülüyle (önceki onaylanan kural), özel
-roller kademeli açılıyor. Vampirler her sayıda azınlıkta.
+Vampir sayısı `floor((n-1)/3)`; özel roller kademeli açılır.
 
 | Oyuncu | Vampir tarafı | Köy tarafı | Tarafsız |
 |---|---|---|---|
+| 4 | Vampir | Kâhin, Doktor, 1 Köylü | — |
 | 5 | Vampir | Kâhin, Doktor, 2 Köylü | — |
 | 6 | Vampir | Kâhin, Doktor, Avcı, 2 Köylü | — |
 | 7 | Vampir, **Lord** | Kâhin, Doktor, Avcı, 2 Köylü | — |
 | 8 | Vampir, Lord | Kâhin, Doktor, Avcı, **Dedektif**, 2 Köylü | — |
 | 9 | Vampir, Lord | Kâhin, Doktor, Avcı, Dedektif, 2 Köylü | **Hırsız** |
 | 10 | Vampir, Lord, **Kan Büyücüsü** | Kâhin, Doktor, Avcı, Dedektif, **Büyücü**, 1 Köylü | Hırsız |
-| 11 | Vampir, Lord, Kan Büyücüsü | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 2 Köylü | Hırsız |
-| 12 | Vampir, Lord, Kan Büyücüsü | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 3 Köylü | Hırsız |
-| 13 | Vampir, Lord, Kan Büyücüsü, **Sisler** | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 3 Köylü | Hırsız |
-| 14 | Vampir, Lord, Kan Büyücüsü, Sisler | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 4 Köylü | Hırsız |
-| 15 | Vampir, Lord, Kan Büyücüsü, Sisler | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 5 Köylü | Hırsız |
-| 16 | 2 Vampir, Lord, Kan Büyücüsü, Sisler | Kâhin, Doktor, Avcı, Dedektif, Büyücü, 5 Köylü | Hırsız |
+| 11 | Vampir, Lord, Kan Büyücüsü | + 1 Köylü | Hırsız |
+| 12 | Vampir, Lord, Kan Büyücüsü | + 2 Köylü | Hırsız |
+| 13 | + **Sisler** | + 2 Köylü | Hırsız |
+| 14-15 | Vampir, Lord, Kan Büyücüsü, Sisler | + Köylü | Hırsız |
+| 16+ | + düz Vampir (formüle göre) | + Köylü | Hırsız |
 
-Açılış sırası mantığı:
-- **Vampir tarafı:** önce düz Vampir → Lord (7) → Kan Büyücüsü (10) →
-  Sisler (13) → ikinci düz Vampir (16).
-- **Köy tarafı:** Kâhin + Doktor her zaman → Avcı (6) → Dedektif (8) →
-  Büyücü (10).
-- **Hırsız** 9 kişiden itibaren; küçük odada tek bir rol çalması oyunu
-  fazla sarsıyor.
-
-16 üstü için formül sürer: vampir `floor((n-1)/3)`, eklenen her oyuncu düz
-köylü olur.
+Açılış sırası: vampir tarafında düz Vampir → Lord (7) → Kan Büyücüsü (10)
+→ Sisler (13); köy tarafında Kâhin + Doktor → Avcı (6) → Dedektif (8) →
+Büyücü (10); Hırsız 9'dan itibaren.
 
 ## Rol Tanım Şablonu (kod sözleşmesi)
 

@@ -13,9 +13,13 @@ LOBBY → ROLE_REVEAL → NIGHT → NIGHT_RESULT → DAY_DISCUSSION → VOTE
 ### LOBBY
 - Host oda kurar → 6 haneli kod + paylaşılabilir link üretilir.
 - Oyuncular isim girer (+ opsiyonel avatar seçimi).
-- Host ayarları: oyuncu sayısı sınırı, rol seti (MVP: otomatik dağılım),
+- Host ayarları: oyuncu sayısı (kaydırmalı denetim), **rol seçimi**,
   tartışma süresi (varsayılan 3 dk), host oyuncu mu anlatıcı mı.
-- Minimum 5 oyuncu (host anlatıcıysa 5 oyuncu + host).
+- **Rol seçimi öneriyle gelir, kurucu değiştirebilir** (03-roles.md).
+  Oyuncu sayısı değiştikçe öneri güncellenir; elle değişiklik yapıldıysa
+  kurucunun seçimi korunur.
+- **Minimum 4 oyuncu.** Üst sınır yok. Tek zorunlu kural: en az 1 vampir ve
+  en az 1 vampir olmayan.
 - Herkes "hazır" olunca host "Başlat"a basar.
 
 ### ROLE_REVEAL
@@ -47,6 +51,11 @@ LOBBY → ROLE_REVEAL → NIGHT → NIGHT_RESULT → DAY_DISCUSSION → VOTE
 - Serbest tartışma (yüz yüze veya Discord sesli). Uygulama sadece sayaç ve
   hayatta kalanların listesini gösterir.
 - Host isterse süreyi erken bitirebilir.
+- **Büyücü bu fazda büyüsünü yapabilir** (oyun boyunca 1 kez):
+  - Herkese "büyü yapıldı" bildirimi düşer, kimin yaptığı gizli kalır.
+  - Tartışma süresine **60 saniye eklenir.**
+  - **O gün VOTE fazı hiç açılmaz**; süre bitince doğrudan geceye geçilir.
+  - Büyücünün seçtiği oyuncu o gece uyanamaz.
 
 ### VOTE
 - Süre 45 sn.
