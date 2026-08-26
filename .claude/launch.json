@@ -4,8 +4,23 @@
     {
       "name": "vampir-koylu-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "lampwick-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "serve",
+        "site",
+        "-l",
+        "4173"
+      ],
+      "port": 4173
     }
   ]
 }
