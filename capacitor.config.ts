@@ -10,8 +10,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * Derin link ayarları için docs/NATIVE.md.
  */
 const config: CapacitorConfig = {
-  appId: 'com.lampwickgames.vampirkoylu',
-  appName: 'Vampir Köylü',
+  appId: 'com.lampwickgames.biteclub',
+  appName: 'Bite Club',
   webDir: 'dist',
   android: {
     allowMixedContent: false,
