@@ -296,7 +296,7 @@ Rolleri oyunu kuran kişi seçer; oyunu masanıza göre ayarlayabilirsiniz.
 • Herkes kendi telefonundan — oda kodunu paylaşın, katılın
 • Elden ele — tek telefonu sırayla vererek oynayın, internet gerekmez
 
-4 kişiden başlar, üst sınırı yoktur. Anlatıcıya gerek yok, kart
+4 kişiden 24 kişiye kadar oynanır. Anlatıcıya gerek yok, kart
 kaybolmaz, kural tartışması çıkmaz.
 ```
 
@@ -339,8 +339,8 @@ TWO WAYS TO PLAY
 • Everyone on their own phone — share the room code and join
 • Pass and play — one phone around the table, no internet needed
 
-Four players minimum, no maximum. No moderator, no lost cards, no
-arguments about the rules.
+From 4 up to 24 players. No moderator, no lost cards, no arguments
+about the rules.
 ```
 
 ---
