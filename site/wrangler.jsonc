@@ -1,0 +1,17 @@
+{
+  // Stüdyo sitesi — YALNIZ statik dosya sunan Worker (kod yok).
+  //
+  // Neden Pages değil: Cloudflare 2026'da Pages'i arayüzden kaldırdı, yeni
+  // projeler için Workers + statik dosya yolunu öneriyor. Oyunun Worker'ı
+  // da zaten böyle çalışıyor.
+  //
+  // Oyunun wrangler.jsonc'siyle KARIŞTIRMA: o depo kökünde durur, oyunu ve
+  // aktarıcıyı (/room, /stream, /send) servis eder. Bu dosya yalnız
+  // lampwickgames.com'daki tanıtım sayfası içindir.
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "lampwick-site",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "."
+  }
+}

@@ -13,47 +13,49 @@ kalır: bir rol kartı güncellendiğinde site de kendiliğinden güncellenir.
 
 ---
 
-## GitHub üzerinden yayın (otomatik)
+## Yayın: Worker olarak (Pages değil)
 
-Her `main` push'unda site kendiliğinden güncellenir.
+**Cloudflare 2026'da Pages'i arayüzden kaldırdı.** Panelde "Pages" sekmesi
+görünmüyorsa sorun sende değil: yeni projeler için önerilen yol
+**Workers + statik dosyalar**. Oyunun Worker'ı da zaten böyle çalışıyor.
 
-### Bir kerelik kurulum
+Sitenin kendi yapılandırması `site/wrangler.jsonc` dosyasında duruyor:
+kod yok, yalnız statik dosya sunuyor.
 
-1. Cloudflare paneli → **Workers & Pages** → **Create** → **Pages** sekmesi
-   → **Connect to Git**.
-2. GitHub hesabını bağla, **Vampire-Villager** deposunu seç.
-3. Derleme ayarlarını **tam olarak şöyle** doldur:
+### GitHub'a bağlayarak (otomatik yayın)
+
+1. Cloudflare → **Workers & Pages** → **Create application**.
+2. **Import a repository** / **Connect to Git** seçeneğini seç, GitHub'ı
+   bağla ve **Vampire-Villager** deposunu seç.
+3. Derleme ayarları — burası kritik:
 
    | Alan | Değer |
    |---|---|
-   | Framework preset | **None** |
+   | Project / Worker name | `lampwick-site` |
+   | **Root directory** | **`site`** |
    | Build command | **boş bırak** |
-   | Build output directory | **`site`** |
-   | Root directory | `/` (varsayılan) |
+   | Deploy command | `npx wrangler deploy` |
    | Production branch | `main` |
 
-   > Build command'ı boş bırakmak önemli: sitede derlenecek bir şey yok.
-   > Buraya `npm run build` yazarsan Pages oyunu derler ve yanlış klasörü
-   > yayınlar.
+   > **Root directory'yi `site` yapmak şart.** Boş bırakırsan Cloudflare
+   > depo kökündeki `wrangler.jsonc`'yi bulur ve stüdyo sitesi yerine
+   > OYUNU yayınlar — üstelik aynı Worker adına.
 
-4. **Save and Deploy**. İlk yayın bir dakika sürer,
-   `<proje-adı>.pages.dev` adresinde çıkar.
+4. Kaydet ve yayınla. Site `lampwick-site.<hesap>.workers.dev` adresinde
+   çıkar.
 
 ### Alan adını bağlama
 
-5. Aynı Pages projesinde → **Custom domains** → **Set up a domain** →
-   `lampwickgames.com`.
+5. `lampwick-site` Worker'ı → **Settings** → **Domains & Routes** →
+   **Add** → **Custom domain** → `lampwickgames.com`.
 6. Alan adı zaten Cloudflare'de olduğu için DNS kaydı kendiliğinden
-   eklenir; onaylaman yeterli.
-7. `www.lampwickgames.com` de istersen ikinci bir custom domain olarak
-   ekle.
+   eklenir.
 
-### Sonrası
+### Elle yükleme (hızlı yol)
 
-Artık `site/index.html`'i değiştirip push etmek yeterli. Pages değişikliği
-görüp yeniden yayınlar; ayrıca her push için önizleme adresi üretir.
-
----
+GitHub bağlamak istemezsen: **Create application** → statik dosya
+yükleme seçeneğinde `site` klasörünü sürükle. İki dakika sürer ama her
+değişiklikte tekrar yüklemen gerekir.
 
 ## Dikkat edilecekler
 
@@ -71,14 +73,17 @@ Sitenin altbilgisi de oraya bağlanıyor.
 
 ---
 
-## Stüdyo e-postası (isteğe bağlı, ücretsiz)
+## Stüdyo e-postası — info@lampwickgames.com
 
-Şu an sitede ve gizlilik politikasında kişisel adres yazıyor. Alan adı
-Cloudflare'de olduğu için **Email Routing** ile ücretsiz bir stüdyo adresi
-açılabilir:
+Site ve gizlilik politikası artık **info@lampwickgames.com** adresini
+gösteriyor. Bu adresin çalışması için Cloudflare'de yönlendirme açılmalı
+(ücretsiz):
 
-Cloudflare → alan adı → **Email** → **Email Routing** → `hello@lampwickgames.com`
-adresini kişisel adrese yönlendir. Gelen postalar aynı kutuya düşer, ama
-dışarıya kişisel adres görünmez.
+1. Cloudflare → **lampwickgames.com** → **Email** → **Email Routing** →
+   etkinleştir (gerekli DNS kayıtları tek tıkla eklenir).
+2. **Destination addresses** → kişisel adresini ekle ve gelen doğrulama
+   postasını onayla.
+3. **Routing rules** → `info@lampwickgames.com` → kişisel adrese yönlendir.
 
-Açarsan iki yerde güncellenecek: `site/index.html` ve `public/privacy.html`.
+Bu yapılmadan info@ adresine gelen postalar düşer. Mağaza formlarına bu
+adresi girmeden önce bir deneme postası at ve kutuna düştüğünü gör.
