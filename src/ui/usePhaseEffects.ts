@@ -1,3 +1,4 @@
+import { useGameStore } from '../store/gameStore';
 import { useEffect, useRef } from 'react';
 import type { PlayerView } from '../game/view';
 import { playMusic, playSfx, setMusicEnabled, setSfxEnabled, stopMusic } from '../audio/audioManager';
@@ -65,17 +66,41 @@ export function usePhaseEffects(view: PlayerView | null): void {
  * kopuyor. Party oyununda oyuncular sürekli telefondan başını kaldırdığı
  * için bu, sahadaki en sık kopma sebebi.
  */
+/**
+ * Ekranı açık tutar. Oyun sırasında telefonun kilitlenmesi iki şeyi birden
+ * bozuyor: kurucu kilitlenirse oda erişilemez oluyor, elden ele modunda da
+ * sıradaki oyuncu karanlık ekran devralıyor.
+ *
+ * Durumu store'a yazıyor çünkü bu kilidin GERÇEKTEN tutup tutmadığını
+ * telefonda görmenin başka yolu yok — "ekran kapanıyor" şikâyeti geldiğinde
+ * tahmin etmek yerine bakılacak bir yer olsun.
+ */
 export function useWakeLock(active: boolean): void {
   useEffect(() => {
-    if (!active || !('wakeLock' in navigator)) return;
+    const report = useGameStore.getState().setWakeLock;
+
+    if (!active) {
+      report('idle');
+      return;
+    }
+    if (!('wakeLock' in navigator)) {
+      report('unsupported');
+      return;
+    }
+
     let sentinel: WakeLockSentinel | null = null;
     let released = false;
 
     const request = async () => {
       try {
         sentinel = await navigator.wakeLock.request('screen');
+        report('active');
+        // Sistem kilidi kendiliğinden bırakabilir (ör. pil tasarrufu).
+        sentinel.addEventListener('release', () => {
+          if (!released) report('released');
+        });
       } catch {
-        // İzin verilmedi / desteklenmiyor → sessizce geç.
+        report('failed');
       }
     };
 
@@ -88,8 +113,10 @@ export function useWakeLock(active: boolean): void {
 
     return () => {
       released = true;
+      report('idle');
       document.removeEventListener('visibilitychange', onVisibility);
       void sentinel?.release();
     };
   }, [active]);
 }
+

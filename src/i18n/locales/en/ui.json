@@ -220,7 +220,8 @@
     "peers": "Peers",
     "relayMs": "Connected in",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "wakeLock": "Screen lock"
   },
   "hotseat": {
     "passTo": "Pass the phone to",

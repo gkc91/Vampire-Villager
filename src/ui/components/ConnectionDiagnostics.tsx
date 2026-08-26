@@ -21,6 +21,7 @@ export function ConnectionDiagnostics() {
   const slow = useGameStore((s) => s.slowConnect);
   const retry = useGameStore((s) => s.retryConnect);
   const roomId = useGameStore((s) => s.roomId);
+  const wakeLock = useGameStore((s) => s.wakeLock);
   const [probe, setProbe] = useState<IceProbe | null>(null);
   const [relayProbe, setRelayProbe] = useState<RelayProbe | null>(null);
   const [probing, setProbing] = useState(false);
@@ -50,6 +51,13 @@ export function ConnectionDiagnostics() {
       />
       <Row label={t('connect.peers')} value={String(diagnostics?.peers ?? 0)} />
       {roomId && <Row label={t('connect.room')} value={roomId} />}
+      {/* "Ekran kapanıyor" şikâyetinde kilidin tutup tutmadığı burada
+          görünür; telefonda başka türlü anlaşılmıyor. */}
+      <Row
+        label={t('diag.wakeLock')}
+        value={wakeLock}
+        bad={wakeLock === 'failed' || wakeLock === 'unsupported' || wakeLock === 'released'}
+      />
       {diagnostics && <Timings timings={diagnostics.timings} />}
 
       {slow && noRelay && (

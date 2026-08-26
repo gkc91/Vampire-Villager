@@ -19,6 +19,7 @@ export function ConnectionInfo({ open = false }: { open?: boolean }) {
   const [copied, setCopied] = useState(false);
   const connection = useGameStore((s) => s.connection);
   const diagnostics = useGameStore((s) => s.diagnostics);
+  const wakeLock = useGameStore((s) => s.wakeLock);
 
   const rows: [string, string][] = [
     [t('diag.version'), __BUILD_ID__],
@@ -26,6 +27,7 @@ export function ConnectionInfo({ open = false }: { open?: boolean }) {
     [t('diag.relay'), relayBaseUrl() ?? '—'],
     [t('diag.mode'), activeNetMode()],
     [t('diag.state'), connection],
+    [t('diag.wakeLock'), wakeLock],
   ];
   if (diagnostics) {
     rows.push([t('diag.peers'), String(diagnostics.peers)]);

@@ -32,6 +32,12 @@ interface GameStore {
   /** Bağlantı beklenenden uzun sürüyor (12 sn). */
   slowConnect: boolean;
   /**
+   * Ekranı açık tutma kilidinin durumu. Teşhis için: "ekran kapanıyor"
+   * şikâyetinde kilidin tutup tutmadığını telefonda görebilmek gerekiyor.
+   */
+  wakeLock: 'idle' | 'active' | 'released' | 'unsupported' | 'failed';
+  setWakeLock: (state: 'idle' | 'active' | 'released' | 'unsupported' | 'failed') => void;
+  /**
    * Bu oturumun kimliği. localStorage'dan bir kez okunur; sonraki
    * mesajlar bunu kullanır — böylece token başka bir sekmede değişse bile
    * bu oturum kimliğini kaybetmez.
@@ -196,6 +202,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     myToken: '',
     diagnostics: null,
     slowConnect: false,
+    wakeLock: 'idle',
 
     async createRoom(name, solo = false) {
       await get().leave();
@@ -291,6 +298,10 @@ export const useGameStore = create<GameStore>((set, get) => {
         diagnostics: null,
         slowConnect: false,
       });
+    },
+
+    setWakeLock(state) {
+      if (get().wakeLock !== state) set({ wakeLock: state });
     },
 
     clearError: () => set({ errorKey: null }),

@@ -220,7 +220,8 @@
     "peers": "Eş sayısı",
     "relayMs": "Bağlanma",
     "copy": "Kopyala",
-    "copied": "Kopyalandı"
+    "copied": "Kopyalandı",
+    "wakeLock": "Ekran kilidi"
   },
   "hotseat": {
     "passTo": "Telefonu ver",
