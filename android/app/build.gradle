@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+// Yayin imzasi. Parola ve anahtar yolu android/keystore.properties'te durur;
+// o dosya git'e girmez, anahtarin kendisi de depo disindadir.
+// Dosya yoksa (baska bir makine, CI) surum derlemesi imzasiz kalir ve
+// gradle bunu asagida acikca soyler -- sessizce bozuk .aab uretmez.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def hasSigning = keystorePropertiesFile.exists()
+if (hasSigning) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.lampwickgames.biteclub"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +27,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasSigning) {
+            release {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            } else {
+                println "UYARI: android/keystore.properties yok -- surum derlemesi IMZASIZ."
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
