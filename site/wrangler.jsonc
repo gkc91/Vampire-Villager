@@ -12,6 +12,9 @@
   "name": "lampwick-site",
   "compatibility_date": "2026-01-01",
   "assets": {
-    "directory": "."
+    // YALNIZ public/ sunulur. Önce "." yazmıştım ve wrangler.jsonc'nin
+    // kendisi de siteye yüklendi — /wrangler.jsonc adresinden herkese
+    // açık okunuyordu. Yapılandırma sunulan klasörün DIŞINDA durmalı.
+    "directory": "./public"
   }
 }

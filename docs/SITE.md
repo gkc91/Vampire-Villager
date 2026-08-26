@@ -1,6 +1,17 @@
 # Stüdyo Sitesi — lampwickgames.com
 
-`site/` klasöründeki tek sayfalık stüdyo sitesi. Derleme adımı yok; düz
+Tek sayfalık stüdyo sitesi. Klasör düzeni:
+
+```
+site/
+  wrangler.jsonc   ← yayın ayarı (SUNULMAZ)
+  public/
+    index.html     ← sitenin kendisi
+```
+
+Yapılandırma dosyası bilerek `public/` dışında: sunulan klasörün içinde
+olursa `/wrangler.jsonc` adresinden herkese açık okunuyor (bir kez oldu).
+ Derleme adımı yok; düz
 HTML, tek dosya. Oyunun kendisiyle karıştırılmasın:
 
 | Adres | Ne servis eder | Nereden |
