@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RoleCard } from './RoleCard';
 import { PlayerGrid } from './PlayerGrid';
@@ -17,18 +17,35 @@ export function RolePocket({ view }: { view: PlayerView }) {
   const [open, setOpen] = useState(false);
 
   // Rolü olmayan (yalnız anlatıcı host, henüz dağıtılmamış) için gösterme.
-  if (!view.me.isPlayer || !view.me.role) return null;
   // Oyun bittiğinde zaten herkesin rolü açık.
-  if (view.phase === 'GAME_END' || view.phase === 'ROLE_REVEAL') return null;
+  const visible =
+    view.me.isPlayer &&
+    view.me.role !== null &&
+    view.phase !== 'GAME_END' &&
+    view.phase !== 'ROLE_REVEAL';
+
+  // Çubuk sabit konumlu, yani ekranın akışında yer kaplamıyor: altındaki
+  // onay düğmesini örtüyordu. Gövdeye işaret bırakıp çerçeveye o kadar
+  // boşluk açtırıyoruz (index.css).
+  useEffect(() => {
+    if (!visible) return;
+    document.body.classList.add('has-pocket');
+    return () => document.body.classList.remove('has-pocket');
+  }, [visible]);
+
+  if (!visible || !view.me.role) return null;
 
   const teammates = view.players.filter((p) => view.teammates.includes(p.id));
 
+  // Aşağıdaki pb: Android 15+ artık kenardan kenara çiziyor; sabit çubuk
+  // sistem gezinme çubuğunun ALTINDA kalıyordu — "Rolüm" yazısı
+  // ||| O < tuşlarının arkasından okunuyordu.
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[430px] -translate-x-1/2 items-center justify-center gap-2 rounded-t-2xl border border-b-0 border-night-600 bg-night-900/95 px-4 py-2 text-sm text-moon-200/80 backdrop-blur"
+        className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[430px] -translate-x-1/2 items-center justify-center gap-2 rounded-t-2xl border border-b-0 border-night-600 bg-night-900/95 px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] text-sm text-moon-200/80 backdrop-blur"
       >
         <span aria-hidden="true">🎴</span>
         {t('role.pocket')}
@@ -38,7 +55,7 @@ export function RolePocket({ view }: { view: PlayerView }) {
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-night-950/80 backdrop-blur-sm">
-      <div className="max-h-[92vh] w-full max-w-[430px] space-y-3 overflow-y-auto rounded-t-2xl border border-b-0 border-night-600 bg-night-950 p-4">
+      <div className="max-h-[92vh] w-full max-w-[430px] space-y-3 overflow-y-auto rounded-t-2xl border border-b-0 border-night-600 bg-night-950 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <RoleCard roleId={view.me.role} />
 
         {teammates.length > 0 && (

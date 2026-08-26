@@ -14,3 +14,6 @@ dist-ssr
 ios
 .wrangler
 assets-raw
+
+# Yayına verilen APK/AAB kopyaları (android/app/build/outputs altından çıkar).
+build-out

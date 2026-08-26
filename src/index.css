@@ -59,3 +59,9 @@
 .timer-bar {
   transition: width 0.5s linear;
 }
+
+/* Rol cebi açıkken çerçeve altına yer aç: sabit çubuk, ekranın kendi
+   düğmelerini (onayla / oy ver) örtmesin. Sınıfı RolePocket koyuyor. */
+body.has-pocket .app-frame {
+  padding-bottom: calc(2.75rem + env(safe-area-inset-bottom));
+}
