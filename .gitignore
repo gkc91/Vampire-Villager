@@ -7,7 +7,10 @@ dist-ssr
 .env.*
 !.env.example
 !.env.production
-android
+# android/ TAKİP EDİLİYOR: derin link (AndroidManifest) ve imzalama ayarları
+# native dosyalarda duruyor; klasör git'te olmazsa her `cap add android`
+# bunları siliyordu. Klasörün kendi .gitignore'u derleme çıktılarını,
+# local.properties'i ve kopyalanan web dosyalarını zaten dışarıda tutuyor.
 ios
 .wrangler
 assets-raw
