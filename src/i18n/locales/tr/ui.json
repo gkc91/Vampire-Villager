@@ -221,5 +221,17 @@
     "relayMs": "Bağlanma",
     "copy": "Kopyala",
     "copied": "Kopyalandı"
+  },
+  "hotseat": {
+    "passTo": "Telefonu ver",
+    "passHint": "Telefonu sıradaki oyuncuya uzat. Başkası ekrana bakmasın — sıradaki kişi hazır olduğunda dokunsun.",
+    "ready": "Ben {{name}}, hazırım",
+    "title": "Elden ele",
+    "subtitle": "Tek telefon, sırayla oynayın",
+    "addPlayer": "Oyuncu ekle",
+    "playerName": "Oyuncu adı",
+    "start": "Oyunu başlat",
+    "needMore": "En az {{count}} oyuncu gerekli",
+    "hint": "Herkes aynı telefonu sırayla alır: rolünü görür, gece hamlesini yapar, telefonu verir."
   }
 }

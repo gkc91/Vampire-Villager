@@ -14,6 +14,9 @@ import type { PlayerId } from '../../game/types';
 
 export function DayScreen({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
+  // Elden ele: ortak ekranda masa görünümü var, kurucu bayrağı düşük
+  // kalıyor. Bu düğmeler orada masanın ortak kararı olarak durmalı.
+  const hotseat = useGameStore((s) => s.hotseat);
   const endDiscussion = useGameStore((s) => s.endDiscussion);
   const castSpell = useGameStore((s) => s.castSpell);
   const [spellTarget, setSpellTarget] = useState<PlayerId | null>(null);
@@ -38,7 +41,7 @@ export function DayScreen({ view }: { view: PlayerView }) {
               {t('day.castSpell')}
             </button>
           )}
-          {view.me.isHost && (
+          {(view.me.isHost || hotseat) && (
             <button type="button" className="btn-secondary" onClick={endDiscussion}>
               {t('day.endEarly')}
             </button>

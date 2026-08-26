@@ -17,6 +17,7 @@ const BOT_NAMES = ['Ada', 'Boran', 'Ceren', 'Deniz', 'Ege', 'Fikret', 'Gizem', '
 export function LobbyScreen({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   const store = useGameStore();
+  const hotseat = useGameStore((s) => s.hotseat);
   const [copied, setCopied] = useState(false);
 
   const players = view.players.filter((p) => !p.left);
@@ -52,7 +53,7 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
     <Screen
       backdrop="lobby"
       title={t('lobby.title')}
-      subtitle={`${t('lobby.roomCode')}: ${view.roomId}`}
+      subtitle={hotseat ? t('hotseat.subtitle') : `${t('lobby.roomCode')}: ${view.roomId}`}
       onBack={() => void store.leave()}
       footer={
         view.me.isHost ? (
@@ -80,21 +81,25 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
         )
       }
     >
-      <Card className="space-y-3">
-        <div className="text-center">
-          <p className="text-xs uppercase tracking-widest text-moon-200/50">{t('lobby.roomCode')}</p>
-          <p className="text-4xl font-black tracking-[0.35em] text-moon-100">{view.roomId}</p>
-        </div>
-        <div className="flex gap-2">
-          <button type="button" className="btn-secondary flex-1" onClick={() => void copyLink()}>
-            {copied ? t('common.copied') : t('common.copy')}
-          </button>
-          <button type="button" className="btn-secondary flex-1" onClick={() => void share()}>
-            {t('lobby.share')}
-          </button>
-        </div>
-        <p className="break-all text-center text-[11px] text-moon-200/40">{joinLink(view.roomId)}</p>
-      </Card>
+      {/* Elden ele modunda kimse ağdan katılmıyor: oda kodu ve paylaşma
+          bölümü yalnız kafa karıştırır. */}
+      {!hotseat && (
+        <Card className="space-y-3">
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-widest text-moon-200/50">{t('lobby.roomCode')}</p>
+            <p className="text-4xl font-black tracking-[0.35em] text-moon-100">{view.roomId}</p>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" className="btn-secondary flex-1" onClick={() => void copyLink()}>
+              {copied ? t('common.copied') : t('common.copy')}
+            </button>
+            <button type="button" className="btn-secondary flex-1" onClick={() => void share()}>
+              {t('lobby.share')}
+            </button>
+          </div>
+          <p className="break-all text-center text-[11px] text-moon-200/40">{joinLink(view.roomId)}</p>
+        </Card>
+      )}
 
       <section>
         <SectionTitle>{t('lobby.players', { count: playing.length })}</SectionTitle>

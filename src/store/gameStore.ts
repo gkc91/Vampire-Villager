@@ -3,6 +3,7 @@ import type { ConnectionState, NetDiagnostics, NetworkAdapter } from '../net/Net
 import type { NetMessage } from '../net/messages';
 import { isClientMessage } from '../net/messages';
 import { createAdapter } from '../net';
+import { TABLE_VIEWER } from '../game/hotseat';
 import { HostController } from './hostController';
 import type { GameSettings, PlayerId } from '../game/types';
 import type { PlayerView } from '../game/view';
@@ -14,7 +15,7 @@ import {
   saveName,
 } from '../util/identity';
 
-export type Screen = 'home' | 'game';
+export type Screen = 'home' | 'hotseat' | 'game';
 
 interface GameStore {
   screen: Screen;
@@ -53,6 +54,20 @@ interface GameStore {
   vote: (targetId: PlayerId | 'abstain') => void;
   castSpell: (targetId: PlayerId) => void;
 
+  /**
+   * Elden ele modu (tek cihaz, sırayla). Açıkken ekran o an sırası gelen
+   * oyuncunun gözünden gösterilir; sıra değişince araya gizlilik perdesi
+   * girer.
+   */
+  hotseat: boolean;
+  /** Telefonu devralması gereken oyuncu; null ise perde yok. */
+  passTo: PlayerId | null;
+  /** Elden ele kurulum ekranını açar. */
+  openHotseat: () => void;
+  startHotseat: (names: string[]) => Promise<void>;
+  /** Perdedeki "hazırım" düğmesi: ekranı yeni oyuncuya çevirir. */
+  handOver: () => void;
+
   // yalnız host
   startGame: () => void;
   endDiscussion: () => void;
@@ -70,12 +85,63 @@ let identityRetried = false;
 let slowTimer: ReturnType<typeof setTimeout> | null = null;
 
 const SLOW_CONNECT_MS = 12_000;
+/** Elden ele modunda sıra bekleyen aşamalar kendiliğinden ilerlemesin. */
+const NO_TIMEOUT_SECONDS = 3600;
 
 export const useGameStore = create<GameStore>((set, get) => {
   const asHost = (): HostController | null => (get().isHost ? host : null);
 
   const sendIntent = (msg: Parameters<NetworkAdapter['sendToHost']>[0]): void => {
     adapter?.sendToHost(msg);
+  };
+
+  /**
+   * Bu dokunuş KİMİN adına?
+   *
+   * Normal oyunda cihaz sahibi kurucudur. Elden ele modunda ise telefon
+   * sırayla dolaşıyor: ekranda kimin görünümü duruyorsa eylem onundur.
+   * Bu ayrım olmadan Ayşe'nin "gördüm" dokunuşu Ali'yi hazır işaretliyor,
+   * Ayşe hiç ilerlemiyor ve oyun kilitleniyordu.
+   */
+  const actingPlayer = (controller: HostController): PlayerId => {
+    if (!get().hotseat) return controller.hostPlayerId;
+    return get().view?.me.id ?? controller.hostPlayerId;
+  };
+
+  /**
+   * Elden ele: her durum değişiminde "telefon kimde olmalı" sorusunu
+   * yeniden sorar.
+   *
+   * Sıra başkasına geçtiyse perdeyi indirir VE ekranı hemen masa
+   * görünümüne çevirir — perde açılana kadar önceki oyuncunun rolü
+   * arkada durmasın.
+   */
+  const syncHotseat = (): void => {
+    if (!get().hotseat || !host) return;
+
+    // Lobide telefon kurucunun elinde: rol listesini düzenleyip oyunu o
+    // başlatacak. Masa görünümüne geçersek kendi başlat düğmesini göremez.
+    if (get().view?.phase === 'LOBBY') {
+      if (get().view?.me.id !== undefined && !get().view?.me.isHost) host.setViewer(null);
+      set({ passTo: null });
+      return;
+    }
+
+    const actor = host.hotseatActor();
+    const shown = get().view?.me.id ?? null;
+
+    if (actor === null) {
+      // Ortak ekran: kimsenin gizli bilgisi görünmemeli.
+      if (shown !== TABLE_VIEWER) host.setViewer(TABLE_VIEWER);
+      set({ passTo: null });
+      return;
+    }
+    if (actor !== shown) {
+      if (shown !== TABLE_VIEWER) host.setViewer(TABLE_VIEWER);
+      set({ passTo: actor });
+    } else {
+      set({ passTo: null });
+    }
   };
 
   const handleServerMessage = (msg: NetMessage): void => {
@@ -121,6 +187,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     roomId: null,
     isHost: false,
     solo: false,
+    hotseat: false,
+    passTo: null,
     connection: 'idle',
     errorKey: null,
     view: null,
@@ -139,7 +207,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       adapter.onStateChange((connection) => set({ connection }));
       adapter.onDiagnostics((diagnostics) => set({ diagnostics }));
 
-      host = new HostController(adapter, roomId, token, name, (view) => set({ view }));
+      host = new HostController(adapter, roomId, token, name, (view) => {
+        set({ view });
+        syncHotseat();
+      });
       set({
         screen: 'game',
         roomId,
@@ -226,33 +297,34 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     setReady(ready) {
       const controller = asHost();
-      if (controller) controller.dispatch({ type: 'SET_READY', playerId: controller.hostPlayerId, ready });
+      if (controller)
+        controller.dispatch({ type: 'SET_READY', playerId: actingPlayer(controller), ready });
       else sendIntent({ type: 'ready', token: get().myToken, ready });
     },
 
     roleSeen() {
       const controller = asHost();
-      if (controller) controller.dispatch({ type: 'ROLE_SEEN', playerId: controller.hostPlayerId });
+      if (controller) controller.dispatch({ type: 'ROLE_SEEN', playerId: actingPlayer(controller) });
       else sendIntent({ type: 'roleSeen', token: get().myToken });
     },
 
     nightAction(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'NIGHT_ACTION', playerId: controller.hostPlayerId, targetId });
+        controller.dispatch({ type: 'NIGHT_ACTION', playerId: actingPlayer(controller), targetId });
       else sendIntent({ type: 'nightAction', token: get().myToken, targetId });
     },
 
     vote(targetId) {
       const controller = asHost();
-      if (controller) controller.dispatch({ type: 'VOTE', playerId: controller.hostPlayerId, targetId });
+      if (controller) controller.dispatch({ type: 'VOTE', playerId: actingPlayer(controller), targetId });
       else sendIntent({ type: 'vote', token: get().myToken, targetId });
     },
 
     castSpell(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'CAST_SPELL', playerId: controller.hostPlayerId, targetId });
+        controller.dispatch({ type: 'CAST_SPELL', playerId: actingPlayer(controller), targetId });
       else sendIntent({ type: 'castSpell', token: get().myToken, targetId });
     },
 
@@ -266,6 +338,39 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     updateSettings(settings) {
       asHost()?.updateSettings(settings);
+    },
+
+    openHotseat() {
+      set({ screen: 'hotseat', errorKey: null });
+    },
+
+    async startHotseat(names) {
+      // Elden ele hep tek cihazda: ağ yok, LocalAdapter yeter.
+      await get().createRoom(names[0] ?? 'Oyuncu 1', true);
+      set({ hotseat: true });
+      const controller = host;
+      if (!controller) return;
+      for (const name of names.slice(1)) controller.addLocalPlayer(name);
+
+      // Sıra bekleyen zamanlayıcıları kaldır. Tek cihazda kimse ağdan
+      // beklemiyor; telefon elden ele dolaşırken 60 saniyelik rol süresi
+      // doluyor ve sıradaki oyuncu rolünü HİÇ göremeden gece başlıyordu.
+      // Tartışma sayacı kalıyor, o masadaki sohbet için gerçekten işe yarar.
+      controller.updateSettings({
+        roleRevealSeconds: NO_TIMEOUT_SECONDS,
+        nightStepSeconds: NO_TIMEOUT_SECONDS,
+        voteSeconds: NO_TIMEOUT_SECONDS,
+      });
+      // Tek cihazda "hazırım" beklemenin anlamı yok; oyunu kurucu başlatır.
+      controller.setViewer(null);
+      syncHotseat();
+    },
+
+    handOver() {
+      const next = get().passTo;
+      if (!next || !host) return;
+      host.setViewer(next);
+      set({ passTo: null });
     },
 
     addBot(name) {

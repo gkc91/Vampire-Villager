@@ -5,6 +5,7 @@ import type { GameAction, GameSettings, GameState, PlayerId } from '../game/type
 import { createInitialState, reduce } from '../game/stateMachine';
 import { buildPlayerView, type PlayerView } from '../game/view';
 import { botAction } from '../game/bot';
+import { nextHotseatActor } from '../game/hotseat';
 import { currentUnlockedRoles } from '../monetization/entitlements';
 import { colorForToken } from '../util/identity';
 
@@ -26,6 +27,11 @@ export class HostController {
   private botTimers = new Map<PlayerId, ReturnType<typeof setTimeout>>();
   private ticker: ReturnType<typeof setInterval> | null = null;
   private botCounter = 0;
+  /**
+   * Elden ele modunda ekranda KİMİN görünümü duruyor. null ise kurucunun
+   * kendi görünümü (normal çok cihazlı oyun).
+   */
+  private viewer: PlayerId | null = null;
 
   constructor(
     private adapter: NetworkAdapter,
@@ -272,8 +278,41 @@ export class HostController {
   }
 
   /** Her oyuncuya YALNIZ kendi görünümünü yollar. */
+  /** Elden ele: telefon şimdi kimde olmalı? null ise ekran herkese açık. */
+  hotseatActor(): PlayerId | null {
+    return nextHotseatActor(this.state);
+  }
+
+  /** Elden ele: ekranı bu oyuncunun gözünden göster. */
+  setViewer(playerId: PlayerId | null): void {
+    this.viewer = playerId;
+    this.publish();
+  }
+
+  /** Elden ele: tek cihazda oynayan insan oyuncu ekler (bot değil). */
+  addLocalPlayer(name: string): PlayerId {
+    this.botCounter += 1;
+    const id = `seat-${this.botCounter}`;
+    this.dispatch({
+      type: 'ADD_PLAYER',
+      player: {
+        id,
+        name,
+        color: colorForToken(id),
+        isHost: false,
+        isPlayer: true,
+        connected: true,
+      },
+    });
+    // Tek cihazda "hazırım" düğmesine basacak ayrı bir kullanıcı yok;
+    // oyuncular listeye eklendiği anda hazır sayılır. Aksi halde kurucu
+    // "herkes hazır değil" uyarısıyla oyunu hiç başlatamıyordu.
+    this.dispatch({ type: 'SET_READY', playerId: id, ready: true });
+    return id;
+  }
+
   private publish(): void {
-    this.onHostView(buildPlayerView(this.state, this.roomId, this.hostPlayerId));
+    this.onHostView(buildPlayerView(this.state, this.roomId, this.viewer ?? this.hostPlayerId));
 
     for (const [playerId, peerId] of this.peerByPlayer) {
       this.send(peerId, {

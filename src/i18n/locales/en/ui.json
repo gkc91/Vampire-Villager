@@ -221,5 +221,17 @@
     "relayMs": "Connected in",
     "copy": "Copy",
     "copied": "Copied"
+  },
+  "hotseat": {
+    "passTo": "Pass the phone to",
+    "passHint": "Hand the phone to the next player. Nobody else should look — tap when you are ready.",
+    "ready": "I'm {{name}}, ready",
+    "title": "Pass and play",
+    "subtitle": "One phone, take turns",
+    "addPlayer": "Add player",
+    "playerName": "Player name",
+    "start": "Start game",
+    "needMore": "At least {{count}} players needed",
+    "hint": "Everyone takes the same phone in turn: see your role, make your night move, pass it on."
   }
 }

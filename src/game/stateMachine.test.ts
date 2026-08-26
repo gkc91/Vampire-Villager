@@ -579,8 +579,8 @@ describe('hırsız — çalınan rolün notları', () => {
     expect(player(state, 'p1').role).toBe('villager');
     // Not ne hırsıza geçer ne de kurbanda görünür (03-roles.md).
     expect(state.seerResults['p0'] ?? []).toHaveLength(0);
-    expect(buildPlayerView(state, 'p0', 'ROOM').seerResults).toHaveLength(0);
-    expect(buildPlayerView(state, 'p1', 'ROOM').seerResults).toHaveLength(0);
+    expect(buildPlayerView(state, 'ROOM', 'p0').seerResults).toHaveLength(0);
+    expect(buildPlayerView(state, 'ROOM', 'p1').seerResults).toHaveLength(0);
   });
 });
 

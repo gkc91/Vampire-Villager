@@ -113,6 +113,15 @@ export function HomeScreen() {
         </p>
       )}
 
+      <button
+        type="button"
+        className="btn-secondary"
+        onClick={() => useGameStore.getState().openHotseat()}
+      >
+        {t('hotseat.title')}
+      </button>
+      <p className="text-center text-xs text-moon-200/40">{t('hotseat.subtitle')}</p>
+
       <button type="button" className="btn-ghost text-sm" onClick={() => void onCreate(true)}>
         {t('home.solo')}
       </button>
