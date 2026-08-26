@@ -179,3 +179,180 @@ seçim ekranı, oylama, oyun sonu rol açıklaması.
 - [Play — target API seviyesi](https://support.google.com/googleplay/android-developer/answer/11926878?hl=en)
 - [Android — target SDK gereksinimi](https://developer.android.com/google/play/requirements/target-sdk)
 - [Capacitor 8'e yükseltme](https://capacitorjs.com/docs/updating/8-0)
+
+
+---
+
+## 10. Kurulum formlarının cevapları (Bite Club)
+
+Play'in "Uygulamanızın kurulumunu tamamlayın" listesi. Cevaplar
+uygulamanın BUGÜN yaptığına göre; reklam ve satın alma eklendiği gün
+ilgili maddeler aynı gün güncellenecek.
+
+### Uygulama içeriği
+
+| Madde | Cevap |
+|---|---|
+| Gizlilik politikası | `https://biteclub.lampwickgames.com/privacy` |
+| Oturum açma bilgileri | "Tüm işlevler kısıtlama olmadan kullanılabilir" — giriş yok |
+| Reklam | **Hayır**, uygulamada reklam yok (şimdilik) |
+| Resmi kurum uygulamaları | Hayır |
+| Finans ile ilgili özellikler | Hayır |
+| Sağlık | Hayır |
+| Hedef kitle | **13 yaş ve üzeri.** Çocuk yaş gruplarını İŞARETLEME |
+
+> **Çocuk yaş grubu tuzağı:** işaretlersen Play'in Aile Politikası
+> devreye giriyor; reklam ağları kısıtlanıyor, reklam kimliği kullanımı
+> yasaklanıyor. Oyun vampir/öldürme temalı, zaten çocuk kitlesine yönelik
+> değil.
+
+### İçerik derecelendirme (IARC anketi)
+
+Dürüst cevapla; abartmak da eksik beyan da zarar veriyor.
+
+- **Şiddet:** oyunda görsel şiddet YOK. Ölüm metinle anlatılıyor
+  ("… bir daha uyanmayacak"), kan ya da çatışma gösterilmiyor. Kart
+  görselleri vampir portreleri.
+- **Korku öğeleri:** hafif — karanlık atmosfer, vampir teması.
+- **Kullanıcılar arası iletişim:** **yok.** Uygulamada sohbet, mesajlaşma
+  ya da sesli konuşma bulunmuyor; oyuncular yüz yüze konuşuyor.
+  Paylaşılan tek kullanıcı girdisi takma addır.
+- **Dijital satın alma:** şu an yok.
+
+Beklenen sonuç 12+ civarı. Sonradan reklam/satın alma eklenince anket
+tekrar doldurulacak.
+
+### Veri güvenliği — en dikkatli doldurulacak form
+
+En sık askıya alma sebebi, formun uygulamanın gerçekte yaptığıyla
+çelişmesi.
+
+| Soru | Cevap |
+|---|---|
+| Veri topluyor musunuz? | **Evet** — takma ad |
+| Hangi tür? | Kişisel bilgiler → **Adlar** (takma ad) |
+| Amaç | Uygulama işlevi (oyuncuları birbirine göstermek) |
+| Paylaşılıyor mu? | **Hayır** (üçüncü tarafa aktarılmıyor) |
+| Aktarımda şifreleniyor mu? | **Evet** (HTTPS/WSS) |
+| Kullanıcı silinmesini isteyebilir mi? | **Hayır** — hesap yok, veri saklanmıyor |
+| Konum, kişiler, fotoğraf, mesaj | **Hiçbiri** |
+
+Takma ad aktarıcıdan geçiyor ama kalıcı olarak saklanmıyor. IP adresi
+altyapı sağlayıcı tarafından bağlantı kurmak için işleniyor; bu, sunucu
+günlüğü niteliğinde ve ayrı bir veri türü olarak beyan edilmiyor.
+
+### Kategori ve iletişim
+
+| Alan | Değer |
+|---|---|
+| Uygulama türü | Oyun |
+| Kategori | **Masa Oyunu** (alternatif: Sıradan) |
+| E-posta | `info@lampwickgames.com` |
+| Web sitesi | `https://lampwickgames.com` |
+
+---
+
+## 11. Mağaza girişi metinleri
+
+Başlık dile göre değişebiliyor: Türkçe listede yerel arama için
+"Vampir Köylü" geçsin, İngilizce listede sade marka kalsın.
+
+### Türkçe
+
+**Uygulama adı (30):**
+```
+Bite Club — Vampir Köylü
+```
+
+**Kısa açıklama (80):**
+```
+Aranızda kan içen biri var. Telefonlarınızı alın, kimin yalan söylediğini bulun.
+```
+
+**Uzun açıklama:**
+```
+Bite Club, arkadaşlarla masa etrafında oynanan bir sosyal çıkarım oyunu.
+Vampir Köylü, Kurt Adam ve Mafya oyunlarını sevdiyseniz tanıdık gelecek —
+ama bu kez kartlara, kâğıtlara ya da oyunu yöneten birine ihtiyacınız yok.
+
+Herkes kendi telefonundan katılır. Oda kodunu paylaşırsınız, oyun rolleri
+dağıtır, geceleri yönetir ve kimin ne zaman konuşacağını söyler. Siz
+yalnız oynarsınız.
+
+GECE
+Vampirler kurbanını seçer. Doktor birini korur. Kâhin bir kişinin
+kimliğini okur. Herkes gözlerini kapatır, telefon sırrı saklar.
+
+GÜNDÜZ
+Köy meydanı dolar. Suçlarsınız, savunursunuz, blöf yaparsınız. Sonunda
+oylama: kim asılacak?
+
+11 ROL
+Köylü, Kâhin, Doktor, Dedektif, Büyücü, Avcı, Vampir, Vampir Lordu,
+Kan Büyücüsü, Sisler Vampiri ve Hırsız. Her rolün kendi gece hamlesi var.
+Rolleri oyunu kuran kişi seçer; oyunu masanıza göre ayarlayabilirsiniz.
+
+İKİ OYNAMA BİÇİMİ
+• Herkes kendi telefonundan — oda kodunu paylaşın, katılın
+• Elden ele — tek telefonu sırayla vererek oynayın, internet gerekmez
+
+4 kişiden başlar, üst sınırı yoktur. Anlatıcıya gerek yok, kart
+kaybolmaz, kural tartışması çıkmaz.
+```
+
+### İngilizce
+
+**Uygulama adı (30):**
+```
+Bite Club
+```
+
+**Kısa açıklama (80):**
+```
+One of you drinks blood. Grab your phones and find out who is lying.
+```
+
+**Uzun açıklama:**
+```
+Bite Club is a social deduction party game for friends around a table.
+If you have played Werewolf or Mafia, you already know it — except this
+time there are no cards to lose and nobody has to sit out as moderator.
+
+Everyone joins from their own phone. Share the room code and the game
+deals the roles, runs the nights and tells you when to speak. You just
+play.
+
+NIGHT
+The vampires choose a victim. The doctor protects someone. The seer reads
+one player's identity. Everyone closes their eyes; the phone keeps the
+secrets.
+
+DAY
+The village square fills up. Accuse, defend, bluff. Then vote: who hangs?
+
+11 ROLES
+Villager, Seer, Doctor, Detective, Wizard, Hunter, Vampire, Vampire Lord,
+Blood Sorcerer, Mist Vampire and Thief. Every role has its own night move,
+and the host picks which roles are in play.
+
+TWO WAYS TO PLAY
+• Everyone on their own phone — share the room code and join
+• Pass and play — one phone around the table, no internet needed
+
+Four players minimum, no maximum. No moderator, no lost cards, no
+arguments about the rules.
+```
+
+---
+
+## 12. Kapalı test kanalı ayarları
+
+| Adım | Değer |
+|---|---|
+| Ülke ve bölge | **Tüm ülkeler** |
+| Test kullanıcıları | E-posta listesi (15-16 kişi) |
+| Sürüm | `1.1 (2)` — imzalı `.aab` |
+
+> **Ülke seçimi kritik:** yalnız Türkiye seçersen değişim
+> topluluğundan gelen yurt dışındaki testçiler uygulamayı **kuramaz** ve
+> 12 sayısını asla tamamlayamazsın. Kapalı testte tüm ülkeleri aç.
