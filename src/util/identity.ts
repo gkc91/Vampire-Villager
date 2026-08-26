@@ -1,3 +1,5 @@
+import { isNativeApp } from './platform';
+
 /** Oda kodu / oyuncu kimliği üretimi ve kalıcılığı (localStorage). */
 
 // Karıştırılabilir harfler (0/O, 1/I) alfabede yok.
@@ -80,8 +82,20 @@ export function initials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-/** Paylaşılabilir katılma linki (hash tabanlı → her statik barındırmada çalışır). */
+/**
+ * Paylaşılabilir katılma linki (hash tabanlı → her statik barındırmada çalışır).
+ *
+ * Uygulamanın içinde `window.location.origin` **https://localhost** —
+ * Capacitor kendi WebView'ini o adresten sunuyor. Onu paylaşan kişi
+ * karşı tarafa hiçbir yere gitmeyen bir link göndermiş oluyordu; mağaza
+ * ekran görüntüsünde de "https://localhost/#/join/…" yazıyordu.
+ * Uygulamada herkese açık adresi kullan.
+ */
 export function joinLink(roomId: string): string {
+  const publicUrl = (import.meta.env.VITE_PUBLIC_URL as string | undefined)?.trim();
+  if (isNativeApp() && publicUrl) {
+    return `${publicUrl.replace(/\/+$/, '')}/#/join/${roomId}`;
+  }
   const { origin, pathname } = window.location;
   return `${origin}${pathname}#/join/${roomId}`;
 }
