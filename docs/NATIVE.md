@@ -6,16 +6,48 @@ her makinede yeniden üretilir.
 
 ## Android (öncelik)
 
-Gerekenler: Android Studio + JDK 17 (Capacitor 6 bunu ister).
+**Android Studio gerekmiyor.** Komut satırı araçları yetiyor; bu makinede
+kurulu olan da bu.
+
+| Gereksinim | Sürüm | Yer |
+|---|---|---|
+| JDK | **21** (17 YETMEZ) | `C:/Users/user/Java/jdk-21.0.12.1+1` |
+| Android SDK | platform 36 + build-tools 36 | `C:/Users/user/Android/sdk` |
+| Capacitor | 8 (targetSdk 36) | `android/variables.gradle` |
+
+> **JDK 21 neden şart:** Capacitor 8 belgeleri "Java 17+ desteklenir, 21
+> önerilir" diyor, ama `capacitor-android` modülü *source release 21* ile
+> derleniyor. JDK 17 ile derleme `error: invalid source release: 21`
+> vererek düşüyor. Sahada yaşandı.
 
 ```bash
 npm run build
-npx cap add android
-npx cap sync
-npx cap open android
+npx cap sync android
+cd android
+JAVA_HOME=C:/Users/user/Java/jdk-21.0.12.1+1 \
+ANDROID_HOME=C:/Users/user/Android/sdk \
+  ./gradlew assembleDebug     # elden test için APK
+#  ./gradlew bundleRelease    # mağazaya giden .aab
 ```
 
-Sonraki derlemelerde `npm run build && npx cap sync` yeterlidir.
+Sonraki derlemelerde `npm run build && npx cap sync android` yeterlidir.
+
+### `android/local.properties` — Windows tuzağı
+
+Bu dosya bir **Java properties** dosyasıdır: ters bölü kaçış karakteridir
+ve Windows yolundaki `\U` geçersiz kaçış dizisi sayılır. Gradle şöyle
+düşer:
+
+```
+Could not create an instance of type ...SdkComponentsBuildService.
+> Malformed \uxxxx encoding.
+```
+
+Çözüm — **eğik çizgi kullan:**
+
+```properties
+sdk.dir=C:/Users/user/Android/sdk
+```
 
 ## iOS
 
