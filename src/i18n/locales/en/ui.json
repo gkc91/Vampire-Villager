@@ -233,5 +233,11 @@
     "start": "Start game",
     "needMore": "At least {{count}} players needed",
     "hint": "Everyone takes the same phone in turn: see your role, make your night move, pass it on."
+  },
+  "back": {
+    "title": "Leave the game?",
+    "body": "If you are the host, the game ends for everyone in the room.",
+    "stay": "Stay in the game",
+    "leave": "Leave"
   }
 }

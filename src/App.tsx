@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from './store/gameStore';
 import { useNarrationSpeech } from './ui/useNarration';
@@ -10,6 +10,8 @@ import { HomeScreen } from './ui/screens/HomeScreen';
 import { LobbyScreen } from './ui/screens/LobbyScreen';
 import { RoleRevealScreen } from './ui/screens/RoleRevealScreen';
 import { HotseatSetupScreen } from './ui/screens/HotseatSetupScreen';
+import { ConfirmLeave } from './ui/components/ConfirmLeave';
+import { exitApp, useBackButton } from './ui/hooks/useBackButton';
 import { RolePocket } from './ui/components/RolePocket';
 import { PassScreen } from './ui/components/PassScreen';
 import { NightScreen } from './ui/screens/NightScreen';
@@ -24,6 +26,36 @@ export default function App() {
   const errorKey = useGameStore((s) => s.errorKey);
   const connection = useGameStore((s) => s.connection);
   const solo = useGameStore((s) => s.solo);
+  const passTo = useGameStore((s) => s.passTo);
+  const leave = useGameStore((s) => s.leave);
+  const [askLeave, setAskLeave] = useState(false);
+
+  /**
+   * Android geri tuşu. Sıralama önemli:
+   * 1. Perde açıkken hiçbir şey yapma — geri basmak önceki oyuncunun
+   *    rolünü açığa çıkarabilirdi.
+   * 2. Onay kutusu açıksa onu kapat (geri tuşunun beklenen davranışı).
+   * 3. Ana ekranda uygulamadan çık.
+   * 4. Oyundayken önce sor: kurucu yanlışlıkla çıkarsa oda dağılır.
+   */
+  const onBack = useCallback(() => {
+    if (passTo) return;
+    if (askLeave) {
+      setAskLeave(false);
+      return;
+    }
+    if (screen === 'home') {
+      exitApp();
+      return;
+    }
+    if (screen === 'hotseat') {
+      void leave();
+      return;
+    }
+    setAskLeave(true);
+  }, [passTo, askLeave, screen, leave]);
+
+  useBackButton(onBack);
 
   useNarrationSpeech(view?.log ?? []);
   usePhaseEffects(screen === 'game' ? view : null);
@@ -44,6 +76,15 @@ export default function App() {
           host bunu görmeli. */}
       {!errorKey && connection !== 'connected' && !solo && <ConnectionBanner />}
       <PhaseScreen />
+      {askLeave && (
+        <ConfirmLeave
+          onStay={() => setAskLeave(false)}
+          onLeave={() => {
+            setAskLeave(false);
+            void leave();
+          }}
+        />
+      )}
     </>
   );
 }

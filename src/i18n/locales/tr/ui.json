@@ -233,5 +233,11 @@
     "start": "Oyunu başlat",
     "needMore": "En az {{count}} oyuncu gerekli",
     "hint": "Herkes aynı telefonu sırayla alır: rolünü görür, gece hamlesini yapar, telefonu verir."
+  },
+  "back": {
+    "title": "Oyundan çıkılsın mı?",
+    "body": "Oyunu kuran sensen odadaki herkesin oyunu biter.",
+    "stay": "Oyunda kal",
+    "leave": "Çık"
   }
 }
