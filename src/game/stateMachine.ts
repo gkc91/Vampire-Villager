@@ -453,8 +453,8 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       const setup =
         s.settings.roleSetup.length === playing.length
           ? s.settings.roleSetup
-          : suggestedRoles(playing.length);
-      if (validateRoleSetup(setup, playing.length)) return s;
+          : suggestedRoles(playing.length, s.settings.allowedRoles);
+      if (validateRoleSetup(setup, playing.length, s.settings.allowedRoles)) return s;
 
       // TEST ARACI: sabitlenmiş roller havuzdan düşülür, kalanı karışır.
       const forced = s.settings.forcedRoles ?? {};

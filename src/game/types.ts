@@ -97,6 +97,14 @@ export interface GameSettings {
    * Yalnız `?test=1` bayrağıyla açılan arayüzden ayarlanır; normal oyunda
    * boştur. Seçilen rol dağıtım listesinde yoksa listeden biri feda edilir.
    */
+  /**
+   * Bu masada kullanılabilecek roller. KURUCUNUN elindekiler belirler
+   * (host-otoriter): webden katılan biri, premium bir kurucunun masasında
+   * premium rollerle oynar. Boşsa sınır yok.
+   *
+   * Motor satın almayı bilmez; yalnız bu listeyi uygular.
+   */
+  allowedRoles?: RoleId[];
   forcedRoles?: Record<PlayerId, RoleId>;
   /**
    * TEST ARACI: kurucuya gecenin gerçek durumunu (kim engellendi, kim

@@ -5,6 +5,7 @@ import type { GameAction, GameSettings, GameState, PlayerId } from '../game/type
 import { createInitialState, reduce } from '../game/stateMachine';
 import { buildPlayerView, type PlayerView } from '../game/view';
 import { botAction } from '../game/bot';
+import { currentUnlockedRoles } from '../monetization/entitlements';
 import { colorForToken } from '../util/identity';
 
 /** Kopan oyuncunun geri dönmesi için tanınan süre (01-architecture.md). */
@@ -34,6 +35,11 @@ export class HostController {
     private onHostView: (view: PlayerView) => void,
   ) {
     this.state = createInitialState();
+    // Masanın rol havuzunu KURUCUNUN eli belirler; motor satın alma bilmez.
+    this.state = reduce(this.state, {
+      type: 'UPDATE_SETTINGS',
+      settings: { allowedRoles: currentUnlockedRoles() },
+    });
     this.state = reduce(this.state, {
       type: 'ADD_PLAYER',
       player: {

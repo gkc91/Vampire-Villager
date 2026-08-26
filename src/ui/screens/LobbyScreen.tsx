@@ -6,6 +6,7 @@ import { PlayerGrid } from '../components/PlayerGrid';
 import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import { MIN_PLAYERS, suggestedRoles } from '../../game/distribution';
+import { currentUnlockedRoles } from '../../monetization/entitlements';
 import { RoleSetup } from '../components/RoleSetup';
 import { TestRolePicker } from '../components/TestRolePicker';
 import { testToolsEnabled } from '../../util/testTools';
@@ -190,9 +191,13 @@ function HostSettings({ view }: { view: PlayerView }) {
         roleSetup={
           view.settings.roleSetup.length > 0
             ? view.settings.roleSetup
-            : suggestedRoles(Math.max(MIN_PLAYERS, view.players.filter((p) => p.isPlayer && !p.left).length))
+            : suggestedRoles(
+                Math.max(MIN_PLAYERS, view.players.filter((p) => p.isPlayer && !p.left).length),
+                view.settings.allowedRoles,
+              )
         }
         playerCount={view.players.filter((p) => p.isPlayer && !p.left).length}
+        allowed={view.settings.allowedRoles ?? currentUnlockedRoles()}
         onChange={(roleSetup) => store.updateSettings({ roleSetup })}
       />
 

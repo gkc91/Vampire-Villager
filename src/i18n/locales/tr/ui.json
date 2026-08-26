@@ -61,7 +61,11 @@
     "useSuggestion": "Öneriye dön",
     "setupCount": "{{total}} rol / {{players}} oyuncu",
     "addRole": "Rol ekle",
-    "removeRole": "Rol çıkar"
+    "removeRole": "Rol çıkar",
+    "lockedRole": "Bu rol uygulamada açılır",
+    "setup": {
+      "lockedRole": "Kilitli rol seçilemez"
+    }
   },
   "role": {
     "title": "Rolün",

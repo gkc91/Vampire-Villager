@@ -11,10 +11,13 @@ import { Card, SectionTitle } from './atoms';
 export function RoleSetup({
   roleSetup,
   playerCount,
+  allowed,
   onChange,
 }: {
   roleSetup: RoleId[];
   playerCount: number;
+  /** Bu masada kullanılabilecek roller; kalanlar kilitli görünür. */
+  allowed: RoleId[];
   onChange: (roles: RoleId[]) => void;
 }) {
   const { t } = useTranslation();
@@ -43,7 +46,7 @@ export function RoleSetup({
         <button
           type="button"
           className="chip"
-          onClick={() => onChange(suggestedRoles(playerCount))}
+          onClick={() => onChange(suggestedRoles(playerCount, allowed))}
         >
           {t('lobby.useSuggestion')}
         </button>
@@ -62,19 +65,30 @@ export function RoleSetup({
           <p className="text-xs uppercase tracking-widest text-moon-200/50">
             {t(`roles:team.${team}`)}
           </p>
-          {roles.map((roleId) => (
+          {roles.map((roleId) => {
+            // Kilitli roller GİZLENMEZ: adıyla ve kilitle durur. Merak
+            // uyandırması satışın bir parçası (05-monetization.md).
+            const locked = !allowed.includes(roleId);
+            return (
             <div
               key={roleId}
-              className="flex items-center gap-2 rounded-xl border border-night-600/70 bg-night-900/60 px-3 py-2"
+              className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${
+                locked
+                  ? 'border-night-700/60 bg-night-900/30 opacity-60'
+                  : 'border-night-600/70 bg-night-900/60'
+              }`}
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold">
+                  {locked && <span aria-hidden="true">🔒 </span>}
                   {t(`roles:${roleId}.name`)}
                 </span>
                 <span className="block truncate text-[11px] text-moon-200/50">
-                  {t(`roles:${roleId}.short`)}
+                  {locked ? t('lobby.lockedRole') : t(`roles:${roleId}.short`)}
                 </span>
               </span>
+              {locked ? null : (
+              <>
               <button
                 type="button"
                 className="h-8 w-8 rounded-lg border border-night-600 bg-night-800 text-lg leading-none"
@@ -93,8 +107,11 @@ export function RoleSetup({
               >
                 <span aria-hidden="true">+</span>
               </button>
+              </>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       ))}
     </Card>

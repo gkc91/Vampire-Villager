@@ -61,7 +61,11 @@
     "useSuggestion": "Use suggestion",
     "setupCount": "{{total}} roles / {{players}} players",
     "addRole": "Add role",
-    "removeRole": "Remove role"
+    "removeRole": "Remove role",
+    "lockedRole": "Unlocked in the app",
+    "setup": {
+      "lockedRole": "Locked role cannot be used"
+    }
   },
   "role": {
     "title": "Your role",

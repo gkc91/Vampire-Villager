@@ -7,6 +7,7 @@ import {
   vampireCountFor,
 } from './distribution';
 import { isVampireRole } from './roles/helpers';
+import { rolesForTiers } from './unlocks';
 import {
   T0,
   apply,
@@ -580,5 +581,39 @@ describe('hırsız — çalınan rolün notları', () => {
     expect(state.seerResults['p0'] ?? []).toHaveLength(0);
     expect(buildPlayerView(state, 'p0', 'ROOM').seerResults).toHaveLength(0);
     expect(buildPlayerView(state, 'p1', 'ROOM').seerResults).toHaveLength(0);
+  });
+});
+
+describe('rol katmanları (web / uygulama / premium)', () => {
+  it('dar rol setinde öneri yine dengeli kurulur', () => {
+    const web = rolesForTiers(['core']);
+    for (let n = 4; n <= 16; n++) {
+      const roles = suggestedRoles(n, web);
+      expect(roles, `n=${n}`).toHaveLength(n);
+      // Yalnız açık roller kullanılmalı
+      expect(roles.every((r) => web.includes(r)), `n=${n}`).toBe(true);
+      // Vampirler her sayıda azınlıkta kalmalı
+      const vampires = roles.filter(isVampireRole).length;
+      expect(vampires, `n=${n}`).toBeGreaterThanOrEqual(1);
+      expect(vampires, `n=${n}`).toBeLessThan(n - vampires);
+    }
+  });
+
+  it('kilitli rol öneriye girmez, kilitli set genişleyince girer', () => {
+    const web = rolesForTiers(['core']);
+    expect(suggestedRoles(12, web)).not.toContain('detective');
+    expect(suggestedRoles(12, rolesForTiers(['core', 'app', 'premium']))).toContain('detective');
+  });
+
+  it('kurucu kilitli rol koyamaz', () => {
+    const web = rolesForTiers(['core']);
+    const setup: RoleId[] = ['vampire', 'seer', 'doctor', 'detective'];
+    expect(validateRoleSetup(setup, 4, web)).toEqual({ key: 'lockedRole' });
+    expect(validateRoleSetup(['vampire', 'seer', 'doctor', 'villager'], 4, web)).toBeNull();
+  });
+
+  it('katman haritası 11 rolün tamamını kapsar', () => {
+    const all = rolesForTiers(['core', 'app', 'premium']);
+    expect(all).toHaveLength(11);
   });
 });
