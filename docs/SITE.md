@@ -68,6 +68,28 @@ GitHub bağlamak istemezsen: **Create application** → statik dosya
 yükleme seçeneğinde `site` klasörünü sürükle. İki dakika sürer ama her
 değişiklikte tekrar yüklemen gerekir.
 
+## Çift dil (tr / en)
+
+Sayfa QR'ın indiği yer olduğu için **varsayılan Türkçe**. Metinler HTML'de
+iki kez duruyor, `data-tr` / `data-en` işaretiyle; aktif olmayanı CSS
+gizliyor. Dil seçimi `<head>` içindeki senkron script'te yapılıyor —
+boyamadan önce olmalı, yoksa Türkçe bir an görünüp İngilizceye atlıyor.
+
+Tarayıcı dili Türkçe değilse İngilizceye düşer; başlıktaki TR/EN düğmesi
+seçimi `localStorage`'a yazar. JavaScript kapalıysa Türkçe kalır.
+
+Yeni metin eklerken **iki dili birlikte ekle** — oyundaki i18n kuralının
+aynısı burada da geçerli.
+
+## Üretime çıkınca değişecek yerler
+
+`site/public/index.html` içinde:
+
+1. `<span class="status">Kapalı testte</span>` rozetlerini sil (iki dil).
+2. Google Play düğmesindeki `class="btn soon"` yerine `class="btn"` +
+   `href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"`.
+3. `<small>Yakında</small>` / `<small>Coming soon</small>` satırlarını sil.
+
 ## Dikkat edilecekler
 
 **Oyunun Worker'ına dokunma.** `biteclub.lampwickgames.com` ayrı bir

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr" data-lang="tr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,6 +16,27 @@
     <meta property="og:image" content="https://biteclub.lampwickgames.com/assets/roles/vampire.webp" />
     <meta property="og:url" content="https://lampwickgames.com" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!--
+      Dil seçimi BOYAMADAN ÖNCE yapılmalı, yoksa Türkçe içerik bir an görünüp
+      İngilizceye atlıyor. O yüzden bu script head'de ve senkron.
+
+      Varsayılan Türkçe: sayfanın asıl işi bardaki/kafedeki QR'ın indiği yer
+      olmak. JavaScript kapalıysa da Türkçe kalır, İngilizce kaybolmaz —
+      yalnız gizlenir.
+    -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('lw_lang');
+          var lang = saved || (/^tr\b/i.test(navigator.language || '') ? 'tr' : 'en');
+          document.documentElement.setAttribute('data-lang', lang);
+          document.documentElement.setAttribute('lang', lang);
+        } catch (e) {
+          /* gizli sekme / depolama kapalı → Türkçe kalsın */
+        }
+      })();
+    </script>
 
     <style>
       /* İncelenen stüdyo sitelerinin ortak dili: koyu tema, menü yok,
@@ -41,8 +62,15 @@
       }
       .wrap { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
 
+      /* --- Çift dil: aktif olmayan metin gizlenir --- */
+      html[data-lang="tr"] [data-en] { display: none; }
+      html[data-lang="en"] [data-tr] { display: none; }
+
       /* --- Başlık: stüdyo adı, menü yok --- */
-      header { padding: 2.5rem 0 1rem; }
+      header {
+        padding: 2.5rem 0 1rem;
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+      }
       .brand {
         display: flex; align-items: center; gap: 0.6rem;
         font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;
@@ -52,18 +80,40 @@
         display: block; font-weight: 400; font-size: 0.8rem; color: var(--muted);
         letter-spacing: 0;
       }
+      .lang {
+        flex: 0 0 auto; display: flex; gap: 0.25rem;
+        border: 1px solid var(--line); border-radius: 999px; padding: 0.2rem;
+      }
+      .lang button {
+        font: inherit; font-size: 0.78rem; font-weight: 600;
+        padding: 0.2rem 0.65rem; border-radius: 999px;
+        border: 0; background: transparent; color: var(--muted); cursor: pointer;
+      }
+      html[data-lang="tr"] .lang button[value="tr"],
+      html[data-lang="en"] .lang button[value="en"] {
+        background: var(--line); color: var(--ink);
+      }
 
       /* --- Oyun bloğu --- */
       .game {
-        margin: 3rem 0 4rem;
+        margin: 2rem 0 4rem;
         background: linear-gradient(180deg, var(--panel), #100c22);
         border: 1px solid var(--line);
         border-radius: 1.25rem;
         overflow: hidden;
       }
-      .game-top { display: grid; grid-template-columns: 1fr; gap: 1.5rem; padding: 1.75rem; }
+      /* Telefonda önce metin ve OYNA düğmesi gelsin: QR'ı okutan kişi
+         kapak görselini kaydırmak zorunda kalmadan oyuna girebilmeli. */
+      .game-top { display: flex; flex-direction: column; gap: 1.5rem; padding: 1.75rem; }
+      .game-top .cover { order: 2; }
+      .game-top .copy { order: 1; }
       @media (min-width: 48rem) {
-        .game-top { grid-template-columns: 15rem 1fr; padding: 2.25rem; align-items: center; }
+        .game-top {
+          display: grid; grid-template-columns: 15rem 1fr;
+          padding: 2.25rem; align-items: center;
+        }
+        .game-top .cover { order: 0; }
+        .game-top .copy { order: 0; }
       }
       .cover {
         width: 100%; aspect-ratio: 2/3; object-fit: cover; object-position: top;
@@ -128,42 +178,71 @@
           <span class="flame" aria-hidden="true">🕯️</span>
           <span>
             Lampwick Games
-            <small>A one-person game studio</small>
+            <small data-tr>Tek kişilik oyun stüdyosu</small>
+            <small data-en>A one-person game studio</small>
           </span>
+        </div>
+        <div class="lang">
+          <button type="button" value="tr">TR</button>
+          <button type="button" value="en">EN</button>
         </div>
       </header>
 
       <main>
-        <!-- Oyun bloğu: kapak + satış metni + mağaza düğmeleri -->
+        <!-- Oyun bloğu: kapak + satış metni + mağaza düğmeleri.
+             Yeni oyun eklerken bu <article> kopyalanır. -->
         <article class="game">
           <div class="game-top">
             <img
               class="cover"
               src="https://biteclub.lampwickgames.com/assets/roles/vampire.webp"
-              alt="Bite Club key art"
-              loading="lazy"
+              alt="Bite Club"
             />
-            <div>
-              <span class="status">In development</span>
+            <div class="copy">
+              <!-- Üretime çıkınca: rozeti sil, Google Play düğmesindeki
+                   class="btn soon" yerine class="btn" + href koy. -->
+              <span class="status" data-tr>Kapalı testte</span>
+              <span class="status" data-en>In closed testing</span>
               <h1>Bite Club</h1>
-              <p class="pitch">
+              <p class="pitch" data-tr>
+                Aranızda kan içen biri var. Köy tükenmeden bulun.
+              </p>
+              <p class="pitch" data-en>
                 One of you drinks blood. Find out who — before the village runs out of people.
               </p>
-              <p class="blurb">
-                A party game for 4 or more friends around one table. Everyone joins from their
+              <p class="blurb" data-tr>
+                Masa etrafında 4-24 kişiyle oynanan bir parti oyunu. Herkes kendi
+                telefonundan katılır; uygulama indirmeye, anlatıcıya, kaybolan kartlara
+                gerek yok. On bir rol, gizli gece hamleleri ve içkiler eşliğinde bol
+                suçlama.
+              </p>
+              <p class="blurb" data-en>
+                A party game for 4 to 24 friends around one table. Everyone joins from their
                 own phone; no app store trip, no moderator, no cards to lose. Eleven roles,
                 secret night moves and a lot of accusing each other over drinks.
               </p>
               <div class="stores">
-                <a class="btn primary" href="https://biteclub.lampwickgames.com">
+                <a class="btn primary" href="https://biteclub.lampwickgames.com" data-tr>
+                  ▶ Tarayıcıda oyna
+                  <small>Ücretsiz, kurulum yok</small>
+                </a>
+                <a class="btn primary" href="https://biteclub.lampwickgames.com" data-en>
                   ▶ Play in your browser
                   <small>Free, no install</small>
                 </a>
-                <span class="btn soon">
+                <span class="btn soon" data-tr>
+                  Google Play
+                  <small>Yakında</small>
+                </span>
+                <span class="btn soon" data-en>
                   Google Play
                   <small>Coming soon</small>
                 </span>
-                <span class="btn soon">
+                <span class="btn soon" data-tr>
+                  App Store
+                  <small>Yakında</small>
+                </span>
+                <span class="btn soon" data-en>
                   App Store
                   <small>Coming soon</small>
                 </span>
@@ -171,20 +250,26 @@
             </div>
           </div>
 
-          <div class="strip" aria-label="Roles from the game">
-            <img src="https://biteclub.lampwickgames.com/assets/roles/seer.webp" alt="The Seer" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/doctor.webp" alt="The Doctor" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/vampireLord.webp" alt="The Vampire Lord" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/hunter.webp" alt="The Hunter" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/detective.webp" alt="The Detective" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/thief.webp" alt="The Thief" loading="lazy" />
-            <img src="https://biteclub.lampwickgames.com/assets/roles/mistVampire.webp" alt="The Mist Vampire" loading="lazy" />
+          <div class="strip">
+            <img src="https://biteclub.lampwickgames.com/assets/roles/seer.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/doctor.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/vampireLord.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/hunter.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/detective.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/thief.webp" alt="" loading="lazy" />
+            <img src="https://biteclub.lampwickgames.com/assets/roles/mistVampire.webp" alt="" loading="lazy" />
           </div>
         </article>
 
         <section>
-          <h2>About the studio</h2>
-          <p class="muted">
+          <h2 data-tr>Stüdyo hakkında</h2>
+          <h2 data-en>About the studio</h2>
+          <p class="muted" data-tr>
+            Lampwick Games tek kişilik bir stüdyo. Buradaki her oyun aynı kişi tarafından
+            tasarlanıyor, kodlanıyor ve çiziliyor. Türler projeden projeye değişiyor —
+            özen değişmiyor.
+          </p>
+          <p class="muted" data-en>
             Lampwick Games is a one-person studio. Every game here is designed, built and
             drawn by the same person. The genres change from one project to the next — the
             care doesn't.
@@ -192,7 +277,8 @@
         </section>
 
         <section>
-          <h2>Get in touch</h2>
+          <h2 data-tr>İletişim</h2>
+          <h2 data-en>Get in touch</h2>
           <p class="muted">
             <a href="mailto:info@lampwickgames.com">info@lampwickgames.com</a>
           </p>
@@ -202,9 +288,20 @@
       <footer>
         <span>© 2026 Lampwick Games</span>
         <span>
-          <a href="https://biteclub.lampwickgames.com/privacy">Privacy</a>
+          <a href="https://biteclub.lampwickgames.com/privacy" data-tr>Gizlilik</a>
+          <a href="https://biteclub.lampwickgames.com/privacy" data-en>Privacy</a>
         </span>
       </footer>
     </div>
+
+    <script>
+      document.querySelector('.lang').addEventListener('click', function (e) {
+        var lang = e.target.value;
+        if (!lang) return;
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.setAttribute('lang', lang);
+        try { localStorage.setItem('lw_lang', lang); } catch (err) { /* önemsiz */ }
+      });
+    </script>
   </body>
 </html>

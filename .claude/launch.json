@@ -16,7 +16,7 @@
       "runtimeArgs": [
         "-y",
         "serve",
-        "site",
+        "site/public",
         "-l",
         "4173"
       ],
