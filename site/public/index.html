@@ -156,6 +156,58 @@
         object-position: top; border-radius: 0.6rem; border: 1px solid var(--line);
       }
 
+      /* --- Nasıl oynanır --- */
+      .lede { font-size: 1.05rem; }
+      .steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
+      .steps li {
+        counter-increment: step; position: relative;
+        padding: 0 0 1.25rem 3rem; margin: 0;
+        border-left: 1px solid var(--line); margin-left: 1rem;
+      }
+      .steps li:last-child { border-left-color: transparent; padding-bottom: 0; }
+      .steps li::before {
+        content: counter(step);
+        position: absolute; left: -1rem; top: 0;
+        width: 2rem; height: 2rem; border-radius: 999px;
+        display: grid; place-items: center;
+        background: var(--panel); border: 1px solid var(--line);
+        color: var(--accent); font-size: 0.85rem; font-weight: 700;
+      }
+      .steps b { display: block; }
+      .steps p { color: var(--muted); margin: 0.15rem 0 0; }
+
+      /* Rol grubu: çizim + ad + tek cümlelik iş */
+      .team-name {
+        font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--muted); margin: 1.75rem 0 0.75rem;
+      }
+      .roles { display: grid; gap: 0.6rem; grid-template-columns: 1fr; }
+      @media (min-width: 34rem) { .roles { grid-template-columns: 1fr 1fr; } }
+      .role {
+        display: flex; align-items: center; gap: 0.8rem;
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 0.8rem; padding: 0.6rem 0.8rem;
+      }
+      .role img {
+        width: 2.75rem; height: 2.75rem; flex: 0 0 auto;
+        object-fit: cover; object-position: top center;
+        border-radius: 0.5rem; background: #1b1233;
+      }
+      .role b { display: block; font-size: 0.95rem; }
+      .role span { color: var(--muted); font-size: 0.85rem; line-height: 1.35; }
+
+      /* --- SSS --- */
+      .faq { border-top: 1px solid var(--line); }
+      .faq details { border-bottom: 1px solid var(--line); }
+      .faq summary {
+        cursor: pointer; padding: 0.9rem 0; font-weight: 600; list-style: none;
+        display: flex; justify-content: space-between; gap: 1rem;
+      }
+      .faq summary::-webkit-details-marker { display: none; }
+      .faq summary::after { content: "+"; color: var(--accent); font-weight: 400; }
+      .faq details[open] summary::after { content: "−"; }
+      .faq details p { color: var(--muted); margin: 0 0 0.9rem; }
+
       /* --- Alt bölümler --- */
       section { margin: 3rem 0; }
       h2 { font-size: 1.15rem; margin: 0 0 0.6rem; }
@@ -260,6 +312,262 @@
             <img src="https://biteclub.lampwickgames.com/assets/roles/mistVampire.webp" alt="" loading="lazy" />
           </div>
         </article>
+
+        <!-- Nasıl oynanır: oyunu hiç duymamış birine anlatan bölüm.
+             Rol listesi oyunun kendi i18n dosyalarından üretildi
+             (src/i18n/locales/*/roles.json) — metinler uygulamayla birebir. -->
+        <section>
+          <h2 data-tr>Vampir Köylü nedir?</h2>
+          <h2 data-en>What is this game?</h2>
+          <p class="lede" data-tr>
+            Bir köy düşünün. Herkes birbirini tanıyor — ama aranızdan birkaç kişi
+            gizlice vampir ve bunu yalnız kendileri biliyor.
+          </p>
+          <p class="lede" data-en>
+            Picture a village. Everyone knows everyone — except a few of you are
+            secretly vampires, and only they know it.
+          </p>
+          <p class="muted" data-tr>
+            Her gece vampirler bir köylüyü seçer ve o kişi sabaha çıkamaz. Her gündüz
+            köy meydanda toplanır: konuşur, birbirini suçlar, savunur ve sonunda birini
+            asmak için oy verir. Köy bütün vampirleri bulursa kazanır; vampirler
+            sayca köylülere yetişirse onlar kazanır.
+          </p>
+          <p class="muted" data-en>
+            Each night the vampires choose a villager who will not see the morning.
+            Each day the village gathers in the square: they talk, accuse, defend, and
+            vote to hang someone. The village wins by finding every vampire; the
+            vampires win once they match the villagers in number.
+          </p>
+          <p class="muted" data-tr>
+            Elinizde kanıt yok. Sadece kimin ne söylediği, ne zaman sustuğu ve kimi
+            savunduğu var. Oyunun tamamı bu yüzden konuşmakla geçer — kart dizmekle,
+            zar atmakla değil.
+          </p>
+          <p class="muted" data-en>
+            You have no evidence. Only who said what, who went quiet, and who defended
+            whom. That is why the whole game is talking — not laying cards or rolling
+            dice.
+          </p>
+        </section>
+
+        <section>
+          <h2 data-tr>Roller</h2>
+          <h2 data-en>The roles</h2>
+          <p class="muted" data-tr>
+            Herkes gizli bir rol alır ve yalnız kendi rolünü görür. Hangi rollerin
+            oyuna gireceğini odayı kuran kişi seçer — masa kalabalıklaştıkça daha
+            fazla özel rol açabilirsiniz.
+          </p>
+          <p class="muted" data-en>
+            Everyone gets a secret role and sees only their own. The host picks which
+            roles are in play — the bigger the table, the more special roles you can
+            bring in.
+          </p>
+          <p class="team-name" data-tr>Köy</p>
+          <p class="team-name" data-en>Village</p>
+          <div class="roles">
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/villager.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Köylü</b><b data-en>Villager</b>
+                <span data-tr>Yeteneğin yok, sezgin var.</span>
+                <span data-en>No power, only instinct.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/seer.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Kâhin</b><b data-en>Seer</b>
+                <span data-tr>Her gece bir kişinin kimliğini okursun.</span>
+                <span data-en>Each night you read one identity.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/doctor.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Doktor</b><b data-en>Doctor</b>
+                <span data-tr>Oyun boyunca 2 kez korursun.</span>
+                <span data-en>Two protections for the whole game.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/detective.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Dedektif</b><b data-en>Detective</b>
+                <span data-tr>Kimin gece uyandığını görürsün.</span>
+                <span data-en>You see who woke up at night.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/wizard.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Büyücü</b><b data-en>Wizard</b>
+                <span data-tr>Bir kez asılmayı durdurursun.</span>
+                <span data-en>Once, you stop a hanging.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/hunter.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Avcı</b><b data-en>Hunter</b>
+                <span data-tr>Vampirler sana dokunamaz.</span>
+                <span data-en>Vampires cannot touch you.</span>
+              </div>
+            </div>
+          </div>
+          <p class="team-name" data-tr>Vampirler</p>
+          <p class="team-name" data-en>Vampires</p>
+          <div class="roles">
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/vampire.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Vampir</b><b data-en>Vampire</b>
+                <span data-tr>Her gece bir kurban seçersin.</span>
+                <span data-en>Every night you pick a victim.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/vampireLord.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Vampir Lordu</b><b data-en>Vampire Lord</b>
+                <span data-tr>Bir kez birini vampire çevirirsin.</span>
+                <span data-en>Once, you turn someone into a vampire.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/bloodWizard.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Kan Büyücüsü</b><b data-en>Blood Sorcerer</b>
+                <span data-tr>İki gece birini mühürlersin.</span>
+                <span data-en>Two nights, you seal someone.</span>
+              </div>
+            </div>
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/mistVampire.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Sisler Vampiri</b><b data-en>Mist Vampire</b>
+                <span data-tr>Sis basar, bilgi rollerini kör edersin.</span>
+                <span data-en>Fog blinds the information roles.</span>
+              </div>
+            </div>
+          </div>
+          <p class="team-name" data-tr>Tarafsız</p>
+          <p class="team-name" data-en>Neutral</p>
+          <div class="roles">
+            <div class="role">
+              <img src="https://biteclub.lampwickgames.com/assets/roles/thief.webp" alt="" loading="lazy" />
+              <div>
+                <b data-tr>Hırsız</b><b data-en>Thief</b>
+                <span data-tr>Bir kez birinin rolünü çalarsın.</span>
+                <span data-en>Once, you steal a role.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 data-tr>Bir tur nasıl işler?</h2>
+          <h2 data-en>How a round works</h2>
+          <ol class="steps">
+            <li>
+              <b data-tr>Oda kurulur</b><b data-en>Open a room</b>
+              <p data-tr>Biriniz oda kurar, ekrandaki 6 haneli kodu masaya söyler.
+                Diğerleri kendi telefonundan o kodla girer.</p>
+              <p data-en>One of you opens a room and reads the six-character code out
+                loud. Everyone else joins with it from their own phone.</p>
+            </li>
+            <li>
+              <b data-tr>Roller dağıtılır</b><b data-en>Roles are dealt</b>
+              <p data-tr>Herkesin telefonunda kendi rol kartı açılır. Kimse
+                başkasınınkini göremez. Unutursanız kart oyun boyunca ekranın
+                altından tekrar açılıyor.</p>
+              <p data-en>Each phone shows its own role card. Nobody can see anyone
+                else's. If you forget yours, the card reopens from the bottom of the
+                screen at any time.</p>
+            </li>
+            <li>
+              <b data-tr>Gece</b><b data-en>Night</b>
+              <p data-tr>Köy uyur. Roller sırayla uyanır ve telefonundan sessizce
+                seçimini yapar: vampirler kurbanını, doktor koruyacağı kişiyi, kâhin
+                kimliğini okuyacağı kişiyi seçer.</p>
+              <p data-en>The village sleeps. Roles wake in turn and make their choice
+                silently on their phone: the vampires pick a victim, the doctor picks
+                someone to protect, the seer picks someone to read.</p>
+            </li>
+            <li>
+              <b data-tr>Gündüz</b><b data-en>Day</b>
+              <p data-tr>Gece kimin öldüğü açıklanır ve konuşma süresi başlar.
+                Burada oyun tamamen size kalır: suçlayın, savunun, blöf yapın.</p>
+              <p data-en>The night's toll is announced and the discussion timer
+                starts. From here it is all yours: accuse, defend, bluff.</p>
+            </li>
+            <li>
+              <b data-tr>Oylama</b><b data-en>The vote</b>
+              <p data-tr>Süre bitince herkes telefonundan oy verir. En çok oyu alan
+                asılır ve rolü açılır. Sonra yeniden gece olur.</p>
+              <p data-en>When time is up everyone votes from their phone. Whoever
+                takes the most votes is hanged and their role is revealed. Then night
+                falls again.</p>
+            </li>
+            <li>
+              <b data-tr>Bir taraf kazanana kadar</b><b data-en>Until one side wins</b>
+              <p data-tr>Döngü böyle sürer. Oyun bittiğinde herkesin rolü ve gecelerde
+                ne olduğu tek tek açılır — asıl tartışma genelde orada başlar.</p>
+              <p data-en>The loop repeats. When it ends, every role and every night is
+                laid out — which is usually where the real argument starts.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 data-tr>Sık sorulanlar</h2>
+          <h2 data-en>Common questions</h2>
+          <div class="faq">
+            <details>
+              <summary>
+                <span data-tr>Herkesin uygulama indirmesi gerekiyor mu?</span>
+                <span data-en>Does everyone need to install the app?</span>
+              </summary>
+              <p data-tr>Hayır. Oyunu kuran kişi oda kodunu söyler, diğerleri
+                tarayıcıdan girer — indirme, üyelik, hesap yok.</p>
+              <p data-en>No. The host reads out the room code and everyone else joins
+                from their browser — no download, no sign-up, no account.</p>
+            </details>
+            <details>
+              <summary>
+                <span data-tr>İnternet şart mı?</span>
+                <span data-en>Do we need internet?</span>
+              </summary>
+              <p data-tr>Herkes kendi telefonundan oynayacaksa evet. Ama elden ele
+                modunda tek telefonu sırayla vererek oynarsınız; orada internet
+                gerekmiyor.</p>
+              <p data-en>Yes, if everyone plays on their own phone. But in pass-and-play
+                you hand one phone around the table, and that works offline.</p>
+            </details>
+            <details>
+              <summary>
+                <span data-tr>Kaç kişi lazım?</span>
+                <span data-en>How many players?</span>
+              </summary>
+              <p data-tr>4 kişiden başlıyor, 24 kişiye kadar çıkıyor. Kalabalıklaştıkça
+                daha fazla özel rol açabilir, tartışmayı uzatabilirsiniz.</p>
+              <p data-en>From 4 up to 24. The bigger the table, the more special roles
+                you can add and the longer you will want the discussion.</p>
+            </details>
+            <details>
+              <summary>
+                <span data-tr>Oyunu yöneten birine gerek var mı?</span>
+                <span data-en>Does someone have to run the game?</span>
+              </summary>
+              <p data-tr>Hayır. Rolleri dağıtmayı, geceleri yönetmeyi ve kimin ne zaman
+                konuşacağını oyun kendisi yapıyor. Kimse kenarda oturup anlatıcılık
+                yapmak zorunda kalmıyor.</p>
+              <p data-en>No. Dealing the roles, running the nights and calling who
+                speaks is the game's job. Nobody has to sit out as moderator.</p>
+            </details>
+          </div>
+        </section>
 
         <section>
           <h2 data-tr>Stüdyo hakkında</h2>

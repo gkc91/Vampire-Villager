@@ -81,6 +81,36 @@ seçimi `localStorage`'a yazar. JavaScript kapalıysa Türkçe kalır.
 Yeni metin eklerken **iki dili birlikte ekle** — oyundaki i18n kuralının
 aynısı burada da geçerli.
 
+## Nasıl oynanır bölümü
+
+Sayfada dört bölüm var: oyunun ne olduğu, roller, bir turun akışı, SSS.
+Hedef kitle oyunu hiç duymamış kişi (aile büyükleri) — o yüzden dil sade,
+"sosyal çıkarım" gibi terim yok.
+
+**Rol listesi elle yazılmadı.** `src/i18n/locales/*/roles.json` içindeki
+`name` ve `short` alanlarından üretildi; takım eşlemesi de
+`src/game/roles/*.ts` içindeki `team:` alanından okundu. Rol metni
+oyunda değişirse buradaki de elle güncellenmeli — iki kaynak var, tek
+kaynak yok. Yeni rol eklenirse aynı yerden bakıp ekle.
+
+### `<details>` içinde çift dil tuzağı
+
+SSS'de her soruyu iki `<summary>` ile yazmıştım (biri `data-tr`, biri
+`data-en`). HTML **yalnız ilk** `<summary>`'yi başlık sayıyor: İngilizce
+moda geçince ilk summary gizlendiği için bütün SSS kutusu 1 piksele
+düşüyor, hiçbir soru görünmüyordu. Doğrusu tek `<summary>` içine iki
+`<span>` koymak:
+
+```html
+<summary>
+  <span data-tr>Soru</span>
+  <span data-en>Question</span>
+</summary>
+```
+
+Aynı tuzak `<table>`/`<caption>` ve `<select>`/`<option>` için de
+geçerli — tekil olması beklenen çocuk elemanları çoğaltma.
+
 ## Üretime çıkınca değişecek yerler
 
 `site/public/index.html` içinde:
