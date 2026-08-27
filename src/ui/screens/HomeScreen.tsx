@@ -129,11 +129,15 @@ export function HomeScreen() {
         eğik çizgi yanlış yere giderdi. Uygulamada da çalışır — Capacitor
         dist'i olduğu gibi paketlediği için iki dosya da kabuğun içinde.
       */}
-      <p className="flex items-center justify-center gap-3 text-xs text-moon-200/50">
-        <a className="underline underline-offset-2" href={`${import.meta.env.BASE_URL}nasil-oynanir.html`}>
-          {t('home.howToPlay')}
-        </a>
-        <span aria-hidden="true">·</span>
+      {/* Oyunu ilk kez duyan (kuralları hiç bilmeyen) kişi buradan girecek,
+          o yüzden tam genişlikte düğme. Ghost varyantı bilerek: bir eylem
+          değil, yardım — üstteki oda düğmeleriyle sıra için yarışmasın. */}
+      <a className="btn-ghost" href={`${import.meta.env.BASE_URL}nasil-oynanir.html`}>
+        <span aria-hidden="true">📖</span>
+        {t('home.howToPlay')}
+      </a>
+
+      <p className="pt-1 text-center text-xs text-moon-200/40">
         <a className="underline underline-offset-2" href={`${import.meta.env.BASE_URL}privacy.html`}>
           {t('home.privacy')}
         </a>
