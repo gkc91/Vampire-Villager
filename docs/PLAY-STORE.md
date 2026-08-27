@@ -350,8 +350,34 @@ about the rules.
 | Adım | Değer |
 |---|---|
 | Ülke ve bölge | **Tüm ülkeler** |
-| Test kullanıcıları | E-posta listesi (15-16 kişi) |
-| Sürüm | `1.1 (2)` — imzalı `.aab` |
+| Test kullanıcıları | E-posta listesi (`Testers`, 23 kişi) |
+| Sürüm | `1.2.1 (4)` — imzalı `.aab` |
+| Sürüm adı | `1.2.1 - kapalı test` |
+| Geri bildirim adresi | `info@lampwickgames.com` |
+
+> **Listedeki kişi ≠ kayıtlı test kullanıcısı.** Play'in sayacı
+> ("An itibarıyla N test kullanıcısı kayıtlı") listeye eklenen
+> e-postayı değil, katılma linkini açıp uygulamayı KURAN kişiyi
+> sayıyor. 23 kişilik liste dururken sayaç 0 gösteriyordu. 14 günlük
+> süre bu sayı 12'ye ulaşmadan işlemiyor.
+
+### Sürüm notları (tr-TR)
+
+```
+İlk kapalı test sürümü.
+
+Oyun 4-24 kişilik. Herkes kendi telefonundan katılır, ya da tek telefonu elden ele verirsiniz. 11 rol var; hangilerinin oynanacağını odayı kuran seçer.
+
+Özellikle denemenizi istediklerim:
+• Farklı operatörlerdeki telefonlarla aynı odaya bağlanmak
+• 6 kişiden kalabalık bir masa
+• Elden ele modu (internet gerekmiyor)
+
+Takıldığınız yeri info@lampwickgames.com adresine yazarsanız sevinirim.
+```
+
+414/500 karakter. Play dil etiketiyle istiyor: metni `<tr-TR>` ve
+`</tr-TR>` satırlarının ARASINA yapıştır, etiketleri silme.
 
 > **Ülke seçimi kritik:** yalnız Türkiye seçersen değişim
 > topluluğundan gelen yurt dışındaki testçiler uygulamayı **kuramaz** ve
