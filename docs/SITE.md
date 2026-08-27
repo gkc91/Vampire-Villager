@@ -16,8 +16,25 @@ HTML, tek dosya. Oyunun kendisiyle karıştırılmasın:
 
 | Adres | Ne servis eder | Nereden |
 |---|---|---|
-| `lampwickgames.com` | Stüdyo sitesi | Cloudflare **Pages** ← `site/` |
-| `biteclub.lampwickgames.com` | Oyunun kendisi | Cloudflare **Worker** ← `dist/` |
+| `lampwickgames.com` | Stüdyo sitesi | `lampwick-site` Worker ← `site/public/` |
+| `biteclub.lampwickgames.com` | Oyun + `/nasil-oynanir` + `/privacy` | `vampire-villager` Worker ← `dist/` |
+
+## Hangi içerik hangi sitede
+
+**Stüdyo sayfası oyun ayrıntısı taşımaz.** Kurallar, roller, SSS ve
+gizlilik politikası oyunun kendi sitesinde durur; stüdyo sayfasında
+yalnız oyun kartı (kapak, tek cümlelik tanıtım, düğmeler) ve stüdyo
+metni var. İkinci oyun geldiğinde stüdyo sayfası oyun listesi olarak
+kalacak, Bite Club'ın kurallarıyla dolu olmayacak.
+
+Nasıl oynanır bölümleri önce yanlışlıkla stüdyo sayfasına konmuştu;
+`public/nasil-oynanir.html` olarak oyunun sitesine taşındı. Stüdyo
+sayfasındaki oyun kartında oraya giden bir düğme var.
+
+`public/*.html` dosyaları Vite tarafından `dist/` köküne kopyalanır ve
+Worker uzantısız adresle servis eder (`/privacy`, `/nasil-oynanir`).
+**Vite dev sunucusunda uzantısız yol çalışmaz** — orada SPA yedeği
+devreye girip oyunu açar; geliştirirken `/nasil-oynanir.html` kullan.
 
 Rol görselleri kopyalanmaz, oyunun canlı adresinden çekilir. Tek kaynak
 kalır: bir rol kartı güncellendiğinde site de kendiliğinden güncellenir.
