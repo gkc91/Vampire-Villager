@@ -93,6 +93,26 @@ Hedef kitle oyunu hiç duymamış kişi (aile büyükleri) — o yüzden dil sad
 oyunda değişirse buradaki de elle güncellenmeli — iki kaynak var, tek
 kaynak yok. Yeni rol eklenirse aynı yerden bakıp ekle.
 
+### Ekran görüntüleri
+
+`site/public/assets/how/` altında 5 webp, adım adım eşleşiyor: lobi, rol
+kartı, gece, gündüz, sonuç. Oylama adımının görüntüsü yok (mağaza setinde
+oylama karesi çıkmamıştı) — çekilirse `6-oylama.webp` diye ekleyip
+`add_shots.py` mantığındaki listeye koymak yeterli.
+
+Kaynak `store/screens/out/*.png` (1080x2122). Küçültme:
+
+```bash
+ffmpeg -i store/screens/out/04-gece.png -vf scale=520:-2   -c:v libwebp -quality 82 site/public/assets/how/3-gece.webp
+```
+
+520 piksel genişlik, 11rem'lik yuvada 2x için yeterli. Beşi toplam 193 KB.
+
+**`img` etiketinde `width`/`height` varsa CSS'te `height: auto` ŞART.**
+Yer ayırsın diye `height="1022"` yazmıştım; CSS yalnız `width` veriyordu
+ve tarayıcı yüksekliği 1022 pikselde sabitleyip görselleri gerdi, sayfa
+6.500 yerine 10.000 piksel oldu.
+
 ### `<details>` içinde çift dil tuzağı
 
 SSS'de her soruyu iki `<summary>` ile yazmıştım (biri `data-tr`, biri

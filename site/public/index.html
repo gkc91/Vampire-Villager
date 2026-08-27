@@ -161,9 +161,23 @@
       .steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
       .steps li {
         counter-increment: step; position: relative;
-        padding: 0 0 1.25rem 3rem; margin: 0;
-        border-left: 1px solid var(--line); margin-left: 1rem;
+        padding: 0 0 1.75rem 3rem; margin: 0 0 0 1rem;
+        border-left: 1px solid var(--line);
+        display: grid; gap: 1rem; grid-template-columns: 1fr;
       }
+      @media (min-width: 40rem) {
+        /* Geniş ekranda görüntü metnin sağına geçer; dar ekranda altına. */
+        .steps li { grid-template-columns: 1fr 11rem; align-items: start; }
+      }
+      .shot {
+        display: block; width: 10rem; max-width: 100%;
+        /* height:auto ŞART. img'de width/height öznitelikleri var (yükleme
+           öncesi yer ayırsın diye); auto olmazsa tarayıcı yüksekliği
+           1022 piksele sabitleyip görseli geriyor. */
+        height: auto;
+        border-radius: 0.7rem; border: 1px solid var(--line);
+      }
+      @media (min-width: 40rem) { .shot { width: 11rem; } }
       .steps li:last-child { border-left-color: transparent; padding-bottom: 0; }
       .steps li::before {
         content: counter(step);
@@ -471,51 +485,68 @@
           <h2 data-en>How a round works</h2>
           <ol class="steps">
             <li>
-              <b data-tr>Oda kurulur</b><b data-en>Open a room</b>
-              <p data-tr>Biriniz oda kurar, ekrandaki 6 haneli kodu masaya söyler.
-                Diğerleri kendi telefonundan o kodla girer.</p>
-              <p data-en>One of you opens a room and reads the six-character code out
-                loud. Everyone else joins with it from their own phone.</p>
+              <div>
+                <b data-tr>Oda kurulur</b><b data-en>Open a room</b>
+                <p data-tr>Biriniz oda kurar, ekrandaki 6 haneli kodu masaya söyler.
+                  Diğerleri kendi telefonundan o kodla girer.</p>
+                <p data-en>One of you opens a room and reads the six-character code out
+                  loud. Everyone else joins with it from their own phone.</p>
+              </div>
+              <img class="shot" src="assets/how/1-lobi.webp" alt="" loading="lazy" width="520" height="1022" />
             </li>
             <li>
-              <b data-tr>Roller dağıtılır</b><b data-en>Roles are dealt</b>
-              <p data-tr>Herkesin telefonunda kendi rol kartı açılır. Kimse
-                başkasınınkini göremez. Unutursanız kart oyun boyunca ekranın
-                altından tekrar açılıyor.</p>
-              <p data-en>Each phone shows its own role card. Nobody can see anyone
-                else's. If you forget yours, the card reopens from the bottom of the
-                screen at any time.</p>
+              <div>
+                <b data-tr>Roller dağıtılır</b><b data-en>Roles are dealt</b>
+                <p data-tr>Herkesin telefonunda kendi rol kartı açılır. Kimse
+                  başkasınınkini göremez. Unutursanız kart oyun boyunca ekranın
+                  altından tekrar açılıyor.</p>
+                <p data-en>Each phone shows its own role card. Nobody can see anyone
+                  else's. If you forget yours, the card reopens from the bottom of the
+                  screen at any time.</p>
+              </div>
+              <img class="shot" src="assets/how/2-rol.webp" alt="" loading="lazy" width="520" height="1022" />
             </li>
             <li>
-              <b data-tr>Gece</b><b data-en>Night</b>
-              <p data-tr>Köy uyur. Roller sırayla uyanır ve telefonundan sessizce
-                seçimini yapar: vampirler kurbanını, doktor koruyacağı kişiyi, kâhin
-                kimliğini okuyacağı kişiyi seçer.</p>
-              <p data-en>The village sleeps. Roles wake in turn and make their choice
-                silently on their phone: the vampires pick a victim, the doctor picks
-                someone to protect, the seer picks someone to read.</p>
+              <div>
+                <b data-tr>Gece</b><b data-en>Night</b>
+                <p data-tr>Köy uyur. Roller sırayla uyanır ve telefonundan sessizce
+                  seçimini yapar: vampirler kurbanını, doktor koruyacağı kişiyi, kâhin
+                  kimliğini okuyacağı kişiyi seçer.</p>
+                <p data-en>The village sleeps. Roles wake in turn and make their choice
+                  silently on their phone: the vampires pick a victim, the doctor picks
+                  someone to protect, the seer picks someone to read.</p>
+              </div>
+              <img class="shot" src="assets/how/3-gece.webp" alt="" loading="lazy" width="520" height="1022" />
             </li>
             <li>
-              <b data-tr>Gündüz</b><b data-en>Day</b>
-              <p data-tr>Gece kimin öldüğü açıklanır ve konuşma süresi başlar.
-                Burada oyun tamamen size kalır: suçlayın, savunun, blöf yapın.</p>
-              <p data-en>The night's toll is announced and the discussion timer
-                starts. From here it is all yours: accuse, defend, bluff.</p>
+              <div>
+                <b data-tr>Gündüz</b><b data-en>Day</b>
+                <p data-tr>Gece kimin öldüğü açıklanır ve konuşma süresi başlar.
+                  Burada oyun tamamen size kalır: suçlayın, savunun, blöf yapın.</p>
+                <p data-en>The night's toll is announced and the discussion timer
+                  starts. From here it is all yours: accuse, defend, bluff.</p>
+              </div>
+              <img class="shot" src="assets/how/4-gunduz.webp" alt="" loading="lazy" width="520" height="1022" />
             </li>
             <li>
-              <b data-tr>Oylama</b><b data-en>The vote</b>
-              <p data-tr>Süre bitince herkes telefonundan oy verir. En çok oyu alan
-                asılır ve rolü açılır. Sonra yeniden gece olur.</p>
-              <p data-en>When time is up everyone votes from their phone. Whoever
-                takes the most votes is hanged and their role is revealed. Then night
-                falls again.</p>
+              <div>
+                <b data-tr>Oylama</b><b data-en>The vote</b>
+                <p data-tr>Süre bitince herkes telefonundan oy verir. En çok oyu alan
+                  asılır ve rolü açılır. Sonra yeniden gece olur.</p>
+                <p data-en>When time is up everyone votes from their phone. Whoever
+                  takes the most votes is hanged and their role is revealed. Then night
+                  falls again.</p>
+              </div>
             </li>
             <li>
-              <b data-tr>Bir taraf kazanana kadar</b><b data-en>Until one side wins</b>
-              <p data-tr>Döngü böyle sürer. Oyun bittiğinde herkesin rolü ve gecelerde
-                ne olduğu tek tek açılır — asıl tartışma genelde orada başlar.</p>
-              <p data-en>The loop repeats. When it ends, every role and every night is
-                laid out — which is usually where the real argument starts.</p>
+              <div>
+                <b data-tr>Bir taraf kazanana kadar</b><b data-en>Until one side wins</b>
+                <p data-tr>Döngü böyle sürer. Oyun bittiğinde herkesin rolü ve gecelerde
+                  ne olduğu tek tek açılır — asıl tartışma genelde orada başlar.</p>
+                <p data-en>The loop repeats. When it ends, every role and every night is
+                  laid out — which is usually where the real argument starts.</p>
+              </div>
+              <img class="shot" src="assets/how/5-sonuc.webp" alt="" loading="lazy" width="520" height="1022" />
             </li>
           </ol>
         </section>
