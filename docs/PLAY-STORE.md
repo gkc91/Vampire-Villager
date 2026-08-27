@@ -351,8 +351,8 @@ about the rules.
 |---|---|
 | Ülke ve bölge | **Tüm ülkeler** |
 | Test kullanıcıları | E-posta listesi (`Testers`, 23 kişi) |
-| Sürüm | `1.2.1 (4)` — imzalı `.aab` |
-| Sürüm adı | `1.2.1 - kapalı test` |
+| Sürüm | `1.3 (5)` — imzalı `.aab` |
+| Sürüm adı | `1.3 - kurallar uygulamada` |
 | Geri bildirim adresi | `info@lampwickgames.com` |
 
 > **Listedeki kişi ≠ kayıtlı test kullanıcısı.** Play'in sayacı
@@ -360,6 +360,18 @@ about the rules.
 > e-postayı değil, katılma linkini açıp uygulamayı KURAN kişiyi
 > sayıyor. 23 kişilik liste dururken sayaç 0 gösteriyordu. 14 günlük
 > süre bu sayı 12'ye ulaşmadan işlemiyor.
+
+### Yeni sürüm yükleme adımları (her seferinde aynı)
+
+1. Kapalı test → **Yeni sürüm oluştur**
+2. **Yükle** ile `.aab` seç (Kitaplıktan ekle DEĞİL — orada eski sürümler var)
+3. Sürüm adı ve `<tr-TR>` etiketleri arasına sürüm notları
+4. **İleri** → **Kaydet ve yayınla** → **Sürümü yayınla**
+
+Sürüm kodu her yüklemede artmalı; aynı kod ikinci kez kabul edilmiyor.
+Yayınlandıktan sonra test kullanıcılarına ayrıca haber vermeye gerek yok,
+Play güncellemeyi kendi indiriyor. 14 günlük sayaç sürüm değişince
+sıfırlanmıyor — şart testçi sayısını ve süreyi sayıyor.
 
 ### Sürüm notları (tr-TR)
 
