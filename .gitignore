@@ -17,3 +17,6 @@ assets-raw
 
 # Yayına verilen APK/AAB kopyaları (android/app/build/outputs altından çıkar).
 build-out
+
+# Oturum kayıtları: bu makineye ait, her oturumda değişir.
+production/session-logs
