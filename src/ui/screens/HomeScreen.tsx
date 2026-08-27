@@ -42,12 +42,12 @@ export function HomeScreen() {
     return true;
   };
 
-  const onCreate = async (solo: boolean) => {
+  const onCreate = async () => {
     if (!guardName() || busy) return;
     unlockAudio();
     setBusy(true);
     try {
-      await createRoom(name.trim(), solo);
+      await createRoom(name.trim());
     } finally {
       setBusy(false);
     }
@@ -84,7 +84,7 @@ export function HomeScreen() {
           />
         </label>
 
-        <button type="button" className="btn-primary" disabled={busy} onClick={() => void onCreate(false)}>
+        <button type="button" className="btn-primary" disabled={busy} onClick={() => void onCreate()}>
           {t('home.create')}
         </button>
       </Card>
@@ -121,11 +121,6 @@ export function HomeScreen() {
         {t('hotseat.title')}
       </button>
       <p className="text-center text-xs text-moon-200/40">{t('hotseat.subtitle')}</p>
-
-      <button type="button" className="btn-ghost text-sm" onClick={() => void onCreate(true)}>
-        {t('home.solo')}
-      </button>
-      <p className="text-center text-xs text-moon-200/40">{t('home.soloHint')}</p>
 
       {/*
         Kurallar ve gizlilik politikası dist köküne kopyalanan düz HTML

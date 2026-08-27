@@ -30,8 +30,6 @@
     "codePlaceholder": "6-character code",
     "nameRequired": "Pick a name first.",
     "codeRequired": "Enter the 6-character room code.",
-    "solo": "Try on one device",
-    "soloHint": "No network — just to see the flow.",
     "howToPlay": "How to play",
     "privacy": "Privacy"
   },
