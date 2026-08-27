@@ -7,6 +7,7 @@ import type {
   PeerId,
 } from '../net/NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from '../net/messages';
+import { PROTOCOL_VERSION } from '../net/messages';
 import type { PlayerView } from '../game/view';
 
 /** Testler için sahte ağ: gönderilen mesajları biriktirir. */
@@ -148,6 +149,67 @@ describe('HostController — katılım ve kimlik', () => {
 
     adapter.clientSays({ type: 'ready', token: 'p2', ready: true }, 'peer2');
     expect(host.getState().players.find((p) => p.id === 'p2')?.ready).toBe(true);
+    host.stop();
+  });
+});
+
+describe('HostController — protokol sürümü', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  /** Sürüm alanını ELLE veren katılma: uyumsuzluğu bu şekilde kurgularız. */
+  function joinWithProtocol(adapter: MockAdapter, peerId: string, protocol?: number) {
+    adapter.connectedPeers.add(peerId);
+    adapter.clientSays(
+      { type: 'join', token: 'p1', name: 'Ali', color: '#fff', ...(protocol === undefined ? {} : { protocol }) },
+      peerId,
+    );
+  }
+
+  it('sürüm alanı olmayan istemci kabul edilir (1.3 ve öncesi protokol 1 sayılır)', async () => {
+    const { adapter, host } = setup();
+    await host.start();
+    joinWithProtocol(adapter, 'peer1');
+
+    expect(adapter.rejections()).toHaveLength(0);
+    expect(adapter.lastViewFor('peer1')?.me.id).toBe('p1');
+    host.stop();
+  });
+
+  it('protokolü geride kalan istemci reddedilir ve odaya hiç alınmaz', async () => {
+    const { adapter, host } = setup();
+    await host.start();
+    joinWithProtocol(adapter, 'peer1', PROTOCOL_VERSION - 1);
+
+    expect(adapter.rejections()).toEqual(['clientOutdated']);
+    // Reddedilen istemci hiçbir görünüm almamalı: yarı katılmış oyuncu olmaz.
+    expect(adapter.viewsFor('peer1')).toHaveLength(0);
+    expect(host.getState().players).toHaveLength(1);
+    host.stop();
+  });
+
+  it('protokolü ileride olan istemciye kurucunun eski olduğu söylenir', async () => {
+    const { adapter, host } = setup();
+    await host.start();
+    joinWithProtocol(adapter, 'peer1', PROTOCOL_VERSION + 1);
+
+    expect(adapter.rejections()).toEqual(['hostOutdated']);
+    expect(host.getState().players).toHaveLength(1);
+    host.stop();
+  });
+
+  it('sürüm kapısı diğer kontrollerden önce çalışır', async () => {
+    const { adapter, host } = setup();
+    await host.start();
+    // Host token'ı ile geliyor: normalde duplicateSession alırdı. Sürüm
+    // uyuşmuyorsa asıl sebep o değil; önce sürüm söylenmeli.
+    adapter.connectedPeers.add('peer1');
+    adapter.clientSays(
+      { type: 'join', token: HOST_TOKEN, name: 'X', color: '#fff', protocol: PROTOCOL_VERSION + 1 },
+      'peer1',
+    );
+
+    expect(adapter.rejections()).toEqual(['hostOutdated']);
     host.stop();
   });
 });

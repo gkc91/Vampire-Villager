@@ -4,6 +4,7 @@ import type {
   NetworkAdapter,
   PeerId,
 } from './NetworkAdapter';
+import { PROTOCOL_VERSION } from './messages';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 
 /**
@@ -411,7 +412,7 @@ export class RelayAdapter implements NetworkAdapter {
         if (this.isHost) {
           // Odada bizden önce bekleyenler varsa kendimizi tanıtalım.
           for (const peer of envelope.peers) {
-            this.post({ type: 'hostHello', roomId: this.roomId }, peer);
+            this.post({ type: 'hostHello', roomId: this.roomId, protocol: PROTOCOL_VERSION }, peer);
           }
         } else {
           // Yeni peerId aldık: kimliğimizi tazeleyip bekleyenleri duyur.
@@ -426,7 +427,7 @@ export class RelayAdapter implements NetworkAdapter {
         this.knownPeers.add(envelope.peerId);
         this.timings.peer ??= Math.round(performance.now() - this.openedAt);
         if (this.isHost) {
-          this.post({ type: 'hostHello', roomId: this.roomId }, envelope.peerId);
+          this.post({ type: 'hostHello', roomId: this.roomId, protocol: PROTOCOL_VERSION }, envelope.peerId);
         } else if (!this.hostPeerId) {
           this.announce();
         }
@@ -456,7 +457,7 @@ export class RelayAdapter implements NetworkAdapter {
         // Konuk hâlâ kimliğini duyuruyorsa tanışmamız düşmüş demektir;
         // cevabı yenile. (Yalnız 'join' tetikler, oyun trafiğini şişirmez.)
         if (this.isHost && msg.type === 'join') {
-          this.post({ type: 'hostHello', roomId: this.roomId }, envelope.from);
+          this.post({ type: 'hostHello', roomId: this.roomId, protocol: PROTOCOL_VERSION }, envelope.from);
         }
         this.messageCb(msg, envelope.from);
         break;

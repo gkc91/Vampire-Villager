@@ -161,7 +161,9 @@
     "nameTaken": "Bu isim alınmış.",
     "connection": "Bağlantı kurulamadı",
     "p2pHint": "Mobil veri kullanıyorsan WiFi'a geçmeyi dene.",
-    "duplicateSession": "Bu cihaz odada zaten var; yeni kimlikle bağlanılıyor…"
+    "duplicateSession": "Bu cihaz odada zaten var; yeni kimlikle bağlanılıyor…",
+    "clientOutdated": "Sürümün eski. Play Store’dan Bite Club’ı güncelleyip tekrar dene.",
+    "hostOutdated": "Odayı kuranın sürümü eski. Onun Play Store’dan güncellemesi gerekiyor."
   },
   "connect": {
     "strategy": "Ağ yöntemi",

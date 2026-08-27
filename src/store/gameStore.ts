@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ConnectionState, NetDiagnostics, NetworkAdapter } from '../net/NetworkAdapter';
 import type { NetMessage } from '../net/messages';
-import { isClientMessage } from '../net/messages';
+import { isClientMessage, protocolOf, PROTOCOL_VERSION } from '../net/messages';
 import { createAdapter } from '../net';
 import { TABLE_VIEWER } from '../game/hotseat';
 import { HostController } from './hostController';
@@ -154,6 +154,20 @@ export const useGameStore = create<GameStore>((set, get) => {
     if (isClientMessage(msg)) return;
     switch (msg.type) {
       case 'hostHello': {
+        // Kurucunun sürümünü İLK temasta öğreniyoruz. Bu kontrol host
+        // tarafındakinin aynadaki eşi ve şart: kurucu eski bir sürümdeyse
+        // (protokol alanını hiç göndermiyorsa) bizim join'imizi süzemez,
+        // sessizce kabul eder. Uyumsuzluğu o durumda yakalayan tek yer
+        // burası.
+        const hostProtocol = protocolOf(msg);
+        if (hostProtocol !== PROTOCOL_VERSION) {
+          set({
+            errorKey:
+              hostProtocol < PROTOCOL_VERSION ? 'error.hostOutdated' : 'error.clientOutdated',
+            connection: 'error',
+          });
+          break;
+        }
         // (Yeniden) bağlanma: kimliğimizi host'a tanıt.
         const token = get().myToken || getPlayerToken();
         sendIntent({

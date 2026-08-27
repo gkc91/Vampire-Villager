@@ -161,7 +161,9 @@
     "nameTaken": "That name is taken.",
     "connection": "Could not connect",
     "p2pHint": "If you are on mobile data, try switching to WiFi.",
-    "duplicateSession": "This device is already in the room; reconnecting with a new identity…"
+    "duplicateSession": "This device is already in the room; reconnecting with a new identity…",
+    "clientOutdated": "Your version is out of date. Update Bite Club in the Play Store and try again.",
+    "hostOutdated": "The host is on an old version. They need to update in the Play Store."
   },
   "connect": {
     "strategy": "Network method",

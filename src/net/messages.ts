@@ -8,10 +8,41 @@ import type { GameSettings } from '../game/types';
  * döner. Hiçbir istemci mesajı başka bir istemciye ulaşmaz.
  */
 
-export type JoinReject = 'roomFull' | 'gameInProgress' | 'nameTaken' | 'duplicateSession';
+/**
+ * Protokol sürümü — UYGULAMA sürümü değil.
+ *
+ * Yalnız telin iki ucunu ilgilendiren bir şey değişince artar: mesaj
+ * alanları, oyun durumunun şekli, gece adımlarının sırası, yeni rol.
+ * Arayüz metni, sayfa, düğme değişikliği bunu ARTIRMAZ — yoksa aslında
+ * uyumlu olan iki sürüm birbirini boşuna reddeder.
+ *
+ * Neden var: eski sürümdeki bir oyuncu yeni sürümdeki bir odaya girip
+ * sessizce yanlış davranabilirdi. Hata vermez, sadece iki taraf farklı
+ * kurallar işletir; masada "ben oy verdim ama sayılmadı" diye anlaşılır.
+ * Sessiz bozulma yerine net bir uyarı istiyoruz.
+ *
+ * ARTIRIRKEN: bu sayıyı 2 yap ve 07-tasks.md'ye not düş. Sürüm alanını
+ * hiç göndermeyen sürümler (1.3 ve öncesi) 1 sayılır.
+ */
+export const PROTOCOL_VERSION = 1;
+
+/** Alanı olmayan eski sürümler protokol 1'dir. */
+export function protocolOf(msg: { protocol?: number }): number {
+  return msg.protocol ?? 1;
+}
+
+export type JoinReject =
+  | 'roomFull'
+  | 'gameInProgress'
+  | 'nameTaken'
+  | 'duplicateSession'
+  /** Katılanın sürümü eski — güncellemesi gereken O. */
+  | 'clientOutdated'
+  /** Odayı kuranın sürümü eski — güncellemesi gereken KURUCU. */
+  | 'hostOutdated';
 
 export type ClientMessage =
-  | { type: 'join'; token: Token; name: string; color: string }
+  | { type: 'join'; token: Token; name: string; color: string; protocol?: number }
   | { type: 'ready'; token: Token; ready: boolean }
   | { type: 'setName'; token: Token; name: string }
   | { type: 'roleSeen'; token: Token }
@@ -21,7 +52,7 @@ export type ClientMessage =
   | { type: 'leave'; token: Token };
 
 export type ServerMessage =
-  | { type: 'hostHello'; roomId: string }
+  | { type: 'hostHello'; roomId: string; protocol?: number }
   | { type: 'joined'; playerId: PlayerId }
   | { type: 'joinRejected'; reason: JoinReject }
   | { type: 'view'; view: PlayerView }

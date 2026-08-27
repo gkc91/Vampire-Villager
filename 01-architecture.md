@@ -153,6 +153,43 @@ interface NetworkAdapter {
   değişmez, sadece adapter değişir. Host-otoriter mantık orada da korunur
   (Supabase yalnızca mesaj taşıyıcı olur, mantık yine host'ta).
 
+## Protokol Sürümü
+
+`src/net/messages.ts` içindeki `PROTOCOL_VERSION`, **uygulama sürümü
+değildir.** Yalnız telin iki ucunu ilgilendiren bir şey değişince artar:
+
+- mesaj alanı eklenmesi/kaldırılması (`ClientMessage` / `ServerMessage`)
+- oyun durumunun şekli (`GameState`, `PlayerView`)
+- gece adımlarının sırası veya sayısı
+- yeni rol
+
+Arayüz metni, sayfa, düğme değişikliği **artırmaz.** Artırırsan aslında
+uyumlu olan iki sürüm birbirini boşuna reddeder.
+
+### Neden var
+
+Eski sürümdeki bir oyuncu yeni sürümdeki bir odaya girip sessizce yanlış
+davranabiliyordu. Hata vermez; iki taraf farklı kurallar işletir ve masada
+"ben oy verdim ama sayılmadı" diye anlaşılır. Teşhisi zor bir hata sınıfı.
+
+### İki taraflı kontrol
+
+Tek taraf yetmiyor:
+
+| Durum | Yakalayan |
+|---|---|
+| Eski istemci → yeni kurucu | Kurucu, `join` içindeki `protocol` alanına bakar |
+| Yeni istemci → eski kurucu | İstemci, `hostHello` içindeki alana bakar |
+
+İkincisi şart, çünkü eski kurucunun kodunda kapı yok — bizim join'imizi
+süzemez, sessizce kabul eder. Uyumsuzluğu o durumda yakalayan tek yer
+istemci tarafı.
+
+Alanı hiç göndermeyen sürümler (1.3 ve öncesi) **protokol 1** sayılır.
+Bu yüzden kapı bugün kimseyi engellemiyor; ancak sürüm 2'ye çıkınca
+devreye girer. Reddedilen taraf hangisinin eski olduğunu söyleyen bir
+mesaj görür (`error.clientOutdated` / `error.hostOutdated`).
+
 ## Bağlantı Dayanıklılığı (kritik)
 
 - Her istemci `playerToken` (localStorage) tutar → kopunca aynı odaya aynı

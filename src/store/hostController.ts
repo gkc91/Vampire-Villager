@@ -1,6 +1,6 @@
 import type { NetworkAdapter, PeerId } from '../net/NetworkAdapter';
 import type { ClientMessage, NetMessage, ServerMessage } from '../net/messages';
-import { isClientMessage } from '../net/messages';
+import { isClientMessage, protocolOf, PROTOCOL_VERSION } from '../net/messages';
 import type { GameAction, GameSettings, GameState, PlayerId } from '../game/types';
 import { createInitialState, reduce } from '../game/stateMachine';
 import { buildPlayerView, type PlayerView } from '../game/view';
@@ -160,6 +160,18 @@ export class HostController {
   }
 
   private handleJoin(msg: Extract<ClientMessage, { type: 'join' }>, peerId: PeerId): void {
+    // Sürüm kapısı EN BAŞTA: uyumsuz bir istemciyi odaya alıp sonra
+    // yarı yarıya çalıştırmaktansa hiç almamak yeğ. Hangi tarafın eski
+    // olduğunu söylüyoruz ki güncellemesi gereken kişi belli olsun.
+    const theirs = protocolOf(msg);
+    if (theirs !== PROTOCOL_VERSION) {
+      this.send(peerId, {
+        type: 'joinRejected',
+        reason: theirs < PROTOCOL_VERSION ? 'clientOutdated' : 'hostOutdated',
+      });
+      return;
+    }
+
     // Host kimliği yalnız bu cihazda yaşar; ağdan devralınamaz.
     if (msg.token === this.hostPlayerId && peerId !== 'local') {
       this.send(peerId, { type: 'joinRejected', reason: 'duplicateSession' });

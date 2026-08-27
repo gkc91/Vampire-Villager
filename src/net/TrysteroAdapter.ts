@@ -5,6 +5,7 @@ import type {
   NetworkAdapter,
   PeerId,
 } from './NetworkAdapter';
+import { PROTOCOL_VERSION } from './messages';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 import { ACTIVE_STRATEGY, loadStrategy } from './strategy';
 import { turnServers } from './ice';
@@ -103,7 +104,7 @@ export class TrysteroAdapter implements NetworkAdapter {
       this.timings.peer ??= Math.round(performance.now() - this.openedAt);
       if (this.isHost) {
         // Yeni gelene kendini tanıt: "host benim".
-        this.post({ type: 'hostHello', roomId: this.roomId }, peerId);
+        this.post({ type: 'hostHello', roomId: this.roomId, protocol: PROTOCOL_VERSION }, peerId);
       } else {
         // hostHello'yu beklemeden kendimizi tanıtıyoruz: bir gidiş-dönüş
         // kazanılıyor. İstemci mesajlarını yalnız host işler, diğer
