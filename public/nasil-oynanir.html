@@ -8,7 +8,7 @@
       name="description"
       content="Bite Club nasıl oynanır: oyunun kuralları, 11 rol ve bir turun akışı."
     />
-    <link rel="icon" href="/assets/icon/favicon.png" />
+    <link rel="icon" href="assets/icon/favicon.png" />
 
     <meta property="og:title" content="Bite Club — Nasıl oynanır" />
     <meta property="og:description" content="Kurallar, roller ve bir turun akışı." />
@@ -22,7 +22,10 @@
     <script>
       (function () {
         try {
-          var saved = localStorage.getItem('lw_lang');
+          // vk_lang oyunun kendi anahtari: uygulamada Turkce secip buraya
+          // gelen kisi Ingilizce sayfa gormesin. lw_lang studyo
+          // sitesinin anahtari; ikisi de yoksa tarayici dili.
+          var saved = localStorage.getItem('vk_lang') || localStorage.getItem('lw_lang');
           var lang = saved || (/^tr\b/i.test(navigator.language || '') ? 'tr' : 'en');
           document.documentElement.setAttribute('data-lang', lang);
           document.documentElement.setAttribute('lang', lang);
@@ -244,7 +247,7 @@
   <body>
     <div class="wrap">
       <div class="backbar">
-        <a class="back" href="/">
+        <a class="back" href="./">
           <span data-tr>← Bite Club'a dön</span>
           <span data-en>← Back to Bite Club</span>
         </a>
@@ -313,7 +316,7 @@
           <p class="team-name" data-en>Village</p>
           <div class="roles">
             <div class="role">
-              <img src="/assets/roles/villager.webp" alt="" loading="lazy" />
+              <img src="assets/roles/villager.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Köylü</b><b data-en>Villager</b>
                 <span data-tr>Yeteneğin yok, sezgin var.</span>
@@ -321,7 +324,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/seer.webp" alt="" loading="lazy" />
+              <img src="assets/roles/seer.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Kâhin</b><b data-en>Seer</b>
                 <span data-tr>Her gece bir kişinin kimliğini okursun.</span>
@@ -329,7 +332,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/doctor.webp" alt="" loading="lazy" />
+              <img src="assets/roles/doctor.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Doktor</b><b data-en>Doctor</b>
                 <span data-tr>Oyun boyunca 2 kez korursun.</span>
@@ -337,7 +340,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/detective.webp" alt="" loading="lazy" />
+              <img src="assets/roles/detective.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Dedektif</b><b data-en>Detective</b>
                 <span data-tr>Kimin gece uyandığını görürsün.</span>
@@ -345,7 +348,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/wizard.webp" alt="" loading="lazy" />
+              <img src="assets/roles/wizard.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Büyücü</b><b data-en>Wizard</b>
                 <span data-tr>Bir kez asılmayı durdurursun.</span>
@@ -353,7 +356,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/hunter.webp" alt="" loading="lazy" />
+              <img src="assets/roles/hunter.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Avcı</b><b data-en>Hunter</b>
                 <span data-tr>Vampirler sana dokunamaz.</span>
@@ -365,7 +368,7 @@
           <p class="team-name" data-en>Vampires</p>
           <div class="roles">
             <div class="role">
-              <img src="/assets/roles/vampire.webp" alt="" loading="lazy" />
+              <img src="assets/roles/vampire.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Vampir</b><b data-en>Vampire</b>
                 <span data-tr>Her gece bir kurban seçersin.</span>
@@ -373,7 +376,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/vampireLord.webp" alt="" loading="lazy" />
+              <img src="assets/roles/vampireLord.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Vampir Lordu</b><b data-en>Vampire Lord</b>
                 <span data-tr>Bir kez birini vampire çevirirsin.</span>
@@ -381,7 +384,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/bloodWizard.webp" alt="" loading="lazy" />
+              <img src="assets/roles/bloodWizard.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Kan Büyücüsü</b><b data-en>Blood Sorcerer</b>
                 <span data-tr>İki gece birini mühürlersin.</span>
@@ -389,7 +392,7 @@
               </div>
             </div>
             <div class="role">
-              <img src="/assets/roles/mistVampire.webp" alt="" loading="lazy" />
+              <img src="assets/roles/mistVampire.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Sisler Vampiri</b><b data-en>Mist Vampire</b>
                 <span data-tr>Sis basar, bilgi rollerini kör edersin.</span>
@@ -401,7 +404,7 @@
           <p class="team-name" data-en>Neutral</p>
           <div class="roles">
             <div class="role">
-              <img src="/assets/roles/thief.webp" alt="" loading="lazy" />
+              <img src="assets/roles/thief.webp" alt="" loading="lazy" />
               <div>
                 <b data-tr>Hırsız</b><b data-en>Thief</b>
                 <span data-tr>Bir kez birinin rolünü çalarsın.</span>
@@ -532,11 +535,11 @@
         </section>
 
         <div class="play-cta">
-          <a class="btn primary" href="/" data-tr>
+          <a class="btn primary" href="./" data-tr>
             ▶ Oyuna başla
             <small>Ücretsiz, kurulum yok</small>
           </a>
-          <a class="btn primary" href="/" data-en>
+          <a class="btn primary" href="./" data-en>
             ▶ Start playing
             <small>Free, no install</small>
           </a>
@@ -546,8 +549,8 @@
       <footer>
         <span>© 2026 Lampwick Games</span>
         <span>
-          <a href="/privacy" data-tr>Gizlilik</a>
-          <a href="/privacy" data-en>Privacy</a>
+          <a href="privacy.html" data-tr>Gizlilik</a>
+          <a href="privacy.html" data-en>Privacy</a>
           &nbsp;·&nbsp;
           <a href="https://lampwickgames.com">lampwickgames.com</a>
         </span>
@@ -560,7 +563,10 @@
         if (!lang) return;
         document.documentElement.setAttribute('data-lang', lang);
         document.documentElement.setAttribute('lang', lang);
-        try { localStorage.setItem('lw_lang', lang); } catch (err) {}
+        try {
+          localStorage.setItem('lw_lang', lang);
+          localStorage.setItem('vk_lang', lang);
+        } catch (err) {}
       });
     </script>
   </body>

@@ -127,6 +127,23 @@ export function HomeScreen() {
       </button>
       <p className="text-center text-xs text-moon-200/40">{t('home.soloHint')}</p>
 
+      {/*
+        Kurallar ve gizlilik politikası dist köküne kopyalanan düz HTML
+        sayfalar (public/nasil-oynanir.html, public/privacy.html). BASE_URL
+        ile kuruluyorlar: alt yolda yayınlanan sürümde (GitHub Pages) kök
+        eğik çizgi yanlış yere giderdi. Uygulamada da çalışır — Capacitor
+        dist'i olduğu gibi paketlediği için iki dosya da kabuğun içinde.
+      */}
+      <p className="flex items-center justify-center gap-3 text-xs text-moon-200/50">
+        <a className="underline underline-offset-2" href={`${import.meta.env.BASE_URL}nasil-oynanir.html`}>
+          {t('home.howToPlay')}
+        </a>
+        <span aria-hidden="true">·</span>
+        <a className="underline underline-offset-2" href={`${import.meta.env.BASE_URL}privacy.html`}>
+          {t('home.privacy')}
+        </a>
+      </p>
+
       {/* Bağlanma sorunlarında iki cihazın satırlarını karşılaştırmak için. */}
       <div className="pb-4">
         <ConnectionInfo open={Boolean(shownError)} />

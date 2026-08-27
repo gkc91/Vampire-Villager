@@ -40,9 +40,23 @@ void i18n
     },
   });
 
+/**
+ * `<html lang>` her zaman gösterilen dille aynı kalmalı.
+ *
+ * Yalnız setLanguage içinde güncelliyordu; kullanıcı ayarlardan dil
+ * değiştirmediyse etiket index.html'deki "tr" olarak kalıyordu. Tarayıcısı
+ * İngilizce olan biri uygulamayı açtığında arayüz İngilizceydi ama etiket
+ * Türkçe: CSS'in `text-transform: uppercase` kuralı Türkçe harf kuralını
+ * uygulayıp "CONNECTION INFO" yerine "CONNECTİON İNFO" yazıyordu (Türkçe'de
+ * i → İ). Algılamayla gelen dil de dahil, her değişimde eşitle.
+ */
+i18n.on('languageChanged', (lang) => {
+  document.documentElement.lang = lang;
+});
+document.documentElement.lang = i18n.language || 'tr';
+
 export function setLanguage(lang: Language): void {
   void i18n.changeLanguage(lang);
-  document.documentElement.lang = lang;
 }
 
 export default i18n;

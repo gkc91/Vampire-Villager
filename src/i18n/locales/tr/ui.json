@@ -31,7 +31,9 @@
     "nameRequired": "Önce bir isim yaz.",
     "codeRequired": "6 haneli oda kodunu yaz.",
     "solo": "Tek cihazda dene",
-    "soloHint": "Ağ olmadan, akışı görmek için."
+    "soloHint": "Ağ olmadan, akışı görmek için.",
+    "howToPlay": "Nasıl oynanır",
+    "privacy": "Gizlilik"
   },
   "lobby": {
     "title": "Köy Meydanı",
