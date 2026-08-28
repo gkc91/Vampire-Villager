@@ -91,6 +91,15 @@ export interface PlayerView {
   /** Vampir oylamasında takım arkadaşlarının seçimi. */
   vampirePicks: Record<PlayerId, PlayerId>;
   nightAction: {
+    /**
+     * Bu adımı benimle birlikte oynayan DİĞER oyuncular.
+     *
+     * Masada anlatıcı "vampirler uyansın" dediğinde vampirler birbirini
+     * görür; iki kâhin varsa onlar da. Telefonla oynarken bu kayboluyordu.
+     * `pick` onaylanmış ya da henüz onaylanmamış seçim — hangisi olduğunu
+     * `acted` söyler. Yalnız bu adımda oynayanlara gönderilir.
+     */
+    peers: { id: PlayerId; name: string; acted: boolean; pick: PlayerId | null }[];
     /** Şu anki adım bana mı ait ve henüz oynamadım mı. */
     canAct: boolean;
     /** Hedef seçmiyorum, yalnız onaylıyorum (sis). */
@@ -251,6 +260,20 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     vampirePicks,
     debug,
     nightAction: {
+      peers: isMyStep
+        ? eligibleActors(state, step!)
+            .filter((id) => id !== viewerId)
+            .map((id) => {
+              const key = `${id}:${step!}`;
+              const acted = state.night.acted.includes(key);
+              return {
+                id,
+                name: nameOf(id) ?? id,
+                acted,
+                pick: acted ? (state.night.choices[key] ?? null) : (state.night.tentative[key] ?? null),
+              };
+            })
+        : [],
       canAct: isMyStep && !alreadyActed,
       selfCast: Boolean(stepAction?.selfCast),
       validTargets:

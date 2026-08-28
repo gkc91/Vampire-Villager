@@ -166,6 +166,16 @@ export interface NightState {
    * cevabı burası. Oyuncuya asla gönderilmez.
    */
   choices: Record<string, PlayerId | null>;
+  /**
+   * HENÜZ ONAYLANMAMIŞ seçim: `oyuncuId:adım` → hedef.
+   *
+   * Masada aynı rolü oynayanlar birbirinin elini görür — üç vampir
+   * kurbanı işaret ederek anlaşır. Telefonla oynarken bu kayboluyordu:
+   * seçim ancak ONAYLANINCA takıma görünüyor, oysa asıl konuşma
+   * onaydan önce oluyor. `choices` kesinleşmiş kararı tutar, burası
+   * "şu an neye dokunuyorum" bilgisini.
+   */
+  tentative: Record<string, PlayerId | null>;
   /** Vampir oylamasının sonucu; ölüm gece sonunda çözülür. */
   attackTarget: PlayerId | null;
   /** Lord bu gece dönüştürdüyse: kurban seçimine katılamaz. */
@@ -241,6 +251,7 @@ export type GameAction =
   | { type: 'START_GAME' }
   | { type: 'ROLE_SEEN'; playerId: PlayerId }
   | { type: 'NIGHT_ACTION'; playerId: PlayerId; targetId: PlayerId | null }
+  | { type: 'NIGHT_PREVIEW'; playerId: PlayerId; targetId: PlayerId | null }
   | { type: 'CAST_SPELL'; playerId: PlayerId; targetId: PlayerId }
   | { type: 'VOTE'; playerId: PlayerId; targetId: PlayerId | 'abstain' }
   | { type: 'PLAYER_LEFT'; playerId: PlayerId }

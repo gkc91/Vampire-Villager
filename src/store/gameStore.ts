@@ -68,6 +68,19 @@ interface GameStore {
   hotseat: boolean;
   /** Telefonu devralması gereken oyuncu; null ise perde yok. */
   passTo: PlayerId | null;
+  /**
+   * Elden elede seçimini yapmış ama sonucunu HENÜZ GÖRMEMİŞ oyuncu.
+   *
+   * Onay anında sıra hemen sıradakine geçiyordu; kâhin okuduğu kişinin
+   * sonucunu göremeden telefonu devrediyordu (Bengü, 27 Ağustos). Bu
+   * alan doluyken perde inmez: oyuncu "gördüm" diyene kadar ekran onda
+   * kalır.
+   */
+  hotseatReview: PlayerId | null;
+  /** Elden elede sırayı bilerek devreder. */
+  endHotseatTurn: () => void;
+  /** Onaylamadan önceki seçimi aynı adımdakilere duyurur. */
+  nightPreview: (targetId: PlayerId | null) => void;
   /** Elden ele kurulum ekranını açar. */
   openHotseat: () => void;
   startHotseat: (names: string[]) => Promise<void>;
@@ -124,6 +137,9 @@ export const useGameStore = create<GameStore>((set, get) => {
    */
   const syncHotseat = (): void => {
     if (!get().hotseat || !host) return;
+
+    // Oyuncu sonucuna bakıyor: perdeyi indirme, ekranı ondan alma.
+    if (get().hotseatReview) return;
 
     // Lobide telefon kurucunun elinde: rol listesini düzenleyip oyunu o
     // başlatacak. Masa görünümüne geçersek kendi başlat düğmesini göremez.
@@ -209,6 +225,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     solo: false,
     hotseat: false,
     passTo: null,
+    hotseatReview: null,
     connection: 'idle',
     errorKey: null,
     view: null,
@@ -335,9 +352,27 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     nightAction(targetId) {
       const controller = asHost();
+      // Bayrak dispatch'ten ÖNCE konmalı. dispatch, host'un publish'ini
+      // tetikliyor, o da syncHotseat'i çağırıyor: bayrak o an boşsa ekran
+      // masaya geçiyor ve oyuncu kendi sonucunu göremiyor. (Testler
+      // geçiyordu, hatayı tarayıcıda oynayınca gördüm.)
+      const actor = controller && get().hotseat ? actingPlayer(controller) : null;
+      if (actor) set({ hotseatReview: actor, passTo: null });
       if (controller)
-        controller.dispatch({ type: 'NIGHT_ACTION', playerId: actingPlayer(controller), targetId });
+        controller.dispatch({ type: 'NIGHT_ACTION', playerId: actor ?? actingPlayer(controller), targetId });
       else sendIntent({ type: 'nightAction', token: get().myToken, targetId });
+    },
+
+    endHotseatTurn() {
+      set({ hotseatReview: null });
+      syncHotseat();
+    },
+
+    nightPreview(targetId) {
+      const controller = asHost();
+      if (controller)
+        controller.dispatch({ type: 'NIGHT_PREVIEW', playerId: actingPlayer(controller), targetId });
+      else sendIntent({ type: 'nightPreview', token: get().myToken, targetId });
     },
 
     vote(targetId) {
@@ -372,7 +407,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     async startHotseat(names) {
       // Elden ele hep tek cihazda: ağ yok, LocalAdapter yeter.
       await get().createRoom(names[0] ?? 'Oyuncu 1', true);
-      set({ hotseat: true });
+      set({ hotseat: true, hotseatReview: null });
       const controller = host;
       if (!controller) return;
       for (const name of names.slice(1)) controller.addLocalPlayer(name);

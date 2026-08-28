@@ -47,6 +47,8 @@ export type ClientMessage =
   | { type: 'setName'; token: Token; name: string }
   | { type: 'roleSeen'; token: Token }
   | { type: 'nightAction'; token: Token; targetId: PlayerId | null }
+  /** Onaylanmamış seçim: aynı adımı oynayanlar birbirini görsün. */
+  | { type: 'nightPreview'; token: Token; targetId: PlayerId | null }
   | { type: 'vote'; token: Token; targetId: PlayerId | 'abstain' }
   | { type: 'castSpell'; token: Token; targetId: PlayerId }
   | { type: 'leave'; token: Token };

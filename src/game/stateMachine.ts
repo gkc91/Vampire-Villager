@@ -43,6 +43,7 @@ function emptyNight(): GameState['night'] {
     woke: [],
     acted: [],
     choices: {},
+    tentative: {},
     attackTarget: null,
     convertedTonight: null,
   };
@@ -507,6 +508,26 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       return s;
     }
 
+    /**
+     * Onaylamadan önce "şu an buna dokunuyorum" bilgisi. Aynı adımı
+     * oynayanlar birbirini görsün diye var; oyunun sonucuna hiç etkisi
+     * yok, yalnız görünürlük.
+     */
+    case 'NIGHT_PREVIEW': {
+      if (s.phase !== 'NIGHT' || !s.nightStep) return s;
+      const step = s.nightStep;
+      const actor = playerById(s, action.playerId);
+      if (!actor || !actor.role) return s;
+      if (!eligibleActors(s, step).includes(actor.id)) return s;
+      // Onayladıktan sonra fikir değiştiremez; geçici seçim de yazılmamalı.
+      if (hasActed(s, actor.id, step)) return s;
+
+      const key = `${actor.id}:${step}`;
+      if (action.targetId === null) delete s.night.tentative[key];
+      else s.night.tentative[key] = action.targetId;
+      return s;
+    }
+
     case 'NIGHT_ACTION': {
       if (s.phase !== 'NIGHT' || !s.nightStep) return s;
       const step = s.nightStep;
@@ -519,6 +540,7 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       if (action.targetId === null) {
         s.night.acted.push(`${actor.id}:${step}`);
         s.night.choices[`${actor.id}:${step}`] = null;
+        delete s.night.tentative[`${actor.id}:${step}`];
         if (step === 'vampireVote') s.night.vampireVotes[actor.id] = '';
         if (stepComplete(s, step)) advanceNight(s, now);
         return s;
@@ -531,6 +553,7 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       s.night.woke.push(actor.id);
       s.night.acted.push(`${actor.id}:${step}`);
       s.night.choices[`${actor.id}:${step}`] = action.targetId;
+      delete s.night.tentative[`${actor.id}:${step}`];
 
       // Oyuncu ne yaptığını görebilmeli. Yalnız kendisine gider ve sonucu
       // ele vermez (ör. mühür tuttu mu bilgisi kurala göre verilmez).
@@ -538,6 +561,11 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       const CONFIRM: Partial<Record<NightStep, string>> = {
         vampireVote: 'acted_vampire_self',
         doctor: 'acted_protect_self',
+        // Kâhin ve dedektif bu listede yoktu: okuma/soruşturma yaptıklarında
+        // hiçbir onay görmüyorlardı. Sonuç zaten notlara düşüyor ama
+        // "kaydoldu mu" sorusunun cevabı yoktu (Bengü, 27 Ağustos).
+        seer: 'acted_read_self',
+        detective: 'acted_investigate_self',
         bloodWizard: 'acted_seal_self',
         lord: 'acted_convert_self',
         mist: 'acted_fog_self',

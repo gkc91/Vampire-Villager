@@ -145,6 +145,9 @@ export class HostController {
       case 'nightAction':
         this.dispatch({ type: 'NIGHT_ACTION', playerId, targetId: msg.targetId });
         break;
+      case 'nightPreview':
+        this.dispatch({ type: 'NIGHT_PREVIEW', playerId, targetId: msg.targetId });
+        break;
       case 'vote':
         this.dispatch({ type: 'VOTE', playerId, targetId: msg.targetId });
         break;

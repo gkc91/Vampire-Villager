@@ -102,7 +102,11 @@
     "usesLeft": "Uses left: {{count}}",
     "detectiveWoke": "{{name}} WOKE up tonight.",
     "detectiveSlept": "{{name}} did not wake tonight.",
-    "myNotes": "My notes"
+    "myNotes": "My notes",
+    "withYou": "Awake with you",
+    "peerActed": "chose",
+    "peerChoosing": "choosing",
+    "peerWaiting": "waiting"
   },
   "day": {
     "title": "Day {{count}}",
@@ -235,7 +239,10 @@
     "playerName": "Player name",
     "start": "Start game",
     "needMore": "At least {{count}} players needed",
-    "hint": "Everyone takes the same phone in turn: see your role, make your night move, pass it on."
+    "hint": "Everyone takes the same phone in turn: see your role, make your night move, pass it on.",
+    "seenPass": "Got it, pass the phone",
+    "yourResult": "Your choice is in",
+    "seenHint": "See what you learned below, then hand the phone over."
   },
   "back": {
     "title": "Leave the game?",

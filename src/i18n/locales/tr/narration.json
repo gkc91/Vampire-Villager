@@ -24,5 +24,7 @@
   "acted_protect_self": "{{name}} adlı oyuncuyu korumaya aldın.",
   "acted_seal_self": "{{name}} adlı oyuncuyu mühürledin.",
   "acted_convert_self": "{{name}} adlı oyuncuyu dönüştürmeyi denedin.",
-  "acted_fog_self": "Sisi bastın; bu gece bilgi rolleri kör."
+  "acted_fog_self": "Sisi bastın; bu gece bilgi rolleri kör.",
+  "acted_read_self": "{{name}} kişisini okudun.",
+  "acted_investigate_self": "{{name}} kişisini soruşturdun."
 }

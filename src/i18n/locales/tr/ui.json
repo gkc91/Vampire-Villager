@@ -102,7 +102,11 @@
     "usesLeft": "Kalan hakkın: {{count}}",
     "detectiveWoke": "{{name}} bu gece UYANDI.",
     "detectiveSlept": "{{name}} bu gece uyanmadı.",
-    "myNotes": "Notlarım"
+    "myNotes": "Notlarım",
+    "withYou": "Seninle uyananlar",
+    "peerActed": "seçti",
+    "peerChoosing": "seçiyor",
+    "peerWaiting": "bekliyor"
   },
   "day": {
     "title": "Gündüz {{count}}",
@@ -235,7 +239,10 @@
     "playerName": "Oyuncu adı",
     "start": "Oyunu başlat",
     "needMore": "En az {{count}} oyuncu gerekli",
-    "hint": "Herkes aynı telefonu sırayla alır: rolünü görür, gece hamlesini yapar, telefonu verir."
+    "hint": "Herkes aynı telefonu sırayla alır: rolünü görür, gece hamlesini yapar, telefonu verir.",
+    "seenPass": "Gördüm, sırayı devret",
+    "yourResult": "Seçimin kaydedildi",
+    "seenHint": "Aşağıda ne öğrendiğini gör, sonra telefonu devret."
   },
   "back": {
     "title": "Oyundan çıkılsın mı?",

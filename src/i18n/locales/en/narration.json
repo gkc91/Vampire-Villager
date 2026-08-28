@@ -24,5 +24,7 @@
   "acted_protect_self": "You put {{name}} under your protection.",
   "acted_seal_self": "You sealed {{name}}.",
   "acted_convert_self": "You tried to turn {{name}}.",
-  "acted_fog_self": "You brought the fog; the information roles are blind tonight."
+  "acted_fog_self": "You brought the fog; the information roles are blind tonight.",
+  "acted_read_self": "You read {{name}}.",
+  "acted_investigate_self": "You investigated {{name}}."
 }
