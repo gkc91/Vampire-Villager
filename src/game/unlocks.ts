@@ -3,11 +3,14 @@ import type { RoleId } from './types';
 /**
  * Rollerin dağıtım katmanları (kullanıcı kararı, 2026-08-26).
  *
- * - `core`   → her yerde açık. Webde oynanan oyun bunlarla kuruluyor;
- *              oyunun çekirdeği (kâhin ve doktor olmadan oyun oyun olmaz)
- *              artı merak uyandıran bir özel vampir.
- * - `app`    → mağazadan indirilen uygulamada ücretsiz.
+ * - `core`   → her yerde açık. Web sürümü tam olarak bu dört rolle
+ *              oynanır: köylü, vampir, kâhin, doktor. Oyunun kuralını
+ *              anlatmaya yeten en küçük kadro.
+ * - `app`    → mağazadan indirilen uygulamada ücretsiz. Dört ekstra rol,
+ *              indirmenin karşılığı.
  * - `premium`→ tek seferlik satın alma (ya da bir oyunluk ödüllü reklam).
+ *              Üçü de oyunun dengesini değiştiren "egzotik" roller —
+ *              parasını ödeyene yeni bir oyun hissi versin diye.
  *
  * Kilitli roller gizlenmez: adıyla ve kilit simgesiyle görünür, merak
  * uyandırması işin bir parçası.
@@ -19,17 +22,17 @@ import type { RoleId } from './types';
 export type RoleTier = 'core' | 'app' | 'premium';
 
 export const ROLE_TIER: Record<RoleId, RoleTier> = {
-  // Çekirdek — webde de oynanır
+  // Çekirdek — webde de oynanır (4)
   villager: 'core',
   vampire: 'core',
   seer: 'core',
   doctor: 'core',
-  vampireLord: 'core',
-  // Uygulamada ücretsiz
+  // Uygulamada ücretsiz (4)
+  vampireLord: 'app',
   hunter: 'app',
   thief: 'app',
-  // Premium
-  detective: 'premium',
+  detective: 'app',
+  // Premium (3)
   wizard: 'premium',
   bloodWizard: 'premium',
   mistVampire: 'premium',
