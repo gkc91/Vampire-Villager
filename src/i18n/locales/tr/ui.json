@@ -65,7 +65,8 @@
     "lockedRole": "Bu rol uygulamada açılır",
     "setup": {
       "lockedRole": "Kilitli rol seçilemez"
-    }
+    },
+    "setupMismatch": "{{total}} rol seçtin ama {{players}} oyuncu var. Sayıları eşitle ya da \"Öneriye dön\" de."
   },
   "role": {
     "title": "Rolün",

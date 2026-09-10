@@ -25,7 +25,12 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
   const playing = players.filter((p) => p.isPlayer);
   const everyoneReady = playing.every((p) => p.ready || p.isHost);
   const enoughPlayers = playing.length >= MIN_PLAYERS;
-  const canStart = view.me.isHost && enoughPlayers && everyoneReady;
+  // Boş seçim = "öneriyi kullan", geçerli. Dolu ama sayısı tutmayan seçim
+  // motor tarafından reddediliyor; düğmeyi burada kapatıp sebebini yazmak
+  // gerekiyor, yoksa kurucu basar ve hiçbir şey olmaz.
+  const setupCount = view.settings.roleSetup.length;
+  const setupOk = setupCount === 0 || setupCount === playing.length;
+  const canStart = view.me.isHost && enoughPlayers && everyoneReady && setupOk;
 
   const copyLink = async () => {
     try {
@@ -69,6 +74,11 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
             )}
             {enoughPlayers && !everyoneReady && (
               <p className="text-center text-xs text-moon-200/60">{t('lobby.notAllReady')}</p>
+            )}
+            {enoughPlayers && everyoneReady && !setupOk && (
+              <p className="text-center text-xs text-blood-300">
+                {t('lobby.setupMismatch', { total: setupCount, players: playing.length })}
+              </p>
             )}
           </>
         ) : (

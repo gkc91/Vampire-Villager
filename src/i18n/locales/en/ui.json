@@ -65,7 +65,8 @@
     "lockedRole": "Unlocked in the app",
     "setup": {
       "lockedRole": "Locked role cannot be used"
-    }
+    },
+    "setupMismatch": "You picked {{total}} roles for {{players}} players. Match the numbers or tap \"Use suggestion\"."
   },
   "role": {
     "title": "Your role",

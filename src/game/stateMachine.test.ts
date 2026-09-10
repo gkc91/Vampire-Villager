@@ -682,3 +682,65 @@ describe('bir oyunluk premium bitince havuz daralıyor', () => {
     ).toBe(true);
   });
 });
+
+describe('rol sayısı oyuncu sayısıyla tutmalı', () => {
+  /**
+   * Kullanıcı sorusu (10 Eylül 2026): "5 oyuncu var, 9 rol eklersem ne
+   * olur?"
+   *
+   * Olan şuydu: oyun BAŞLIYORDU ve motor kurucunun 9 seçimini sessizce
+   * atıp kendi önerisini dağıtıyordu. Kurucu Hırsız/Dedektif/Avcı seçtiğini
+   * sanıp bambaşka bir masada oynuyordu. Ekranda tek uyarı yoktu.
+   *
+   * Öneriye düşmek YALNIZ hiç seçim yapılmadığında doğru — o varsayılan yol.
+   */
+  const DOKUZ: RoleId[] = [
+    'vampire',
+    'vampire',
+    'seer',
+    'doctor',
+    'hunter',
+    'thief',
+    'detective',
+    'villager',
+    'villager',
+  ];
+
+  it('fazla rol seçilirse oyun BAŞLAMAZ', () => {
+    let s = seatPlayers(5);
+    s = apply(s, [
+      { type: 'UPDATE_SETTINGS', settings: { roleSetup: DOKUZ } },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase, 'sayı tutmuyor, lobide kaldı').toBe('LOBBY');
+  });
+
+  it('eksik rol seçilirse de başlamaz', () => {
+    let s = seatPlayers(5);
+    s = apply(s, [
+      { type: 'UPDATE_SETTINGS', settings: { roleSetup: ['vampire', 'seer'] } },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase).toBe('LOBBY');
+  });
+
+  it('hiç seçim yoksa öneri kullanılır — varsayılan yol bozulmadı', () => {
+    let s = seatPlayers(5);
+    s = reduce(s, { type: 'START_GAME' });
+    expect(s.phase, 'öneriyle başladı').not.toBe('LOBBY');
+    expect(s.players.filter((p) => p.role).length).toBe(5);
+  });
+
+  it('sayı tutuyorsa kurucunun seçimi AYNEN dağıtılır', () => {
+    const BES: RoleId[] = ['vampire', 'seer', 'doctor', 'hunter', 'villager'];
+    let s = seatPlayers(5);
+    s = apply(s, [
+      { type: 'UPDATE_SETTINGS', settings: { roleSetup: BES } },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase).not.toBe('LOBBY');
+    expect(s.players.map((p) => p.role).sort(), 'seçilen roller dağıtıldı').toEqual(
+      [...BES].sort(),
+    );
+  });
+});

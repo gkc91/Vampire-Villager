@@ -451,6 +451,17 @@ export function reduce(state: GameState, action: GameAction, now: number = Date.
       const playing = s.players.filter((p) => p.isPlayer && !p.left);
       if (!isSupportedPlayerCount(playing.length)) return s;
 
+      // Kurucu rol seçtiyse SAYI TUTMAK ZORUNDA.
+      //
+      // Önceden tutmayınca sessizce öneriye düşülüyordu: 5 oyunculuk masaya
+      // 9 rol seçen kurucu, Hırsız/Dedektif/Avcı seçtiğini sanıp motorun
+      // ürettiği bambaşka bir dağılımla oynuyordu. Hiçbir uyarı yoktu.
+      //
+      // Öneri artık YALNIZ hiç seçim yapılmadığında (varsayılan yol)
+      // devreye giriyor.
+      if (s.settings.roleSetup.length > 0 && s.settings.roleSetup.length !== playing.length) {
+        return s;
+      }
       const setup =
         s.settings.roleSetup.length === playing.length
           ? s.settings.roleSetup

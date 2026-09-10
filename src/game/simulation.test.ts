@@ -29,6 +29,13 @@ function playRandomGame(seed: number): { state: GameState; steps: number } {
   const playerCount = 4 + Math.floor(rnd() * 13); // 4..16
   let state = createInitialState(seed);
 
+  // Sınırı oyuncu eklemeden ÖNCE aç. ADD_PLAYER `maxPlayers`ı uyguluyor ve
+  // varsayılan 12; sonradan yükseltmek geç kalıyordu. Sonucu şuydu: 13-16
+  // kişilik oyunlar hiç simüle edilmiyor, sessizce 12'ye kırpılıyordu.
+  // START_GAME'in eski "sayı tutmazsa öneriye düş" davranışı bunu
+  // gizliyordu; o yedek kalkınca ortaya çıktı.
+  state = reduce(state, { type: 'UPDATE_SETTINGS', settings: { maxPlayers: playerCount } }, T0);
+
   for (let i = 0; i < playerCount; i++) {
     state = reduce(
       state,
@@ -48,9 +55,11 @@ function playRandomGame(seed: number): { state: GameState; steps: number } {
   }
   state = reduce(
     state,
-    { type: 'UPDATE_SETTINGS', settings: { maxPlayers: playerCount, roleSetup: suggestedRoles(playerCount) } },
+    { type: 'UPDATE_SETTINGS', settings: { roleSetup: suggestedRoles(playerCount) } },
     T0,
   );
+  // Sınır doğru açıldıysa herkes masada olmalı.
+  expect(state.players.filter((p) => p.isPlayer && !p.left)).toHaveLength(playerCount);
   state = reduce(state, { type: 'START_GAME' }, T0);
   expect(state.phase).toBe('ROLE_REVEAL');
 
