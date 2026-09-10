@@ -1,0 +1,44 @@
+name: CI
+
+# main'e her push ve her PR → i18n taraması, testler, üretim derlemesi.
+#
+# YAYIN BURADA YAPILMIYOR. Oyun ve site Cloudflare Workers'a elle çıkıyor
+# (`npx wrangler deploy`, bkz. docs/DEPLOY.md).
+#
+# Buradan iki yayın işi kaldırıldı:
+#
+#  - GitHub Pages: `if: !repository.private` ile koşullanmıştı. Yani depo
+#    public yapıldığı ANDA kendiliğinden devreye girip oyunun ikinci bir
+#    kopyasını gkc91.github.io altında yayına sokacaktı: markasız, alan
+#    adı yok, gizlilik bağlantıları kırık, Play listesindeki adresle
+#    çelişiyor. Depoyu public yapmadan önce fark edildi.
+#
+#  - Cloudflare Pages: Cloudflare 2026'da Pages'i kaldırdı, Workers'a
+#    geçtik (wrangler.jsonc). İş zaten bir değişken tanımlı olmadığı için
+#    hiç çalışmıyordu.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # lint:strings + test + build + lint:build (reklam kimliği raporu dahil)
+      - run: npm run check
