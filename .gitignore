@@ -20,3 +20,6 @@ build-out
 
 # Oturum kayıtları: bu makineye ait, her oturumda değişir.
 production/session-logs
+
+# Derleme çıktıları depoya girmez (14 MB, her sürümde yenisi).
+store/builds/
