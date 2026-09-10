@@ -1,0 +1,10 @@
+# AdMob yetkilendirme — IAB app-ads.txt
+#
+# AdMob bu dosyayı, Play mağaza girişindeki "geliştirici web sitesi"
+# alan adının KÖKÜNDE arıyor. Bizim mağaza girişimizde o alan
+# lampwickgames.com yazıyor; dosya bu yüzden stüdyo sitesinde,
+# oyunun sitesinde değil.
+#
+# Bu satır olmadan envanter "yetkilendirilmemiş" sayılıyor ve reklam
+# doluluğu düşüyor.
+google.com, pub-3566083608754052, DIRECT, f08c47fec0942fa0
