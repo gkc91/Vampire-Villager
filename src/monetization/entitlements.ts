@@ -1,6 +1,8 @@
 import type { RoleId } from '../game/types';
 import { unlockedRoles } from '../game/unlocks';
 import { isNativeApp } from '../util/platform';
+import { hasPremium } from './billing';
+import { hasOneGamePremium } from './adGate';
 
 /**
  * 05-monetization.md — TEK KAPI.
@@ -20,9 +22,14 @@ const ROLE_TIERS_ACTIVE = false;
 
 export function hasEntitlement(entitlement: Entitlement): boolean {
   if (!ROLE_TIERS_ACTIVE) return true;
-  // İleride: Play Billing / StoreKit satın alma durumu.
-  // Premium yalnız uygulamada satın alınabilir; webde her zaman kapalı.
-  if (entitlement === 'premium_roles') return isNativeApp() && false;
+  if (entitlement === 'premium_roles') {
+    // Premium yalnız uygulamada; webde her zaman kapalı.
+    // İki yol da kabul: satın alma (kalıcı) veya ödüllü reklam (bir oyunluk).
+    return isNativeApp() && (hasPremium() || hasOneGamePremium());
+  }
+  // Reklamsızlık premium satın almayla geliyor; ödüllü reklam izleyen
+  // kişi reklamı zaten kabul etmiş demektir, onu buraya katmıyoruz.
+  if (entitlement === 'no_ads') return isNativeApp() && hasPremium();
   return true;
 }
 
