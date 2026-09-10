@@ -21,15 +21,29 @@ export type Entitlement = 'premium_roles' | 'big_room' | 'no_ads';
 const ROLE_TIERS_ACTIVE = false;
 
 export function hasEntitlement(entitlement: Entitlement): boolean {
+  // Reklam kapısı rol katmanlarından BAĞIMSIZ değerlendirilir.
+  //
+  // ROLE_TIERS_ACTIVE kapalıyken üstteki erken dönüş buraya da uygulanıyordu
+  // ve herkes "reklamsız" sayılıyordu: reklamlar hiç görünmezdi. İki ayrı
+  // konu tek anahtara bağlanmıştı.
+  //
+  // Kapsam kuralı (kullanıcı kararı, 10 Eylül 2026): reklamsızlık CİHAZ
+  // BAŞINA. Premium alan kişi masayı kursa bile diğer oyuncular oyun sonu
+  // reklamını görür — herkes kendi hakkına bakar. Rollerde kural tersi:
+  // orada kurucunun hakkı bütün masaya geçer.
+  if (entitlement === 'no_ads') {
+    // Webde zaten hiç reklam göstermiyoruz, orada herkes reklamsız.
+    // Uygulamada ise yalnız satın alan: ödüllü reklam izleyen kişi bunu
+    // kazanmaz, reklamı zaten kabul etmiş demektir ve para ödememiştir.
+    return !isNativeApp() || hasPremium();
+  }
+
   if (!ROLE_TIERS_ACTIVE) return true;
   if (entitlement === 'premium_roles') {
     // Premium yalnız uygulamada; webde her zaman kapalı.
     // İki yol da kabul: satın alma (kalıcı) veya ödüllü reklam (bir oyunluk).
     return isNativeApp() && (hasPremium() || hasOneGamePremium());
   }
-  // Reklamsızlık premium satın almayla geliyor; ödüllü reklam izleyen
-  // kişi reklamı zaten kabul etmiş demektir, onu buraya katmıyoruz.
-  if (entitlement === 'no_ads') return isNativeApp() && hasPremium();
   return true;
 }
 

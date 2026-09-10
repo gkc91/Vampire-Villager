@@ -60,7 +60,9 @@ export async function initAds(): Promise<void> {
  * oyun ilerler.
  */
 export async function showPreResultAd(): Promise<void> {
-  if (!isNativeApp() || hasEntitlement('no_ads') || hasOneGamePremium()) {
+  // hasOneGamePremium() BİLEREK yok: ödüllü reklam rol açar, reklamsızlık
+  // vermez. Reklamsızlık yalnız satın almayla geliyor.
+  if (!isNativeApp() || hasEntitlement('no_ads')) {
     await wait(PRE_RESULT_DELAY_MS);
     return;
   }
