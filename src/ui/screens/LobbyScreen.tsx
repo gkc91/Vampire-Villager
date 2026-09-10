@@ -17,7 +17,6 @@ const BOT_NAMES = ['Ada', 'Boran', 'Ceren', 'Deniz', 'Ege', 'Fikret', 'Gizem', '
 export function LobbyScreen({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   const store = useGameStore();
-  const hotseat = useGameStore((s) => s.hotseat);
   const [copied, setCopied] = useState(false);
 
   const players = view.players.filter((p) => !p.left);
@@ -53,7 +52,7 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
     <Screen
       backdrop="lobby"
       title={t('lobby.title')}
-      subtitle={hotseat ? t('hotseat.subtitle') : `${t('lobby.roomCode')}: ${view.roomId}`}
+      subtitle={`${t('lobby.roomCode')}: ${view.roomId}`}
       onBack={() => void store.leave()}
       footer={
         view.me.isHost ? (
@@ -83,7 +82,7 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
     >
       {/* Elden ele modunda kimse ağdan katılmıyor: oda kodu ve paylaşma
           bölümü yalnız kafa karıştırır. */}
-      {!hotseat && (
+      {(
         <Card className="space-y-3">
           <div className="text-center">
             <p className="text-xs uppercase tracking-widest text-moon-200/50">{t('lobby.roomCode')}</p>

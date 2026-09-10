@@ -27,12 +27,8 @@ export function NightScreen({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   const nightAction = useGameStore((s) => s.nightAction);
   const nightPreview = useGameStore((s) => s.nightPreview);
-  const hotseatReview = useGameStore((s) => s.hotseatReview);
-  const endHotseatTurn = useGameStore((s) => s.endHotseatTurn);
   const [selected, setSelected] = useState<PlayerId | null>(null);
 
-  // Elden elede sonucuna bakan oyuncu: seçim ekranı değil, özet ekranı.
-  const reviewing = hotseatReview !== null && hotseatReview === view.me.id;
 
   const alive = view.players.filter((p) => p.isPlayer && p.alive && !p.left);
   const step = view.nightStep;
@@ -64,11 +60,7 @@ export function NightScreen({ view }: { view: PlayerView }) {
       backdrop="night"
       title={t('night.title', { count: view.round })}
       footer={
-        reviewing ? (
-          <button type="button" className="btn-primary" onClick={endHotseatTurn}>
-            {t('hotseat.seenPass')}
-          </button>
-        ) : acting ? (
+        acting ? (
           <>
             {view.nightAction.selfCast ? (
               <button type="button" className="btn-primary" onClick={() => submit(view.me.id)}>
@@ -96,12 +88,7 @@ export function NightScreen({ view }: { view: PlayerView }) {
 
       {view.me.ghost && <GhostNote view={view} />}
 
-      {reviewing ? (
-        <Card>
-          <p className="text-center text-base font-semibold">{t('hotseat.yourResult')}</p>
-          <p className="mt-1 text-center text-xs text-moon-200/60">{t('hotseat.seenHint')}</p>
-        </Card>
-      ) : acting && promptKey ? (
+      {acting && promptKey ? (
         <>
           <Card>
             <p className="text-center text-base font-semibold">{t(promptKey)}</p>
@@ -183,12 +170,18 @@ export function GhostNote({ view }: { view: PlayerView }) {
 }
 
 /** Hayalet modunda / oyun sonunda rol adlarını listede göster. */
+/**
+ * Görünen rol adları. Kaynağı `players[].role` — görünüm oraya yalnız
+ * görmeye HAKKI olan rolleri koyuyor: hayalet/oyun sonunda herkesinki,
+ * vampir takımındaysan takım arkadaşlarınınki. Yetki kararı motorda,
+ * burada yalnız çeviri var.
+ */
 export function roleNames(
   view: PlayerView,
   t: (key: string) => string,
 ): Record<PlayerId, string> | undefined {
-  if (!view.allRoles) return undefined;
-  return Object.fromEntries(
-    Object.entries(view.allRoles).map(([id, roleId]) => [id, t(`roles:${roleId}.name`)]),
-  );
+  const girisler = view.players
+    .filter((p) => p.role)
+    .map((p) => [p.id, t(`roles:${p.role as string}.name`)] as const);
+  return girisler.length ? Object.fromEntries(girisler) : undefined;
 }

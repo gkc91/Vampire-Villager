@@ -131,6 +131,17 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
   const ghost = Boolean(me && me.isPlayer && (!me.alive || me.left)) || gameOver;
   const seeEverything = ghost;
 
+  /**
+   * Vampirler birbirinin ROLÜNÜ de görür, yalnız kim olduğunu değil.
+   *
+   * Masada anlatıcı vampirleri uyandırdığında hangisinin lord, hangisinin
+   * kan büyücüsü olduğu bellidir — planı ona göre kurarlar. Köylüler ve
+   * tarafsızlar bunu göremez; `knowsTeammates` yalnız vampir rollerinde
+   * açık olduğu için kapı orada.
+   */
+  // me satır 129'da tanımlı; myRole aşağıda, o yüzden doğrudan me?.role.
+  const seesTeamRoles = Boolean(me?.role && ROLES[me.role].knowsTeammates);
+
   const players: PublicPlayer[] = state.players.map((p) => ({
     id: p.id,
     name: p.name,
@@ -143,7 +154,10 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     left: p.left,
     isBot: p.isBot,
     // Roller yalnız oyun sonunda / hayalet modunda açılır (03-roles.md).
-    role: seeEverything ? p.role : undefined,
+    role:
+      seeEverything || (seesTeamRoles && p.id !== viewerId && isVampire(p))
+        ? p.role
+        : undefined,
     deathRound: p.deathRound,
     hasVoted: state.phase === 'VOTE' ? p.id in state.votes : undefined,
   }));

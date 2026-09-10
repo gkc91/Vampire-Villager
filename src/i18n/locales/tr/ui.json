@@ -229,21 +229,6 @@
     "copied": "Kopyalandı",
     "wakeLock": "Ekran kilidi"
   },
-  "hotseat": {
-    "passTo": "Telefonu ver",
-    "passHint": "Telefonu sıradaki oyuncuya uzat. Başkası ekrana bakmasın — sıradaki kişi hazır olduğunda dokunsun.",
-    "ready": "Ben {{name}}, hazırım",
-    "title": "Elden ele",
-    "subtitle": "Tek telefon, sırayla oynayın",
-    "addPlayer": "Oyuncu ekle",
-    "playerName": "Oyuncu adı",
-    "start": "Oyunu başlat",
-    "needMore": "En az {{count}} oyuncu gerekli",
-    "hint": "Herkes aynı telefonu sırayla alır: rolünü görür, gece hamlesini yapar, telefonu verir.",
-    "seenPass": "Gördüm, sırayı devret",
-    "yourResult": "Seçimin kaydedildi",
-    "seenHint": "Aşağıda ne öğrendiğini gör, sonra telefonu devret."
-  },
   "back": {
     "title": "Oyundan çıkılsın mı?",
     "body": "Oyunu kuran sensen odadaki herkesin oyunu biter.",

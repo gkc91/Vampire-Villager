@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { roleNames } from '../screens/NightScreen';
 import { RoleCard } from './RoleCard';
 import { PlayerGrid } from './PlayerGrid';
 import { SectionTitle } from './atoms';
@@ -61,7 +62,7 @@ export function RolePocket({ view }: { view: PlayerView }) {
         {teammates.length > 0 && (
           <section>
             <SectionTitle>{t('role.teammates')}</SectionTitle>
-            <PlayerGrid players={teammates} meId={view.me.id} />
+            <PlayerGrid players={teammates} meId={view.me.id} roleNames={roleNames(view, t)} />
           </section>
         )}
 

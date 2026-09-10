@@ -9,11 +9,9 @@ import { ConnectionDiagnostics } from './ui/components/ConnectionDiagnostics';
 import { HomeScreen } from './ui/screens/HomeScreen';
 import { LobbyScreen } from './ui/screens/LobbyScreen';
 import { RoleRevealScreen } from './ui/screens/RoleRevealScreen';
-import { HotseatSetupScreen } from './ui/screens/HotseatSetupScreen';
 import { ConfirmLeave } from './ui/components/ConfirmLeave';
 import { exitApp, useBackButton } from './ui/hooks/useBackButton';
 import { RolePocket } from './ui/components/RolePocket';
-import { PassScreen } from './ui/components/PassScreen';
 import { NightScreen } from './ui/screens/NightScreen';
 import { NarrationScreen } from './ui/screens/NarrationScreen';
 import { DayScreen } from './ui/screens/DayScreen';
@@ -26,7 +24,6 @@ export default function App() {
   const errorKey = useGameStore((s) => s.errorKey);
   const connection = useGameStore((s) => s.connection);
   const solo = useGameStore((s) => s.solo);
-  const passTo = useGameStore((s) => s.passTo);
   const leave = useGameStore((s) => s.leave);
   const [askLeave, setAskLeave] = useState(false);
 
@@ -39,7 +36,6 @@ export default function App() {
    * 4. Oyundayken önce sor: kurucu yanlışlıkla çıkarsa oda dağılır.
    */
   const onBack = useCallback(() => {
-    if (passTo) return;
     if (askLeave) {
       setAskLeave(false);
       return;
@@ -48,12 +44,8 @@ export default function App() {
       exitApp();
       return;
     }
-    if (screen === 'hotseat') {
-      void leave();
-      return;
-    }
     setAskLeave(true);
-  }, [passTo, askLeave, screen, leave]);
+  }, [askLeave, screen, leave]);
 
   useBackButton(onBack);
 
@@ -65,7 +57,6 @@ export default function App() {
   useVisibilityResync(screen === 'game');
 
   if (screen === 'home') return <HomeScreen />;
-  if (screen === 'hotseat') return <HotseatSetupScreen />;
   if (errorKey && !view) return <FatalError errorKey={errorKey} />;
   if (!view) return <Connecting />;
 
@@ -108,15 +99,6 @@ function useVisibilityResync(active: boolean) {
 
 function PhaseScreen() {
   const view = useGameStore((s) => s.view)!;
-  const passTo = useGameStore((s) => s.passTo);
-
-  // Elden ele: sıra değiştiğinde araya gizlilik perdesi girer. Perde
-  // açıkken altındaki ekran görünmemeli, o yüzden başka hiçbir şey
-  // render edilmiyor.
-  if (passTo) {
-    const next = view.players.find((p) => p.id === passTo);
-    return <PassScreen toName={next?.name ?? ''} color={next?.color ?? '#ffffff'} />;
-  }
 
   // Rol cebi her oyun ekranında dursun: insanlar rollerini unutuyor.
   return (

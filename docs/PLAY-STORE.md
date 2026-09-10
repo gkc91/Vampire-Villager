@@ -292,9 +292,8 @@ Köylü, Kâhin, Doktor, Dedektif, Büyücü, Avcı, Vampir, Vampir Lordu,
 Kan Büyücüsü, Sisler Vampiri ve Hırsız. Her rolün kendi gece hamlesi var.
 Rolleri oyunu kuran kişi seçer; oyunu masanıza göre ayarlayabilirsiniz.
 
-İKİ OYNAMA BİÇİMİ
-• Herkes kendi telefonundan — oda kodunu paylaşın, katılın
-• Elden ele — tek telefonu sırayla vererek oynayın, internet gerekmez
+NASIL OYNANIR
+Herkes kendi telefonundan katılır — oda kodunu paylaşın, oyuna girin.
 
 4 kişiden 24 kişiye kadar oynanır. Anlatıcıya gerek yok, kart
 kaybolmaz, kural tartışması çıkmaz.
@@ -335,9 +334,8 @@ Villager, Seer, Doctor, Detective, Wizard, Hunter, Vampire, Vampire Lord,
 Blood Sorcerer, Mist Vampire and Thief. Every role has its own night move,
 and the host picks which roles are in play.
 
-TWO WAYS TO PLAY
-• Everyone on their own phone — share the room code and join
-• Pass and play — one phone around the table, no internet needed
+HOW TO PLAY
+Everyone joins from their own phone — share the room code and play.
 
 From 4 up to 24 players. No moderator, no lost cards, no arguments
 about the rules.

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { roleNames } from './NightScreen';
 import { Screen } from '../components/Screen';
 import { Card, SectionTitle } from '../components/atoms';
 import { RoleCard } from '../components/RoleCard';
@@ -73,7 +74,7 @@ export function RoleRevealScreen({ view }: { view: PlayerView }) {
             <section>
               <SectionTitle>{t('role.teammates')}</SectionTitle>
               {teammates.length > 0 ? (
-                <PlayerGrid players={teammates} meId={view.me.id} />
+                <PlayerGrid players={teammates} meId={view.me.id} roleNames={roleNames(view, t)} />
               ) : (
                 <p className="text-sm text-moon-200/60">{t('role.alone')}</p>
               )}

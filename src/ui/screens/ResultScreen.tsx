@@ -13,7 +13,6 @@ export function ResultScreen({ view }: { view: PlayerView }) {
   const { t } = useTranslation();
   // Elden ele: ortak ekranda masa görünümü var, kurucu bayrağı düşük
   // kalıyor. Bu düğmeler orada masanın ortak kararı olarak durmalı.
-  const hotseat = useGameStore((s) => s.hotseat);
   const store = useGameStore();
   const [ready, setReady] = useState(false);
 
@@ -53,7 +52,7 @@ export function ResultScreen({ view }: { view: PlayerView }) {
       title={t('result.roles')}
       footer={
         <>
-          {(view.me.isHost || hotseat) && (
+          {view.me.isHost && (
             <button type="button" className="btn-primary" onClick={store.restart}>
               {t('result.playAgain')}
             </button>

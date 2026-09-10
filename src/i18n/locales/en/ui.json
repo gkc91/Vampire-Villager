@@ -229,21 +229,6 @@
     "copied": "Copied",
     "wakeLock": "Screen lock"
   },
-  "hotseat": {
-    "passTo": "Pass the phone to",
-    "passHint": "Hand the phone to the next player. Nobody else should look — tap when you are ready.",
-    "ready": "I'm {{name}}, ready",
-    "title": "Pass and play",
-    "subtitle": "One phone, take turns",
-    "addPlayer": "Add player",
-    "playerName": "Player name",
-    "start": "Start game",
-    "needMore": "At least {{count}} players needed",
-    "hint": "Everyone takes the same phone in turn: see your role, make your night move, pass it on.",
-    "seenPass": "Got it, pass the phone",
-    "yourResult": "Your choice is in",
-    "seenHint": "See what you learned below, then hand the phone over."
-  },
   "back": {
     "title": "Leave the game?",
     "body": "If you are the host, the game ends for everyone in the room.",

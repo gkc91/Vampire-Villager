@@ -113,15 +113,6 @@ export function HomeScreen() {
         </p>
       )}
 
-      <button
-        type="button"
-        className="btn-secondary"
-        onClick={() => useGameStore.getState().openHotseat()}
-      >
-        {t('hotseat.title')}
-      </button>
-      <p className="text-center text-xs text-moon-200/40">{t('hotseat.subtitle')}</p>
-
       {/*
         Kurallar ve gizlilik politikası dist köküne kopyalanan düz HTML
         sayfalar (public/nasil-oynanir.html, public/privacy.html). BASE_URL

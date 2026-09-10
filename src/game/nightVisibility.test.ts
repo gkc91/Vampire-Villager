@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { reduce } from './stateMachine';
-import { nextHotseatActor } from './hotseat';
 import { buildPlayerView } from './view';
 import { T0, skipToStep, startWithRoles } from './testUtils';
 import type { GameState, RoleId } from './types';
@@ -56,15 +55,6 @@ describe('gece — oyuncu ne yaptığını görüyor mu', () => {
     expect(ozelSatirlar(state, 'p1')).toContain('acted_investigate_self');
   });
 
-  it('ELDEN ELE: motor sırayı ilerletir, ekranı tutmak arayüzün işi', () => {
-    // Motor tarafında değişiklik yok: kâhin oynayınca sıra sıradakine
-    // geçer. Sonucu gösterip beklemeyi store'daki hotseatReview yapıyor.
-    let state = nightAt('seer');
-    expect(nextHotseatActor(state)).toBe(SEER);
-    state = reduce(state, { type: 'NIGHT_ACTION', playerId: SEER, targetId: 'p0' }, T0);
-    expect(nextHotseatActor(state)).not.toBe(SEER);
-    expect(buildPlayerView(state, 'ROOM12', SEER).seerResults).toHaveLength(1);
-  });
 });
 
 describe('gece — aynı adımı oynayanlar birbirini görüyor mu', () => {
