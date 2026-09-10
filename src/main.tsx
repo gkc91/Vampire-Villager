@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './i18n';
 import './index.css';
+import { initAds } from './monetization/adGate';
 import { listenForDeepLinks } from './util/deepLink';
 import { loadStrategy } from './net/strategy';
 
@@ -24,3 +25,6 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
     void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
   });
 }
+
+// Reklam SDK'sı arka planda hazırlansın; webde hiçbir şey yapmaz.
+void initAds();

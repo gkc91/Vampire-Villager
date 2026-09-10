@@ -16,6 +16,7 @@
     "lint:build": "node scripts/check-build.mjs"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.1.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.0",
     "@trystero-p2p/mqtt": "^0.25.3",

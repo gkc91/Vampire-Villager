@@ -9,6 +9,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!--
+            AdMob uygulama kimliği. Bu meta-data OLMADAN uygulama açılışta
+            çöküyor (SDK'nın kendi kontrolü).
+
+            Şu anki değer Google'ın resmî TEST kimliği. Gerçek kimlik
+            (AdMob → Uygulama ayarları → Uygulama Kimliği) yayına
+            çıkmadan önce buraya yazılacak — reklam birimleri .env ile
+            geliyor ama bu satır manifest'te durmak zorunda.
+        -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
