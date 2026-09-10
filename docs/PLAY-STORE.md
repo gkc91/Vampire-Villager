@@ -399,3 +399,34 @@ Takıldığınız yeri info@lampwickgames.com adresine yazarsanız sevinirim.
 > **Ülke seçimi kritik:** yalnız Türkiye seçersen değişim
 > topluluğundan gelen yurt dışındaki testçiler uygulamayı **kuramaz** ve
 > 12 sayısını asla tamamlayamazsın. Kapalı testte tüm ülkeleri aç.
+
+---
+
+## 13. Uygulama içi ürün: `premium_roles`
+
+| Alan | Değer |
+|---|---|
+| Ürün kimliği | `premium_roles` (değiştirilemez) |
+| Ad | Tüm Roller |
+| Tür | Yönetilen ürün (tek seferlik, tüketilmez) |
+| Simge | `store/premium-icon-1080.png` |
+| Vergi kategorisi | Dijital uygulama satışları |
+| Fiyat | Global $3,99 · Türkiye elle ₺149,99 |
+
+Açıklama (176/200):
+
+```
+Büyücü, Kan Büyücüsü ve Sisler Vampiri açılır. Sonradan eklenen roller de kalıcı olarak senin olur. Odayı sen kurduğunda masadaki herkes oynar; kimsenin ayrıca alması gerekmez.
+```
+
+**Bu açıklama iki taahhüt içeriyor:**
+
+1. **Gelecekteki premium roller dahil.** Yeni bir rol `premium` katmanına
+   eklendiğinde mevcut alıcılara açılır, ayrı satılamaz. (`unlocks.ts`
+   içinde de not düşüldü.)
+2. **Masa geneli.** Odayı kuran aldıysa masadaki herkes o rollerle oynar.
+   Motor bunu zaten böyle yapıyor: rol havuzunu kurucunun eli belirliyor
+   (`HostController` yapıcısı → `currentUnlockedRoles()`).
+
+Ürün simgesinde **metin, tanıtım ve marka yasak** — Play kuralı. Simge
+yalnız üç rolün çiziminden oluşuyor.

@@ -12,6 +12,13 @@ import type { RoleId } from './types';
  *              Üçü de oyunun dengesini değiştiren "egzotik" roller —
  *              parasını ödeyene yeni bir oyun hissi versin diye.
  *
+ * TAAHHÜT (mağaza metni, 10 Eylül 2026): `premium_roles` açıklaması
+ * "sonradan eklenen roller de kalıcı olarak senin olur" diyor. Yani
+ * buraya eklenecek HER yeni `premium` rol, hakkı olan herkese
+ * kendiliğinden açılır ve ayrı satılamaz. Kod bunu zaten böyle yapıyor
+ * (hak tek: `premium_roles`), ama karar bilinçli — ikinci bir ürün
+ * çıkarma fikri gelirse bu satır hatırlatsın.
+ *
  * Kilitli roller gizlenmez: adıyla ve kilit simgesiyle görünür, merak
  * uyandırması işin bir parçası.
  *
