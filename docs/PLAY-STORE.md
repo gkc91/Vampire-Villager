@@ -227,12 +227,19 @@ tekrar doldurulacak.
 En sık askıya alma sebebi, formun uygulamanın gerçekte yaptığıyla
 çelişmesi.
 
+> **10 Eylül 2026'da güncellendi:** reklam eklendi, form da değişti.
+> Reklam kimliği beyanı (Politika → Uygulama içeriği → Reklam Kimliği)
+> "Evet / Reklam veya pazarlama" olarak verildi; veri güvenliği formu
+> onunla TUTARLI olmak zorunda, yoksa askıya alma sebebi.
+
 | Soru | Cevap |
 |---|---|
-| Veri topluyor musunuz? | **Evet** — takma ad |
-| Hangi tür? | Kişisel bilgiler → **Adlar** (takma ad) |
-| Amaç | Uygulama işlevi (oyuncuları birbirine göstermek) |
-| Paylaşılıyor mu? | **Hayır** (üçüncü tarafa aktarılmıyor) |
+| Veri topluyor musunuz? | **Evet** — takma ad + reklam kimliği |
+| Hangi tür? | Kişisel bilgiler → **Adlar** (takma ad)<br>Cihaz veya diğer kimlikler → **Cihaz veya diğer kimlikler** (reklam kimliği) |
+| Takma adın amacı | Uygulama işlevi (oyuncuları birbirine göstermek) |
+| Reklam kimliğinin amacı | **Reklamcılık veya pazarlama** |
+| Paylaşılıyor mu? | Takma ad: **Hayır**<br>Reklam kimliği: **Evet** — AdMob üzerinden Google'a |
+| Toplama zorunlu mu? | Reklam kimliği **zorunlu** (kullanıcı kapatamıyor; kişiselleştirmeyi cihazdan kapatabilir) |
 | Aktarımda şifreleniyor mu? | **Evet** (HTTPS/WSS) |
 | Kullanıcı silinmesini isteyebilir mi? | **Hayır** — hesap yok, veri saklanmıyor |
 | Konum, kişiler, fotoğraf, mesaj | **Hiçbiri** |
