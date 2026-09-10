@@ -4,6 +4,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { setMusicEnabled, setSfxEnabled } from '../../audio/audioManager';
 import { isTtsSupported, stopSpeaking } from '../../audio/tts';
 import { ConnectionDiagnostics } from './ConnectionDiagnostics';
+import { ConnectionInfo } from './ConnectionInfo';
 import { useGameStore } from '../../store/gameStore';
 
 /** Cihaz ayarları: dil, müzik, SFX, sesli anlatıcı. */
@@ -68,6 +69,11 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             <ConnectionDiagnostics />
           </div>
         )}
+
+        {/* Ana ekrandan buraya taşındı; odada olsun olmasın erişilebilir. */}
+        <div className="mt-4">
+          <ConnectionInfo />
+        </div>
 
         <button type="button" className="btn-secondary mt-5" onClick={onClose}>
           {t('common.close')}

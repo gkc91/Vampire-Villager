@@ -134,10 +134,18 @@ export function HomeScreen() {
         </a>
       </p>
 
-      {/* Bağlanma sorunlarında iki cihazın satırlarını karşılaştırmak için. */}
-      <div className="pb-4">
-        <ConnectionInfo open={Boolean(shownError)} />
-      </div>
+      {/*
+        Yalnız bağlanma hatası varken görünüyor. Sürekli durduğunda ana
+        ekranda teknik bir açılır bölüm oluyordu — oyuna girmeden önce
+        görülecek en son şey. Silinmedi, ayarlara (dişli) taşındı: iki
+        cihazın "Adres" ve "Sürüm" satırlarını karşılaştırmak, uzaktan
+        gelen "bağlanamıyorum" şikâyetini çözmenin en hızlı yolu.
+      */}
+      {shownError && (
+        <div className="pb-4">
+          <ConnectionInfo open />
+        </div>
+      )}
     </Screen>
   );
 }

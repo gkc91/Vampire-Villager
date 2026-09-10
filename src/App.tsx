@@ -143,8 +143,20 @@ function Connecting() {
       <div className="flex h-full flex-col items-center justify-center gap-3 py-6">
         <Spinner />
         <p className="text-sm text-moon-200/70">{t('lobby.connecting')}</p>
-        {slow && <p className="text-center text-xs text-blood-300">{t('connect.slow')}</p>}
-        <ConnectionDiagnostics />
+        {/*
+          Teşhis paneli yalnız bağlantı GERÇEKTEN takıldığında (12 sn)
+          açılıyor. Önceden her katılışta görünüyordu: normalde bir iki
+          saniye süren bir adımda teknik bir ölçüm tablosu, oyuna girmeden
+          önce gereksiz bir gürültüydü. Panel silinmedi — "bağlanamıyorum"
+          şikâyetini tahminden çıkarıp ölçüme bağlayan tek araç o; ölümcül
+          hata ekranında ve ayarlarda duruyor.
+        */}
+        {slow && (
+          <>
+            <p className="text-center text-xs text-blood-300">{t('connect.slow')}</p>
+            <ConnectionDiagnostics />
+          </>
+        )}
       </div>
     </Screen>
   );
