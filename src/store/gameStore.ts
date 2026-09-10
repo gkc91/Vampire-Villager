@@ -5,7 +5,7 @@ import { isClientMessage, protocolOf, PROTOCOL_VERSION } from '../net/messages';
 import { createAdapter } from '../net';
 import { HostController } from './hostController';
 import { buyPremium } from '../monetization/billing';
-import { watchRewardedForPremium } from '../monetization/adGate';
+import { clearOneGamePremium, watchRewardedForPremium } from '../monetization/adGate';
 import { currentUnlockedRoles } from '../monetization/entitlements';
 import type { GameSettings, PlayerId } from '../game/types';
 import type { PlayerView } from '../game/view';
@@ -107,7 +107,21 @@ export const useGameStore = create<GameStore>((set, get) => {
    */
   const refreshAllowedRoles = (): void => {
     const controller = get().isHost ? host : null;
-    controller?.updateSettings({ allowedRoles: currentUnlockedRoles() });
+    if (!controller) return;
+    const allowedRoles = currentUnlockedRoles();
+
+    // Havuz DARALDIYSA (ödüllü reklamın bir oyunluk hakkı bitti) seçili
+    // kurulumda kilitli rol kalmış olabilir. Bırakılırsa START_GAME
+    // `lockedRole` ile sessizce reddediyor: kurucu düğmeye basıyor, hiçbir
+    // şey olmuyor. Kurulumu sıfırlayınca motor havuzdan yeni bir öneri
+    // üretiyor.
+    const secili = get().view?.settings.roleSetup ?? [];
+    const kilitliKaldi = secili.some((r) => !allowedRoles.includes(r));
+
+    controller.updateSettings({
+      allowedRoles,
+      ...(kilitliKaldi ? { roleSetup: [] } : {}),
+    });
   };
 
   const handleServerMessage = (msg: NetMessage): void => {
@@ -181,6 +195,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       const roomId = createRoomCode();
       const token = getPlayerToken();
       saveName(name);
+
+      // Yeni masa yeni oyun demek: bir oyunluk ödül devretmez. Havuzu
+      // yapıcıda okuduğu için HostController'dan ÖNCE temizleniyor.
+      clearOneGamePremium();
 
       adapter = createAdapter(solo);
       adapter.onStateChange((connection) => set({ connection }));
@@ -350,7 +368,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     },
 
     restart() {
+      // SIRA ÖNEMLİ. `UPDATE_SETTINGS` yalnız LOBBY fazında işliyor
+      // (stateMachine.ts), yani havuzu sonuç ekranındayken tazelemek
+      // sessizce yutulurdu. Önce masayı lobiye döndür, sonra hakkı bitir.
       asHost()?.dispatch({ type: 'RESTART' });
+      clearOneGamePremium();
+      refreshAllowedRoles();
     },
   };
 });

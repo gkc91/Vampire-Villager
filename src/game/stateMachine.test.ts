@@ -617,3 +617,68 @@ describe('rol katmanları (web / uygulama / premium)', () => {
     expect(all).toHaveLength(11);
   });
 });
+
+describe('bir oyunluk premium bitince havuz daralıyor', () => {
+  /**
+   * Gerçek cihazda çıktı (10 Eylül 2026): ödüllü reklam izlendi, roller
+   * açıldı, oyun oynandı — ve oyun bitip lobiye dönünce roller AÇIK kaldı.
+   * `clearOneGamePremium()` tanımlıydı ama hiçbir yerden çağrılmıyordu.
+   *
+   * Buradaki iki test, düzeltmenin işe yaramasını engelleyecek iki tuzağı
+   * kilitliyor. İkisi de motor davranışı; mağazayı hiç bilmiyorlar.
+   */
+
+  const PREMIUM: RoleId = 'wizard';
+  const TEMEL: RoleId[] = ['villager', 'vampire', 'seer', 'doctor'];
+
+  it('UPDATE_SETTINGS lobinin DIŞINDA yok sayılır', () => {
+    // Havuzu daraltmayı sonuç ekranındayken denemek sessizce hiçbir şey
+    // yapmıyor. Bu yüzden gameStore önce RESTART atıp lobiye dönüyor,
+    // havuzu ondan SONRA tazeliyor. Sıra bozulursa ödül hiç bitmez.
+    let s = seatPlayers(4);
+    s = apply(s, [
+      { type: 'UPDATE_SETTINGS', settings: { allowedRoles: [...TEMEL, PREMIUM] } },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase, 'oyun başladı').not.toBe('LOBBY');
+
+    const daraltilmis = reduce(s, {
+      type: 'UPDATE_SETTINGS',
+      settings: { allowedRoles: TEMEL },
+    });
+    expect(daraltilmis.settings.allowedRoles, 'lobi dışında yok sayıldı').toContain(PREMIUM);
+
+    // Lobiye dönünce aynı ayar geçiyor.
+    const lobide = reduce(reduce(s, { type: 'RESTART' }), {
+      type: 'UPDATE_SETTINGS',
+      settings: { allowedRoles: TEMEL },
+    });
+    expect(lobide.settings.allowedRoles, 'lobide geçti').not.toContain(PREMIUM);
+  });
+
+  it('havuz daralınca kilitli rol içeren kurulum oyunu başlatmaz', () => {
+    // Ödül bitti ama kurucunun seçtiği listede hâlâ Büyücü duruyor.
+    // START_GAME `lockedRole` ile reddediyor: düğmeye basılıyor, hiçbir
+    // şey olmuyor. gameStore bu yüzden kurulumu da sıfırlıyor.
+    let s = seatPlayers(4);
+    s = apply(s, [
+      {
+        type: 'UPDATE_SETTINGS',
+        settings: { allowedRoles: TEMEL, roleSetup: ['vampire', 'seer', 'doctor', PREMIUM] },
+      },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase, 'kilitli rol yüzünden başlamadı').toBe('LOBBY');
+
+    // Kurulumu sıfırlamak motoru havuzdan öneri üretmeye zorluyor.
+    s = apply(s, [
+      { type: 'UPDATE_SETTINGS', settings: { roleSetup: [] } },
+      { type: 'START_GAME' },
+    ]);
+    expect(s.phase, 'sıfırlanınca başladı').not.toBe('LOBBY');
+    expect(
+      s.players.every((p) => TEMEL.includes(p.role!)),
+      'dağıtılan roller havuzun içinden',
+    ).toBe(true);
+  });
+});
