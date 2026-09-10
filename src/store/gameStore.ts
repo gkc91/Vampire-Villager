@@ -4,6 +4,9 @@ import type { NetMessage } from '../net/messages';
 import { isClientMessage, protocolOf, PROTOCOL_VERSION } from '../net/messages';
 import { createAdapter } from '../net';
 import { HostController } from './hostController';
+import { buyPremium } from '../monetization/billing';
+import { watchRewardedForPremium } from '../monetization/adGate';
+import { currentUnlockedRoles } from '../monetization/entitlements';
 import type { GameSettings, PlayerId } from '../game/types';
 import type { PlayerView } from '../game/view';
 import {
@@ -61,6 +64,14 @@ interface GameStore {
   vote: (targetId: PlayerId | 'abstain') => void;
   castSpell: (targetId: PlayerId) => void;
 
+  /**
+   * Premium açma. `true` dönerse hak kazanıldı ve masanın rol havuzu
+   * güncellendi. İkisi de yalnız kurucunun elinde anlamlı: rol havuzunu
+   * kurucu belirliyor.
+   */
+  unlockByPurchase: () => Promise<boolean>;
+  unlockByAd: () => Promise<boolean>;
+
   // yalnız host
   startGame: () => void;
   endDiscussion: () => void;
@@ -86,6 +97,18 @@ export const useGameStore = create<GameStore>((set, get) => {
     adapter?.sendToHost(msg);
   };
 
+
+  /**
+   * Masanın rol havuzunu yeniden hesaplar.
+   *
+   * HostController havuzu YAPICIDA bir kez alıyor. Oyun ortasında premium
+   * açılırsa ayarlar eski kalırdı; satın alma başarılı olunca burayı
+   * çağırıyoruz. Yalnız kurucuda anlamlı — katılan oyuncunun ayarı yok.
+   */
+  const refreshAllowedRoles = (): void => {
+    const controller = get().isHost ? host : null;
+    controller?.updateSettings({ allowedRoles: currentUnlockedRoles() });
+  };
 
   const handleServerMessage = (msg: NetMessage): void => {
     if (isClientMessage(msg)) return;
@@ -304,6 +327,18 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     updateSettings(settings) {
       asHost()?.updateSettings(settings);
+    },
+
+    async unlockByPurchase() {
+      const oldu = await buyPremium();
+      if (oldu) refreshAllowedRoles();
+      return oldu;
+    },
+
+    async unlockByAd() {
+      const oldu = await watchRewardedForPremium();
+      if (oldu) refreshAllowedRoles();
+      return oldu;
     },
 
     addBot(name) {

@@ -7,6 +7,8 @@ import { useGameStore } from '../../store/gameStore';
 import type { PlayerView } from '../../game/view';
 import { MIN_PLAYERS, suggestedRoles } from '../../game/distribution';
 import { currentUnlockedRoles } from '../../monetization/entitlements';
+import { PremiumOffer } from '../components/PremiumOffer';
+import { ROLE_TIER } from '../../game/unlocks';
 import { RoleSetup } from '../components/RoleSetup';
 import { TestRolePicker } from '../components/TestRolePicker';
 import { testToolsEnabled } from '../../util/testTools';
@@ -204,6 +206,13 @@ function HostSettings({ view }: { view: PlayerView }) {
         allowed={view.settings.allowedRoles ?? currentUnlockedRoles()}
         onChange={(roleSetup) => store.updateSettings({ roleSetup })}
       />
+
+      {/* Teklif yalnız KURUCUYA ve yalnız gerçekten kilitli rol varsa.
+          Zaten her rolü açmış birine satış kartı göstermek gürültü. */}
+      {view.me.isHost &&
+        (Object.keys(ROLE_TIER) as (keyof typeof ROLE_TIER)[]).some(
+          (r) => ROLE_TIER[r] === 'premium' && !(view.settings.allowedRoles ?? []).includes(r),
+        ) && <PremiumOffer />}
 
       {/* Bot her odada eklenebilir: az kişiyle test için. Botlar host
           cihazında çalışır, taşıma katmanından bağımsızdır. */}

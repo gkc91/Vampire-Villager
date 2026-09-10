@@ -234,5 +234,13 @@
     "body": "If you are the host, the game ends for everyone in the room.",
     "stay": "Stay in the game",
     "leave": "Leave"
+  },
+  "premium": {
+    "title": "Locked roles",
+    "body": "Wizard, Blood Sorcerer and Mist Vampire are locked. Unlock them and everyone at your table plays with them — future roles included.",
+    "buy": "Unlock all roles",
+    "buyWithPrice": "Unlock all roles — {{price}}",
+    "watchAd": "Watch an ad, unlock for this game",
+    "failed": "That did not go through. You can try again."
   }
 }

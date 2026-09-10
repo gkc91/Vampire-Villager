@@ -234,5 +234,13 @@
     "body": "Oyunu kuran sensen odadaki herkesin oyunu biter.",
     "stay": "Oyunda kal",
     "leave": "Çık"
+  },
+  "premium": {
+    "title": "Kilitli roller",
+    "body": "Büyücü, Kan Büyücüsü ve Sisler Vampiri kilitli. Açarsan masadaki herkes bu rollerle oynar; sonradan eklenen roller de senin olur.",
+    "buy": "Tüm rolleri aç",
+    "buyWithPrice": "Tüm rolleri aç — {{price}}",
+    "watchAd": "Reklam izle, bu oyunluk aç",
+    "failed": "İşlem tamamlanmadı. Tekrar deneyebilirsin."
   }
 }

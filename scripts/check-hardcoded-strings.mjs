@@ -15,7 +15,12 @@ const SRC = join(ROOT, 'src');
 /** En az iki harf içeren (Türkçe dahil) diziler metin sayılır. */
 const LETTERS = /[A-Za-zÇĞİÖŞÜçğıöşü]{2,}/;
 const TEXT_ATTRS = /\b(placeholder|title|alt|aria-label)\s*=\s*"([^"]*)"/g;
-const JSX_TEXT = />\s*([^<>{}][^<>{}]*?)\s*</g;
+/**
+ * JSX metin düğümleri. `=>` ve `->` öncesi elenir: bunlar JSX kapanışı
+ * değil, ok fonksiyonu. `() => Promise<boolean>` tip imzası aksi halde
+ * "Promise" diye bir kullanıcı metni sanılıyordu.
+ */
+const JSX_TEXT = /(?<![=-])>\s*([^<>{}][^<>{}]*?)\s*</g;
 /** Kod parçalarını metinden ayırmak için: gerçek metinde bu karakterler olmaz. */
 const CODE_HINTS = /[=;()`$\[\]|&]/;
 
