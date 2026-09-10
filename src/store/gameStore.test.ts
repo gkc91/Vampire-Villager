@@ -120,3 +120,45 @@ describe('bir oyunluk premium', () => {
     expect(useGameStore.getState().view?.settings.roleSetup, 'kurulum sıfırlandı').toEqual([]);
   });
 });
+
+describe('ödülün kapsamı: masa geneli', () => {
+  /**
+   * Kullanıcı sorusu (10 Eylül 2026): "kurucu sadece reklam izlese yeterli
+   * mi, diğerlerinin de izlemesi gerekiyor mu?"
+   *
+   * Cevap: KURUCU YETER. Masanın rol havuzunu host belirliyor
+   * (host-otoriter), katılan oyuncunun platformu ya da hakkı masayı
+   * etkilemiyor — webden katılan biri de premium rolle oynuyor.
+   *
+   * Bu testler o vaadi tutuyor. Kanıt START_GAME'in kabul etmesi:
+   * `validateRoleSetup` havuzda olmayan bir rol görürse `lockedRole` ile
+   * reddediyor, yani oyun başlıyorsa premium roller gerçekten masada.
+   */
+  const masayiDoldur = () => {
+    const s = useGameStore.getState();
+    s.addBot('Bot 1');
+    s.addBot('Bot 2');
+    s.addBot('Bot 3');
+  };
+
+  it('reklamdan ÖNCE premium rolle oyun başlamaz', () => {
+    masayiDoldur();
+    useGameStore
+      .getState()
+      .updateSettings({ roleSetup: ['vampire', 'seer', 'wizard', 'bloodWizard'] });
+    useGameStore.getState().startGame();
+
+    expect(useGameStore.getState().view?.phase, 'kilitli rol reddedildi').toBe('LOBBY');
+  });
+
+  it('kurucu reklamı izleyince masa premium rollerle başlıyor', async () => {
+    await useGameStore.getState().unlockByAd();
+    masayiDoldur();
+    useGameStore
+      .getState()
+      .updateSettings({ roleSetup: ['vampire', 'seer', 'wizard', 'bloodWizard'] });
+    useGameStore.getState().startGame();
+
+    expect(useGameStore.getState().view?.phase, 'oyun başladı').not.toBe('LOBBY');
+  });
+});
