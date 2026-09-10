@@ -430,3 +430,46 @@ Büyücü, Kan Büyücüsü ve Sisler Vampiri açılır. Sonradan eklenen roller
 
 Ürün simgesinde **metin, tanıtım ve marka yasak** — Play kuralı. Simge
 yalnız üç rolün çiziminden oluşuyor.
+
+## 14. AdMob kimlikleri ve demo/canlı kuralı
+
+Hesap: `pub-3566083608754052` (AdSense ödeme profiliyle aynı numara).
+
+| Ne | Kimlik | Nerede duruyor |
+|---|---|---|
+| Uygulama kimliği | `ca-app-pub-3566083608754052~3903512524` | `AndroidManifest.xml`, kalıcı |
+| Geçiş — "Oyun sonu geçiş" | `ca-app-pub-3566083608754052/4127225453` | `.env.production` → `VITE_ADMOB_INTERSTITIAL` |
+| Ödüllü — "Bir oyunluk premium" | `ca-app-pub-3566083608754052/1632572404` | `.env.production` → `VITE_ADMOB_REWARDED` |
+
+**Uygulama kimliği her derlemede manifest'te duruyor, değiştirilmiyor.**
+Tehlikesiz: o kimlik yalnız uygulamayı tanıtıyor, hangi reklamın geleceğini
+birim kimlikleri belirliyor. Sürüme göre elle değiştirilseydi, yayın günü
+unutulacak bir adım daha olurdu.
+
+**Birim kimlikleri kapalı testte DEMO kalıyor.** İki sebep:
+
+1. Kendi reklamına tıklamak — test niyetiyle bile — AdMob'un "geçersiz
+   etkinlik" tanımına giriyor ve hesap kapatmaya kadar gidebiliyor. 12
+   test kullanıcısının cihazını tek tek test cihazı olarak kaydetmek
+   pratik değil.
+2. Uygulama henüz Play listesine bağlı ve AdMob tarafından onaylı
+   olmadığı için doluluk zaten sıfıra yakın. Canlı kimlikle test etmek
+   "reklam gelmedi" ile "kod bozuk"u ayırt edilemez hale getirirdi.
+   Demo birimleri aynı kod yolunu (`prepareInterstitial` /
+   `showRewardVideoAd`) sonuna kadar çalıştırıyor.
+
+### Üretim sürümünü çıkarırken
+
+Kapalı test sürümünü üretime **yükseltme**. Play'in olağan akışı bu ama
+bizde yanlış: o paketin içinde demo kimlikler var, yayındaki oyun test
+reklamı gösterir ve hiçbir yerde hata vermez.
+
+Doğrusu: `.env.production`'a iki satırı yaz, versionCode'u artır, yeniden
+derle. `npm run check` çıktısının son satırı **`reklamlar: CANLI`** demeli.
+`DEMO` ya da `KARIŞIK` diyorsa paketi yükleme.
+
+### Yayından sonra
+
+AdMob → uygulama ayarları → mağaza ekle → paket adını ara
+(`com.lampwickgames.biteclub`) → bağla. İnceleme ~2 gün. App ID değişmiyor,
+yeni sürüm gerekmiyor. Bağlanana kadar doluluk düşük olacak, bu normal.

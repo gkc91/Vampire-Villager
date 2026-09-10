@@ -77,3 +77,40 @@ describe('rol katmanları — içerik kuralı', () => {
     expect(uygulama).not.toContain('mistVampire');
   });
 });
+
+describe('rol katmanları — kapı açık', () => {
+  // ROLE_TIERS_ACTIVE 10 Eylül 2026'da açıldı. Bayrak kapalıyken bu
+  // beklentilerin HEPSİ ters sonuç veriyordu: herkes her rolü görüyordu.
+  // Testler burada, kapının yanlışlıkla yeniden kapanmasını yakalasın diye.
+
+  it('uygulamada satın almayan premium rolleri AÇAMAZ', async () => {
+    const m = await yukle({ native: true, premium: false });
+    expect(m.hasEntitlement('premium_roles')).toBe(false);
+  });
+
+  it('webde premium hiç yok — satın almış olsa bile', async () => {
+    // Premium yalnız uygulamada satılıyor; web istemcisi mağazayı tanımaz.
+    const m = await yukle({ native: false, premium: true });
+    expect(m.hasEntitlement('premium_roles')).toBe(false);
+  });
+
+  it('web masası 4 çekirdek rolle kuruluyor', async () => {
+    const m = await yukle({ native: false, premium: false });
+    expect(m.currentUnlockedRoles()).toEqual(['villager', 'vampire', 'seer', 'doctor']);
+  });
+
+  it('uygulama masası ücretsiz 8, premiumla 11', async () => {
+    const ucretsiz = await yukle({ native: true, premium: false });
+    expect(ucretsiz.currentUnlockedRoles()).toHaveLength(8);
+
+    const tam = await yukle({ native: true, premium: true });
+    expect(tam.currentUnlockedRoles()).toHaveLength(11);
+  });
+
+  it('ödüllü reklam masanın havuzunu da açar', async () => {
+    // Bir oyunluk premium: kurucu reklamı izlediyse masaya premium roller
+    // konabilmeli, yoksa ödülün karşılığı olmaz.
+    const m = await yukle({ native: true, premium: false, odullu: true });
+    expect(m.currentUnlockedRoles()).toHaveLength(11);
+  });
+});

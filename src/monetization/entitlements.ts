@@ -11,14 +11,17 @@ import { hasOneGamePremium } from './adGate';
 export type Entitlement = 'premium_roles' | 'big_room' | 'no_ads';
 
 /**
- * Rol katmanları ne zaman devreye girsin?
+ * Rol katmanları: web 4 rol, uygulama 8, premium 11.
  *
- * `false` iken herkes her rolü görür — bugünkü davranış. Uygulama mağazaya
- * çıkana kadar böyle kalmalı: aksi halde webde oynayan arkadaşlar, daha
- * indirebilecekleri bir uygulama yokken rollerini kaybeder. Mağaza yayına
- * girdiği gün bu satır `true` yapılır, başka hiçbir yere dokunulmaz.
+ * 10 Eylül 2026'da açıldı (kullanıcı kararı). Kapalı test sürerken açmanın
+ * gerekçesi şu: premium teklif kartı yalnız KİLİTLİ rol varken görünüyor,
+ * yani bayrak kapalıyken satın alma akışını denemenin hiçbir yolu yok.
+ * Ödeme hatası, ancak gerçek parayla ve yayından sonra ortaya çıkardı.
+ *
+ * Bedeli bilinerek kabul edildi: uygulama henüz herkese açık yayında
+ * olmadığı için, bu arada tarayıcıdan oynayanlar 4 rolle oynuyor.
  */
-const ROLE_TIERS_ACTIVE = false;
+const ROLE_TIERS_ACTIVE = true;
 
 export function hasEntitlement(entitlement: Entitlement): boolean {
   // Reklam kapısı rol katmanlarından BAĞIMSIZ değerlendirilir.

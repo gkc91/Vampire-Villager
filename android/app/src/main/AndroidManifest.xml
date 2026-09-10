@@ -13,14 +13,18 @@
             AdMob uygulama kimliği. Bu meta-data OLMADAN uygulama açılışta
             çöküyor (SDK'nın kendi kontrolü).
 
-            Şu anki değer Google'ın resmî TEST kimliği. Gerçek kimlik
-            (AdMob → Uygulama ayarları → Uygulama Kimliği) yayına
-            çıkmadan önce buraya yazılacak — reklam birimleri .env ile
-            geliyor ama bu satır manifest'te durmak zorunda.
+            Bu GERÇEK kimlik ve her derlemede burada duruyor. Tehlikesiz:
+            uygulama kimliği yalnız uygulamayı tanıtıyor, hangi reklamın
+            geleceğini reklam BİRİMİ kimlikleri belirliyor. Onlar da
+            varsayılan olarak demo (bkz. src/monetization/adUnits.ts), yani
+            geliştirmede ve testte canlı reklam çıkmıyor.
+
+            Sürüme göre değiştirilmiyor olması bilinçli: yayın günü
+            "manifest'i güncellemeyi unuttum" diye bir hata kalmasın.
         -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-3566083608754052~3903512524" />
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
