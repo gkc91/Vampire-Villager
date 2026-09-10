@@ -20,7 +20,17 @@ import { isNativeApp } from '../util/platform';
 
 /** Reklam yokken de anlatım ritmi korunsun diye kısa geçiş. */
 export const PRE_RESULT_DELAY_MS = 2000;
-/** SDK bir şey döndürmezse sonsuza kadar bekleme. */
+/**
+ * Reklamın YÜKLENMESİ için üst sınır. Yalnız `prepare` adımına uygulanır.
+ *
+ * GÖSTERİME UYGULANMAZ. Bir kez uygulanmıştı ve sonucu şuydu: kullanıcı
+ * ödüllü reklamı sonuna kadar izliyor, video 8 saniyeden uzun olduğu için
+ * 8. saniyede zaman aşımı fırlıyor, ödül çöpe gidiyor ve roller açılmıyordu.
+ * Reklam ekranda oynamaya devam ettiğinden hata da görünmüyordu.
+ *
+ * İzleme süresi kullanıcının ve reklamın işi; onu biz kesemeyiz. Yükleme
+ * ise ağa bağlı ve askıda kalabilir, oyunu orada tutmamak için sınırlı.
+ */
 const AD_TIMEOUT_MS = 8000;
 
 type AdMobApi = typeof import('@capacitor-community/admob');
@@ -72,12 +82,9 @@ export async function showPreResultAd(): Promise<void> {
     return;
   }
   try {
-    await withTimeout(
-      (async () => {
-        await sdk!.AdMob.prepareInterstitial({ adId: AD_UNITS.interstitial });
-        await sdk!.AdMob.showInterstitial();
-      })(),
-    );
+    await withTimeout(sdk.AdMob.prepareInterstitial({ adId: AD_UNITS.interstitial }));
+    // Gösterim sarmalanmaz: kullanıcı reklamı istediği kadar açık tutabilir.
+    await sdk.AdMob.showInterstitial();
   } catch {
     // Doluluk yok / ağ yok / kullanıcı kapattı: sessizce geç.
     await wait(PRE_RESULT_DELAY_MS);
@@ -93,12 +100,9 @@ export async function watchRewardedForPremium(): Promise<boolean> {
   await initAds();
   if (!sdk) return false;
   try {
-    const odul = await withTimeout(
-      (async () => {
-        await sdk!.AdMob.prepareRewardVideoAd({ adId: AD_UNITS.rewarded });
-        return sdk!.AdMob.showRewardVideoAd();
-      })(),
-    );
+    await withTimeout(sdk.AdMob.prepareRewardVideoAd({ adId: AD_UNITS.rewarded }));
+    // Gösterim sarmalanmaz: ödül ancak video bitince geliyor, 15-30 saniye.
+    const odul = await sdk.AdMob.showRewardVideoAd();
     // Ödül nesnesi geldiyse kullanıcı reklamı sonuna kadar izledi.
     if (odul) {
       birOyunlukPremium = true;
@@ -115,8 +119,11 @@ function wait(ms: number): Promise<void> {
 }
 
 function withTimeout<T>(p: Promise<T>): Promise<T> {
-  return Promise.race([
-    p,
-    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('ad timeout')), AD_TIMEOUT_MS)),
-  ]);
+  let zamanlayici: ReturnType<typeof setTimeout>;
+  const sinir = new Promise<T>((_, reject) => {
+    zamanlayici = setTimeout(() => reject(new Error('ad timeout')), AD_TIMEOUT_MS);
+  });
+  // Kazanan hangisi olursa olsun zamanlayıcı iptal edilir; yoksa yükleme
+  // erken bitse bile 8 saniyelik boş bir zamanlayıcı asılı kalıyor.
+  return Promise.race([p, sinir]).finally(() => clearTimeout(zamanlayici));
 }
