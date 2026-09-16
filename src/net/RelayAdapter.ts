@@ -5,6 +5,7 @@ import type {
   PeerId,
 } from './NetworkAdapter';
 import { PROTOCOL_VERSION } from './messages';
+import { isNativeApp } from '../util/platform';
 import type { ClientMessage, NetMessage, ServerMessage } from './messages';
 
 /**
@@ -37,6 +38,22 @@ const HEARTBEAT_MS = 25_000;
 export function relayBaseUrl(): string | null {
   const configured = (import.meta.env.VITE_RELAY_URL as string | undefined)?.trim();
   if (configured) return configured.replace(/\/$/, '');
+
+  // UYGULAMADA origin, WebView'in kendi adresi: `https://localhost`. Orada
+  // aktarıcı yok, ama aşağıdaki yerel-geliştirme koruması da tam olarak
+  // `localhost`u eliyor. Sonuç: uygulama kendini yerel geliştirme sanıp
+  // aktarıcıyı hiç aramıyor, sessizce P2P'ye düşüyordu. Android'den kurulan
+  // odaya webden katılmak bu yüzden imkânsızdı — iki taraf ayrı taşıma
+  // katmanındaydı. (16 Eylül 2026, gerçek cihazda bulundu.)
+  //
+  // `joinLink()` aynı tuzağa düşmüş ve çözümü bulmuştu: uygulamada
+  // yayındaki adres kullanılır.
+  if (isNativeApp()) {
+    const publicUrl = (import.meta.env.VITE_PUBLIC_URL as string | undefined)?.trim();
+    if (!publicUrl) return null;
+    return publicUrl.replace(/\/+$/, '').replace(/^http/, 'ws');
+  }
+
   if (typeof window === 'undefined') return null;
   const { protocol, host } = window.location;
   if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return null;
