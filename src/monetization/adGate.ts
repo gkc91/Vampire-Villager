@@ -58,10 +58,41 @@ export async function initAds(): Promise<void> {
   baslatildi = true;
   try {
     sdk = await import('@capacitor-community/admob');
+    await attIzniIste(sdk);
     await sdk.AdMob.initialize({ initializeForTesting: false });
   } catch {
     // SDK yoksa oyun reklamsız çalışır; bu bir hata değil.
     sdk = null;
+  }
+}
+
+/**
+ * iOS App Tracking Transparency izni.
+ *
+ * iOS'ta reklam kimliğine (IDFA) erişmek için kullanıcıdan izin almak
+ * zorunlu. Android ve webde eklenti bu çağrıları sessizce geçiyor, ayrıca
+ * platform kontrolü gerekmiyor.
+ *
+ * SIRA ÖNEMLİ: izin SDK BAŞLATILMADAN önce isteniyor. Sonra istenirse
+ * Google Mobile Ads kendini izinsiz varsayıp kişiselleştirilmemiş reklama
+ * düşüyor ve o oturum boyunca öyle kalıyor — gelir kaybı, hata yok.
+ *
+ * Yalnız `notDetermined` iken soruyoruz. iOS zaten kararı bir kez alıp
+ * saklıyor; tekrar sormak dialog açmıyor, ama durumu okumak niyeti de
+ * kodda görünür kılıyor.
+ *
+ * İzin reddedilirse oyun aynen çalışır, reklamlar yalnız daha genel olur.
+ * Oynanışı izne bağlamak Apple'ın açık ret sebeplerinden biri.
+ */
+async function attIzniIste(api: AdMobApi): Promise<void> {
+  try {
+    const { status } = await api.AdMob.trackingAuthorizationStatus();
+    if (status === 'notDetermined') {
+      await api.AdMob.requestTrackingAuthorization();
+    }
+  } catch {
+    // Eski iOS, eksik eklenti ya da kullanıcı dialogu kapattı: reklamlar
+    // kişiselleştirilmemiş devam eder. Başlatmayı engellemez.
   }
 }
 

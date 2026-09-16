@@ -47,17 +47,33 @@ const hemen = <T,>(v: T): SahteAdim<T> => adim<T>((cozumle) => cozumle(v));
 /** Hiç bitmeyen adım (askıda kalan yükleme / kapanmayan reklam). */
 const askida = <T,>(): SahteAdim<T> => adim<T>(() => {});
 
+/** Çağrı sırasını kaydeder — ATT'nin initialize'dan ÖNCE gelmesi şart. */
+let izlek: string[] = [];
+
 async function yukle(sdk: {
   prepareRewardVideoAd?: SahteAdim<void>;
   showRewardVideoAd?: SahteAdim<unknown>;
   prepareInterstitial?: SahteAdim<void>;
   showInterstitial?: SahteAdim<void>;
+  attDurumu?: 'authorized' | 'denied' | 'notDetermined' | 'restricted';
+  attHata?: boolean;
 }) {
   vi.resetModules();
+  izlek = [];
   vi.doMock('../util/platform', () => ({ isNativeApp: () => true }));
   vi.doMock('@capacitor-community/admob', () => ({
     AdMob: {
-      initialize: async () => undefined,
+      trackingAuthorizationStatus: async () => {
+        if (sdk.attHata) throw new Error('eski iOS');
+        izlek.push('durum');
+        return { status: sdk.attDurumu ?? 'notDetermined' };
+      },
+      requestTrackingAuthorization: async () => {
+        izlek.push('izin-iste');
+      },
+      initialize: async () => {
+        izlek.push('initialize');
+      },
       prepareRewardVideoAd: (sdk.prepareRewardVideoAd ?? hemen<void>(undefined)).fn,
       showRewardVideoAd: (sdk.showRewardVideoAd ?? hemen<unknown>({ amount: 1 })).fn,
       prepareInterstitial: (sdk.prepareInterstitial ?? hemen<void>(undefined)).fn,
@@ -132,5 +148,36 @@ describe('oyun sonu geçiş reklamı', () => {
     kapat();
 
     await expect(sonuc).resolves.toBeUndefined();
+  });
+});
+
+describe('iOS izleme izni (ATT)', () => {
+  /**
+   * iOS'ta IDFA'ya erişmek için izin şart. Sıra da şart: izin SDK
+   * başlatılmadan ÖNCE istenmeli, yoksa Google Mobile Ads kendini izinsiz
+   * varsayıp o oturum boyunca kişiselleştirilmemiş reklama düşüyor —
+   * sessiz gelir kaybı.
+   */
+  it('izin, SDK başlatılmadan ÖNCE isteniyor', async () => {
+    const m = await yukle({ attDurumu: 'notDetermined' });
+    await m.initAds();
+
+    expect(izlek).toEqual(['durum', 'izin-iste', 'initialize']);
+  });
+
+  it('karar verilmişse tekrar sorulmuyor', async () => {
+    const m = await yukle({ attDurumu: 'denied' });
+    await m.initAds();
+
+    expect(izlek).toEqual(['durum', 'initialize']);
+  });
+
+  it('izin katmanı patlasa da SDK başlıyor', async () => {
+    // Eski iOS ya da eksik eklenti: reklamlar kişiselleştirilmemiş devam
+    // eder, ama reklam katmanı tamamen ölmemeli.
+    const m = await yukle({ attHata: true });
+    await m.initAds();
+
+    expect(izlek).toEqual(['initialize']);
   });
 });

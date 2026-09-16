@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+	Gizlilik manifesti. Apple 2024'ten beri zorunlu tutuyor; olmadan
+	App Store Connect yüklemeyi reddediyor.
+
+	Burası YALNIZ BU UYGULAMANIN kendi davranışını beyan eder. Google
+	Mobile Ads ve diğer SDK'lar kendi manifestlerini taşıyor, Apple
+	hepsini birleştiriyor. O yüzden buraya SDK'ların topladığı her şeyi
+	yazmıyoruz — yalnız bizim kodumuzun yaptığını.
+
+	App Store'daki "Gizlilik" etiketleriyle ÇELİŞMEMELİ. Çelişki, hem
+	ret hem de sonradan uyarı sebebi.
+-->
+<plist version="1.0">
+<dict>
+	<!--
+		Reklam kimliği (IDFA) kişiselleştirilmiş reklam için kullanılıyor,
+		yani Apple'ın tanımıyla "izleme" yapıyoruz. ATT izin ekranı tam
+		olarak bunun için var (bkz. Info.plist NSUserTrackingUsageDescription).
+	-->
+	<key>NSPrivacyTracking</key>
+	<true/>
+
+	<!--
+		Kendi izleme alan adımız yok. Reklam ağının alan adlarını Google
+		Mobile Ads SDK kendi manifestinde beyan ediyor; buraya kopyalamak
+		mükerrer beyan olur.
+	-->
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<!--
+				Cihaz kimliği: reklam gösterimi için. Kişiye BAĞLI DEĞİL —
+				oyunda hesap, giriş, e-posta ya da isim kaydı yok; takma ad
+				yalnız o oyun boyunca yaşıyor ve hiçbir yere yazılmıyor.
+			-->
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+			</array>
+		</dict>
+	</array>
+
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<!--
+				UserDefaults: Capacitor'ın WebView katmanı ve oyunun kendi
+				yerel ayarları (dil, ses, oyuncu jetonu) buradan geçiyor.
+				CA92.1 = yalnız uygulamanın KENDİ verisine erişim; başka
+				uygulamayla paylaşılmıyor, cihaz parmak izi için
+				kullanılmıyor.
+			-->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

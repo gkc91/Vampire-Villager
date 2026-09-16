@@ -1,0 +1,128 @@
+name: iOS TestFlight
+
+# Mac'siz iOS derlemesi. Depo PUBLIC olduğu için macOS runner'ı ücretsiz;
+# private'a çevrilirse macOS dakikaları 10 kat sayılır ve kota hızla biter.
+#
+# ELLE tetikleniyor. Otomatik değil, çünkü her koşu TestFlight'a bir yapı
+# yüklüyor ve Apple'ın derleme numarası ileri gitmek zorunda.
+#
+# GEREKEN GITHUB SECRETS (hiçbiri depoda durmaz):
+#   APPSTORE_ISSUER_ID   App Store Connect → Integrations → Keys, sayfanın üstü
+#   APPSTORE_KEY_ID      aynı sayfadaki anahtarın Key ID'si
+#   APPSTORE_PRIVATE_KEY .p8 dosyasının İÇERİĞİ (BEGIN/END satırları dahil)
+#   APPLE_TEAM_ID        Membership sayfasındaki 10 karakterlik takım kimliği
+#
+# .p8 dosyası Apple'da bir kez indiriliyor, ikinci kez indirilemiyor.
+# Kaybedilirse anahtar iptal edilip yenisi üretilir.
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Apple derleme numarası (her yüklemede artmalı)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Sırlar tanımlı mı
+        env:
+          ISSUER: ${{ secrets.APPSTORE_ISSUER_ID }}
+          KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # Eksik sırla yarım saat derleyip en sonda düşmek yerine burada dur.
+          for ad in ISSUER KEY_ID KEY TEAM; do
+            if [ -z "${!ad}" ]; then
+              echo "EKSİK SECRET: $ad — iş akışının başındaki listeye bak."
+              exit 1
+            fi
+          done
+
+      - run: npm ci
+
+      # Aynı kapı Android'de de geçiliyor: i18n taraması, testler, derleme,
+      # paket denetimi. iOS için ayrı bir kalite ölçütü yok.
+      - run: npm run check
+
+      - run: npx cap sync ios
+
+      - name: App Store Connect anahtarını yaz
+        env:
+          KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/private_keys
+          printf '%s' "$KEY" > ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8
+          chmod 600 ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8
+
+      - name: Arşivle
+        run: |
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.APPSTORE_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.APPSTORE_ISSUER_ID }} \
+            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
+            CURRENT_PROJECT_VERSION=${{ inputs.build_number }} \
+            CODE_SIGN_STYLE=Automatic
+
+      - name: Dışa aktarma ayarları
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${{ secrets.APPLE_TEAM_ID }}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+
+      - name: IPA üret
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.APPSTORE_KEY_ID }} \
+            -authenticationKeyIssuerID ${{ secrets.APPSTORE_ISSUER_ID }}
+
+      - name: TestFlight'a yükle
+        run: |
+          xcrun altool --upload-app -f "$RUNNER_TEMP/export/App.ipa" -t ios \
+            --apiKey ${{ secrets.APPSTORE_KEY_ID }} \
+            --apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }}
+
+      - name: Anahtarı sil
+        if: always()
+        run: rm -f ~/private_keys/*.p8
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: ignore
