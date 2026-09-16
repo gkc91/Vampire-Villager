@@ -11,7 +11,12 @@ dist-ssr
 # native dosyalarda duruyor; klasör git'te olmazsa her `cap add android`
 # bunları siliyordu. Klasörün kendi .gitignore'u derleme çıktılarını,
 # local.properties'i ve kopyalanan web dosyalarını zaten dışarıda tutuyor.
-ios
+# ios/ TAKİP EDİLİYOR (android/ ile aynı gerekçe): Info.plist, gizlilik
+# manifesti ve imzalama ayarları native dosyalarda duruyor; klasör git'te
+# olmazsa her `cap add ios` bunları siliyor. Capacitor 8 CocoaPods yerine
+# Swift Package Manager kullandığı için proje Windows'ta üretilebiliyor,
+# Mac yalnız derleme anında gerekiyor.
+# Klasörün kendi .gitignore'u derleme çıktılarını zaten dışarıda tutuyor.
 .wrangler
 assets-raw
 
