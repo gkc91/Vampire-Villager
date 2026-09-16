@@ -560,3 +560,18 @@ tutmanın hiçbir faydası olmadığı için tutmuyoruz.
 `VITE_PUBLIC_URL`) ve **takipli kalmalı**: `VITE_PUBLIC_URL` kaybolursa
 uygulama aktarıcıyı bulamaz ve sessizce P2P'ye düşer — 16 Eylül'de
 Android'in webe bağlanamamasının sebebi buydu.
+
+## 15. İlk yayın kararları (16 Eylül 2026)
+
+| Karar | Değer | Gerekçe |
+|---|---|---|
+| Kanal | **Doğrudan üretim** | Açık test atlandı: tek öğreteceği şey platformlar arası bağlantıydı ve o gerçek cihazda doğrulandı. Bir inceleme turu kazanıldı. |
+| Ülke | **Yalnız Türkiye** | Reklam geliri ve satın alma davranışı önce dar bir kitlede gerçek veriyle görülecek. Bir hata çıkarsa 80 ülkeye değil bir ülkeye yayılır. Oyun tr+en hazır, genişletmek sonradan tek ayar. |
+| Sunum | **Aşamalı, %20'den başlayarak** | Android vitals ve yorumlar birkaç gün izlenip %50, sonra %100. |
+| Sürüm | 2.0 (versionCode 14) | Android'in aktarıcıya geçtiği, reklamların canlıya çıktığı, premium'un açıldığı sürüm. |
+
+Açık test taslağı (1.10) silindi; üretime doğrudan çıkıldığı için
+kanalda karışıklık yaratıyordu.
+
+**Genişletmeden önce bakılacaklar:** AdMob'un mağaza bağlantısı onaylandı
+mı (doluluk oranı), ilk satın almalar geldi mi, Android vitals temiz mi.
