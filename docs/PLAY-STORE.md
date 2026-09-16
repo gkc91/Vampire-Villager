@@ -245,8 +245,38 @@ md. 5). Doğru cevaplar:
 - Geri kalan her şey aynı: sohbet yok, kullanıcı üretimi içerik yok,
   konum paylaşımı yok, şiddet hâlâ yalnız metinle anlatılıyor.
 
-Sonucun 12+ olarak kalması bekleniyor; değişen şey mağaza sayfasındaki
-"Uygulama içi satın alımlar" ve "Reklam içerir" etiketleri.
+### Anket cevapları (16 Eylül 2026'da yenilendi)
+
+| Soru | Cevap |
+|---|---|
+| Şiddet, kan | **Hayır** — hiçbir şey tasvir edilmiyor, ölüm tek satır metin |
+| Korku | **Evet → Ürkütücü öğeler → NADİREN** |
+| Cinsellik / Kumar / Dil / Madde / Kaba mizah | Hayır |
+| Dijital satın alma | **Evet → yalnız "dijital ürün satın alma"** |
+| Rastgele öğe (ganimet kutusu) | **Hayır** |
+| Gerçek parayla öğe takası | Hayır |
+| Kullanıcı etkileşimi (sesli/mesaj/resim) | **Hayır** — uygulamada sohbet yok |
+| Konum / Nazi / Kore / Terör / Suç tekniği | Hayır |
+
+**KORKU SIKLIĞI KRİTİK.** "Sıklıkla" denedim, sonuç: USK 16, Avustralya
+MA15+ (yasal kısıtlama), Suudi Arabistan 18, Tayvan PG15. "Nadiren"e
+çevirince USK 12, Avustralya M (tavsiye), Suudi 16, Tayvan PG12 oldu.
+
+Doğru cevap "Nadiren": soru atmosferi değil, ürkütücü ÖĞELERİN kullanım
+sıklığını soruyor. Oyunda ani korkutma yok, rahatsız edici ses yok, kan
+ya da ceset görüntüsü yok; rol görselleri stilize illüstrasyon.
+
+Şiddet sorusu "Hayır" kalmalı: soru "ima, referans ya da tasvir" diyor
+ama oyunda hiçbir şey tasvir edilmiyor. ESRB zaten kendi başına "Hafif
+Şiddet" tanımlayıcısı ekliyor, yani sistem durumu doğru okuyor.
+
+### Sonuç derecelendirmeleri
+
+PEGI 12 · ESRB 13+ (Hafif Şiddet) · USK 12 (Karanlık Atmosfer) ·
+Avustralya M · Brezilya 14+ · Kore Tüm yaşlar · Tayvan PG12 ·
+Suudi Arabistan 16 · IARC Generic 12+
+
+Her bölgede etkileşimli öğe: **Oyun İçi Satın Alma İşlemleri**.
 
 Bu kimliği sakla: **IARC lisanslı BAŞKA bir mağazaya** (Samsung Galaxy
 Store, Microsoft Store, Epic…) çıkarsan anketi yeniden doldurmuyorsun,
