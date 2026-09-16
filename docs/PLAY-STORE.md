@@ -217,10 +217,29 @@ Dürüst cevapla; abartmak da eksik beyan da zarar veriyor.
 - **Kullanıcılar arası iletişim:** **yok.** Uygulamada sohbet, mesajlaşma
   ya da sesli konuşma bulunmuyor; oyuncular yüz yüze konuşuyor.
   Paylaşılan tek kullanıcı girdisi takma addır.
-- **Dijital satın alma:** şu an yok.
+- **Dijital satın alma:** VAR (`premium_roles`, tek seferlik).
+- **Reklam:** VAR (oyun sonu geçiş + isteğe bağlı ödüllü).
 
-Beklenen sonuç 12+ civarı. Sonradan reklam/satın alma eklenince anket
-tekrar doldurulacak.
+**TAMAMLANDI — 16 Eylül 2026.** IARC notları canlıda.
+
+| | |
+|---|---|
+| Global Rating ID | `59118a9e-5098-8ddd-8680-3f93cc624e7b` |
+| Tarih | 16 Eylül 2026 |
+| Mağaza | Google Play |
+
+Bu kimliği sakla: **IARC lisanslı BAŞKA bir mağazaya** (Samsung Galaxy
+Store, Microsoft Store, Epic…) çıkarsan anketi yeniden doldurmuyorsun,
+ürün kaydı sırasında bu kimliği giriyorsun.
+
+**App Store IARC kullanmıyor.** Apple'ın kendi yaş derecelendirme anketi
+var; iOS'a geçerken sıfırdan doldurulacak.
+
+**Ne zaman tekrar doldurulur:** ürün, anket cevaplarını değiştirecek
+şekilde değişirse (IARC şartları md. 5). Bizim için tetikleyiciler:
+uygulama içi sohbet/mesajlaşma eklemek, kullanıcı üretimi içerik açmak,
+ya da şiddet/korku düzeyini artıran görseller koymak. Rol eklemek ya da
+hata düzeltmek tetiklemez.
 
 ### Veri güvenliği — en dikkatli doldurulacak form
 
