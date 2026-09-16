@@ -109,3 +109,33 @@ describe('satın almanın geri yüklenmesi', () => {
     expect(api.sayac(), 'mağazaya tek sorgu').toBe(1);
   });
 });
+
+describe('elle geri yükleme (App Store Review 3.1.1)', () => {
+  /**
+   * Apple, geri yüklenebilir satın alması olan her uygulamada GÖRÜNÜR bir
+   * geri yükleme yolu istiyor. Düğmenin işe yaraması için önbelleği
+   * atlaması şart: kullanıcı satın almayı BAŞKA bir cihazda yapmışsa bu
+   * oturumun cevabı "hak yok" olur ve düğme onu tekrarlarsa hiçbir işe
+   * yaramaz.
+   */
+  it('önbelleği atlayıp mağazaya yeniden sorar', async () => {
+    let alindi = false;
+    const api = sahteApi(async () => ({
+      purchases: alindi ? [{ productIdentifier: URUN }] : [],
+    }));
+    const m = await yukle(api);
+
+    expect(await m.restorePremium(), 'ilk sorguda hak yok').toBe(false);
+    expect(api.sayac()).toBe(1);
+
+    // Kullanıcı başka bir cihazda satın aldı.
+    alindi = true;
+
+    expect(await m.restorePremium(), 'önbellek: hâlâ hak yok').toBe(false);
+    expect(api.sayac(), 'mağazaya gidilmedi').toBe(1);
+
+    expect(await m.restorePremium(true), 'zorlayınca bulundu').toBe(true);
+    expect(api.sayac(), 'mağazaya yeniden soruldu').toBe(2);
+    expect(m.hasPremium()).toBe(true);
+  });
+});

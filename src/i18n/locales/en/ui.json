@@ -243,5 +243,11 @@
     "buyWithPrice": "Unlock all roles — {{price}}",
     "watchAd": "Watch an ad, unlock for this game",
     "failed": "That did not go through. You can try again."
+  },
+  "restore": {
+    "button": "Restore purchases",
+    "working": "Checking with the store…",
+    "found": "Your premium access has been restored.",
+    "none": "No purchases found to restore on this account."
   }
 }

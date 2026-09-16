@@ -43,7 +43,11 @@ async function sdk(): Promise<BillingApi | null> {
  * Uygulama açılışında mağazaya "bu kullanıcı almış mı" diye sorar.
  * Cihaz değiştiren ya da uygulamayı silip kuran kişi hakkını kaybetmesin.
  */
-export async function restorePremium(): Promise<boolean> {
+export async function restorePremium(zorla = false): Promise<boolean> {
+  // `zorla`: kullanıcı "Satın almaları geri yükle" düğmesine bastı.
+  // Önbelleği atlayıp mağazaya yeniden soruyoruz — başka bir cihazda
+  // yapılmış bir satın alma bu oturumda henüz bilinmiyor olabilir.
+  if (zorla) sorgulandi = false;
   if (sorgulandi) return sahipMi;
   // Açılıştaki ısıtma çağrısı ile oda kurarkenki çağrı çakışabilir; aynı
   // sorguyu paylaşsınlar, mağazaya iki kez gitmesin.

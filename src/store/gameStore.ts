@@ -71,6 +71,13 @@ interface GameStore {
    */
   unlockByPurchase: () => Promise<boolean>;
   unlockByAd: () => Promise<boolean>;
+  /**
+   * "Satın almaları geri yükle" — App Store Review 3.1.1 bunu ZORUNLU
+   * tutuyor: geri yüklenebilir satın alması olan her uygulamada görünür
+   * bir geri yükleme yolu bulunmak zorunda, yoksa uygulama reddediliyor.
+   * Play'de böyle bir şart yok ama kullanıcıya zararı da yok.
+   */
+  restorePurchases: () => Promise<boolean>;
 
   // yalnız host
   startGame: () => void;
@@ -371,6 +378,15 @@ export const useGameStore = create<GameStore>((set, get) => {
       const oldu = await watchRewardedForPremium();
       if (oldu) refreshAllowedRoles();
       return oldu;
+    },
+
+    async restorePurchases() {
+      const sahip = await restorePremium(true);
+      // Masa kuruluysa havuzu da tazele: hak geri geldiyse premium roller
+      // hemen seçilebilir olmalı, kullanıcı odadan çıkıp girmek zorunda
+      // kalmamalı.
+      if (sahip) refreshAllowedRoles();
+      return sahip;
     },
 
     addBot(name) {

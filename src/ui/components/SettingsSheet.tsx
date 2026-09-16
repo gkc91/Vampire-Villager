@@ -5,6 +5,7 @@ import { setMusicEnabled, setSfxEnabled } from '../../audio/audioManager';
 import { isTtsSupported, stopSpeaking } from '../../audio/tts';
 import { ConnectionDiagnostics } from './ConnectionDiagnostics';
 import { ConnectionInfo } from './ConnectionInfo';
+import { RestorePurchases } from './RestorePurchases';
 import { useGameStore } from '../../store/gameStore';
 
 /** Cihaz ayarları: dil, müzik, SFX, sesli anlatıcı. */
@@ -69,6 +70,9 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             <ConnectionDiagnostics />
           </div>
         )}
+
+        {/* App Store Review 3.1.1: geri yükleme yolu görünür olmak zorunda. */}
+        <RestorePurchases />
 
         {/* Ana ekrandan buraya taşındı; odada olsun olmasın erişilebilir. */}
         <div className="mt-4">

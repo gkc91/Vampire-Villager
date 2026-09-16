@@ -30,9 +30,11 @@ vi.mock('../monetization/billing', () => ({
   buyPremium: async () => false,
   // Mağaza sorgusu BİLEREK gecikmeli: createRoom onu beklemezse
   // HostController havuzu satın alma öğrenilmeden okur.
-  restorePremium: async () => {
+  restorePremium: async (zorla = false) => {
     await new Promise((r) => setTimeout(r, 10));
-    satinAlindi = magazadaVar;
+    // Zorlama olmadan önbellekteki cevap korunur; zorlanınca mağazaya
+    // yeniden bakılır.
+    if (zorla || !satinAlindi) satinAlindi = magazadaVar;
     return satinAlindi;
   },
 }));
@@ -200,6 +202,26 @@ describe('kalıcı satın alma', () => {
 
     await useGameStore.getState().createRoom('Kurucu', true);
 
+    expect(havuz()).toHaveLength(8);
+  });
+});
+
+describe('satın almaları geri yükle', () => {
+  it('geri yükleme hakkı bulunca masanın havuzunu da açar', async () => {
+    // Masa ücretsiz havuzla kuruldu (mağaza o an "hak yok" dedi).
+    expect(havuz()).toHaveLength(8);
+
+    // Kullanıcı aslında satın almış; ayarlardan geri yükleme düğmesine bastı.
+    magazadaVar = true;
+    const sahip = await useGameStore.getState().restorePurchases();
+
+    expect(sahip).toBe(true);
+    expect(havuz(), 'odadan çıkmaya gerek kalmadan açıldı').toHaveLength(11);
+  });
+
+  it('satın alma yoksa havuz değişmez', async () => {
+    magazadaVar = false;
+    expect(await useGameStore.getState().restorePurchases()).toBe(false);
     expect(havuz()).toHaveLength(8);
   });
 });

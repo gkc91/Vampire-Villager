@@ -243,5 +243,11 @@
     "buyWithPrice": "Tüm rolleri aç — {{price}}",
     "watchAd": "Reklam izle, bu oyunluk aç",
     "failed": "İşlem tamamlanmadı. Tekrar deneyebilirsin."
+  },
+  "restore": {
+    "button": "Satın almaları geri yükle",
+    "working": "Mağazaya soruluyor…",
+    "found": "Premium hakkın geri yüklendi.",
+    "none": "Bu hesapta geri yüklenecek satın alma bulunamadı."
   }
 }
