@@ -35,7 +35,7 @@ function sahteApi(davranis: () => Promise<{ purchases: { productIdentifier: stri
   };
 }
 
-async function yukle(api: { modul: unknown }) {
+async function yukle(api: ReturnType<typeof sahteApi>) {
   vi.resetModules();
   vi.doMock('../util/platform', () => ({ isNativeApp: () => true }));
   vi.doMock('@capgo/native-purchases', () => api.modul);
