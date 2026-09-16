@@ -52,7 +52,7 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith('.js'))) {
 if (canli.size > 0 && !demo) {
   console.log(`reklamlar: CANLI (${[...canli].join(', ')}) — üretim sürümü.`);
 } else if (canli.size > 0 && demo) {
-  console.log('reklamlar: KARIŞIK — biri canlı biri demo. .env.production eksik.');
+  console.log('reklamlar: KARIŞIK — biri canlı biri demo. .env.production.local eksik.');
 } else {
-  console.log('reklamlar: DEMO — üretime çıkarken .env.production doldurulmalı.');
+  console.log('reklamlar: DEMO — üretime çıkarken .env.production.local doldurulmalı.');
 }

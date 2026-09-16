@@ -1,8 +1,17 @@
 /**
  * Reklam birimi kimlikleri — TEK KAYNAK.
  *
- * Varsayılan Google'ın resmî DEMO birimleridir. Gerçek kimlikler yalnız
- * yayın derlemesine `.env.production` üzerinden girer.
+ * Varsayılan Google'ın resmî DEMO birimleridir. Gerçek kimlikler
+ * `.env.production.local` üzerinden girer — `.env.production` DEĞİL.
+ *
+ * NEDEN `.local`: depo public ve `.env.production` takip ediliyor; oraya
+ * yazılan her şey GitHub'da görünür. Reklam birimi kimlikleri sır değil
+ * (pakete gömülüyor, ağ isteğinde görünüyor) ama başkasının kendi
+ * uygulamasında kullanması hâlinde trafik BİZİM hesabımıza yazılır ve
+ * geçersiz etkinlik cezasını biz yeriz. Yayınlamanın hiçbir faydası yok.
+ *
+ * `.env.production.local` `.gitignore`'daki `.env.*` kuralına takılıyor,
+ * Vite ise onu `.env.production`'ın üstünde okuyor.
  *
  * NEDEN BÖYLE: kendi canlı reklamına tıklamak — test ederken bile —
  * AdMob'un "geçersiz etkinlik" tanımına giriyor ve hesap kapatmaya kadar

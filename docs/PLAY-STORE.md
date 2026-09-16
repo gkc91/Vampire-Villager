@@ -507,8 +507,8 @@ Hesap: `pub-3566083608754052` (AdSense ödeme profiliyle aynı numara).
 | Ne | Kimlik | Nerede duruyor |
 |---|---|---|
 | Uygulama kimliği | `ca-app-pub-3566083608754052~3903512524` | `AndroidManifest.xml`, kalıcı |
-| Geçiş — "Oyun sonu geçiş" | `ca-app-pub-3566083608754052/4127225453` | `.env.production` → `VITE_ADMOB_INTERSTITIAL` |
-| Ödüllü — "Bir oyunluk premium" | `ca-app-pub-3566083608754052/1632572404` | `.env.production` → `VITE_ADMOB_REWARDED` |
+| Geçiş — "Oyun sonu geçiş" | `ca-app-pub-3566083608754052/4127225453` | `.env.production.local` → `VITE_ADMOB_INTERSTITIAL` |
+| Ödüllü — "Bir oyunluk premium" | `ca-app-pub-3566083608754052/1632572404` | `.env.production.local` → `VITE_ADMOB_REWARDED` |
 
 **Uygulama kimliği her derlemede manifest'te duruyor, değiştirilmiyor.**
 Tehlikesiz: o kimlik yalnız uygulamayı tanıtıyor, hangi reklamın geleceğini
@@ -533,7 +533,7 @@ Kapalı test sürümünü üretime **yükseltme**. Play'in olağan akışı bu a
 bizde yanlış: o paketin içinde demo kimlikler var, yayındaki oyun test
 reklamı gösterir ve hiçbir yerde hata vermez.
 
-Doğrusu: `.env.production`'a iki satırı yaz, versionCode'u artır, yeniden
+Doğrusu: `.env.production.local`'a iki satırı yaz, versionCode'u artır, yeniden
 derle. `npm run check` çıktısının son satırı **`reklamlar: CANLI`** demeli.
 `DEMO` ya da `KARIŞIK` diyorsa paketi yükleme.
 
@@ -542,3 +542,21 @@ derle. `npm run check` çıktısının son satırı **`reklamlar: CANLI`** demel
 AdMob → uygulama ayarları → mağaza ekle → paket adını ara
 (`com.lampwickgames.biteclub`) → bağla. İnceleme ~2 gün. App ID değişmiyor,
 yeni sürüm gerekmiyor. Bağlanana kadar doluluk düşük olacak, bu normal.
+
+### Kimlikler neden `.env.production.local`'da
+
+Depo public ve `.env.production` **takip ediliyor** — oraya yazılan her
+şey GitHub'da görünür. `.env.production.local` ise `.gitignore`'daki
+`.env.*` kuralına takılıyor, Vite de onu `.env.production`'ın üstünde
+okuyor.
+
+Reklam birimi kimlikleri sır değil: pakete gömülüyorlar, ağ isteğinde
+görünüyorlar, `app-ads.txt` zaten yayıncı kimliğini açıkça ilan ediyor.
+Ama başkası bu kimlikleri kendi uygulamasında kullanırsa **trafik bizim
+hesabımıza yazılır** ve geçersiz etkinlik cezasını biz yeriz. Depoda
+tutmanın hiçbir faydası olmadığı için tutmuyoruz.
+
+`.env.production` yapısal ayarı taşımaya devam ediyor (`VITE_NET_MODE`,
+`VITE_PUBLIC_URL`) ve **takipli kalmalı**: `VITE_PUBLIC_URL` kaybolursa
+uygulama aktarıcıyı bulamaz ve sessizce P2P'ye düşer — 16 Eylül'de
+Android'in webe bağlanamamasının sebebi buydu.
