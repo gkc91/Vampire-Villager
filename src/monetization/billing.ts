@@ -23,7 +23,10 @@ export const PREMIUM_PRODUCT_ID = 'premium_roles';
 
 /** Mağaza sorgusu bir kez yapılır, sonucu burada durur. */
 let sahipMi = false;
+/** YALNIZ mağazadan kesin cevap alındığında true olur. Hata sayılmaz. */
 let sorgulandi = false;
+/** Uçuştaki sorgu — aynı anda iki kez sormayı engeller. */
+let ucusta: Promise<boolean> | null = null;
 
 type BillingApi = typeof import('@capgo/native-purchases');
 
@@ -42,23 +45,45 @@ async function sdk(): Promise<BillingApi | null> {
  */
 export async function restorePremium(): Promise<boolean> {
   if (sorgulandi) return sahipMi;
-  sorgulandi = true;
+  // Açılıştaki ısıtma çağrısı ile oda kurarkenki çağrı çakışabilir; aynı
+  // sorguyu paylaşsınlar, mağazaya iki kez gitmesin.
+  if (ucusta) return ucusta;
 
-  const api = await sdk();
-  if (!api) return false;
+  ucusta = (async () => {
+    const api = await sdk();
+    if (!api) return false;
+    try {
+      const { isBillingSupported } = await api.NativePurchases.isBillingSupported();
+      if (!isBillingSupported) {
+        // Cihazın değişmeyen özelliği; tekrar sormanın anlamı yok.
+        sorgulandi = true;
+        return false;
+      }
+
+      const { purchases } = await api.NativePurchases.getPurchases({
+        productType: api.PURCHASE_TYPE.INAPP,
+      });
+      sahipMi = purchases.some((p) => p.productIdentifier === PREMIUM_PRODUCT_ID);
+      // `sorgulandi` ANCAK burada işaretleniyor.
+      //
+      // Önceden sorgudan ÖNCE işaretleniyordu ve sonucu şuydu: uygulamayı
+      // ağsız açan premium kullanıcının sorgusu hata veriyor, `sahipMi`
+      // false kalıyor ve bayrak yüzünden bir daha HİÇ denenmiyordu. Kişi
+      // parasını ödediği rolleri o oturum boyunca göremiyordu.
+      sorgulandi = true;
+      return sahipMi;
+    } catch {
+      // Ağ yok / mağaza ulaşılamadı: hak yokmuş gibi davran ama SORUYU
+      // KAPATMA. Bir sonraki çağrı yeniden dener.
+      return false;
+    }
+  })();
+
   try {
-    const { isBillingSupported } = await api.NativePurchases.isBillingSupported();
-    if (!isBillingSupported) return false;
-
-    const { purchases } = await api.NativePurchases.getPurchases({
-      productType: api.PURCHASE_TYPE.INAPP,
-    });
-    sahipMi = purchases.some((p) => p.productIdentifier === PREMIUM_PRODUCT_ID);
-  } catch {
-    // Ağ yok / Play Store yok: hak yokmuş gibi davran, oyun çalışmaya devam.
-    sahipMi = false;
+    return await ucusta;
+  } finally {
+    ucusta = null;
   }
-  return sahipMi;
 }
 
 /**

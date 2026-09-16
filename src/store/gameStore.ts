@@ -4,7 +4,7 @@ import type { NetMessage } from '../net/messages';
 import { isClientMessage, protocolOf, PROTOCOL_VERSION } from '../net/messages';
 import { createAdapter } from '../net';
 import { HostController } from './hostController';
-import { buyPremium } from '../monetization/billing';
+import { buyPremium, restorePremium } from '../monetization/billing';
 import { clearOneGamePremium, watchRewardedForPremium } from '../monetization/adGate';
 import { currentUnlockedRoles } from '../monetization/entitlements';
 import type { GameSettings, PlayerId } from '../game/types';
@@ -199,6 +199,20 @@ export const useGameStore = create<GameStore>((set, get) => {
       // Yeni masa yeni oyun demek: bir oyunluk ödül devretmez. Havuzu
       // yapıcıda okuduğu için HostController'dan ÖNCE temizleniyor.
       clearOneGamePremium();
+
+      // Satın alma durumu masanın rol havuzunu belirliyor ve HostController
+      // havuzu YAPICIDA okuyor. Mağaza cevabı gelmeden oda kurulursa premium
+      // almış kişi ücretsiz havuzla masa kurar — üstelik kendi sahip olduğu
+      // ürünün satış kartını görür. O yüzden burada bekleniyor.
+      //
+      // Sorgu bir kez başarılı olduktan sonra anında dönüyor; bedeli yalnız
+      // ilk oda kurulumunda. Mağaza takılırsa oyunu orada tutmuyoruz:
+      // 3 saniye sonra ücretsiz havuzla devam edilir ve sorgu kapanmadığı
+      // için bir sonraki odada yeniden denenir.
+      await Promise.race([
+        restorePremium(),
+        new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+      ]);
 
       adapter = createAdapter(solo);
       adapter.onStateChange((connection) => set({ connection }));

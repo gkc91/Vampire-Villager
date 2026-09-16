@@ -19,11 +19,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /** Ödüllü reklamın açtığı bir oyunluk hak. Testler bunu doğrudan okur. */
 let birOyunluk = false;
+/** Mağazadan gelen kalıcı satın alma (sorgu bitince öğreniliyor). */
+let satinAlindi = false;
+/** Mağazada gerçekten var mı — sorgu çözülünce satinAlindi'ya yazılıyor. */
+let magazadaVar = false;
 
 vi.mock('../util/platform', () => ({ isNativeApp: () => true }));
 vi.mock('../monetization/billing', () => ({
-  hasPremium: () => false,
+  hasPremium: () => satinAlindi,
   buyPremium: async () => false,
+  // Mağaza sorgusu BİLEREK gecikmeli: createRoom onu beklemezse
+  // HostController havuzu satın alma öğrenilmeden okur.
+  restorePremium: async () => {
+    await new Promise((r) => setTimeout(r, 10));
+    satinAlindi = magazadaVar;
+    return satinAlindi;
+  },
 }));
 vi.mock('../monetization/adGate', () => ({
   hasOneGamePremium: () => birOyunluk,
@@ -68,6 +79,8 @@ const havuz = () => useGameStore.getState().view?.settings.allowedRoles ?? [];
 
 beforeEach(async () => {
   birOyunluk = false;
+  satinAlindi = false;
+  magazadaVar = false;
   await useGameStore.getState().createRoom('Kurucu', true);
 });
 
@@ -160,5 +173,33 @@ describe('ödülün kapsamı: masa geneli', () => {
     useGameStore.getState().startGame();
 
     expect(useGameStore.getState().view?.phase, 'oyun başladı').not.toBe('LOBBY');
+  });
+});
+
+describe('kalıcı satın alma', () => {
+  /**
+   * Kullanıcı sorusu (16 Eylül 2026): "premium alan kişi oyunu silip
+   * tekrar kursa hakkı geri gelir mi?"
+   *
+   * Gelir — kayıt Google hesabında. Ama hakkın geri gelmesi yetmiyor,
+   * ZAMANINDA gelmesi gerekiyor: HostController rol havuzunu YAPICIDA
+   * okuyor. Mağaza cevabı odadan sonra gelirse, premium almış kişi
+   * ücretsiz havuzla masa kurar ve kendi sahip olduğu ürünün satış
+   * kartını görür.
+   */
+  it('mağaza cevabı geç gelse de masa premium havuzla kuruluyor', async () => {
+    magazadaVar = true;
+
+    await useGameStore.getState().createRoom('Kurucu', true);
+
+    expect(havuz(), 'satın alma masaya yansıdı').toHaveLength(11);
+  });
+
+  it('almamış kullanıcı ücretsiz havuzla kuruyor', async () => {
+    magazadaVar = false;
+
+    await useGameStore.getState().createRoom('Kurucu', true);
+
+    expect(havuz()).toHaveLength(8);
   });
 });
