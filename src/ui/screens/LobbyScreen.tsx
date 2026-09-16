@@ -10,6 +10,7 @@ import { currentUnlockedRoles } from '../../monetization/entitlements';
 import { PremiumOffer } from '../components/PremiumOffer';
 import { ROLE_TIER } from '../../game/unlocks';
 import { RoleSetup } from '../components/RoleSetup';
+import { isNativeApp } from '../../util/platform';
 import { TestRolePicker } from '../components/TestRolePicker';
 import { testToolsEnabled } from '../../util/testTools';
 import { joinLink } from '../../util/identity';
@@ -32,9 +33,14 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
   const setupOk = setupCount === 0 || setupCount === playing.length;
   const canStart = view.me.isHost && enoughPlayers && everyoneReady && setupOk;
 
-  const copyLink = async () => {
+  /**
+   * Kopyala YALNIZ oda kodunu alır, linki değil (kullanıcı kararı,
+   * 16 Eylül 2026). İkisi farklı işler: kodu telefonda söylemek/yazmak
+   * için kopyalarsın, linki paylaşırsın.
+   */
+  const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(joinLink(view.roomId));
+      await navigator.clipboard.writeText(view.roomId);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -42,17 +48,42 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
     }
   };
 
+  /**
+   * Paylaş — linki sistemin paylaşım menüsüne verir.
+   *
+   * `navigator.share` Capacitor'ın Android WebView'inde YOK; kod sessizce
+   * kopyalamaya düşüyordu ve kullanıcı "paylaş kopyalıyor" diye bildirdi.
+   * Uygulamada Capacitor'ın kendi eklentisi kullanılıyor, webde tarayıcının
+   * Web Share API'si. İkisi de yoksa son çare panoya link.
+   */
   const share = async () => {
     const url = joinLink(view.roomId);
-    if (navigator.share) {
+    const payload = { title: t('app.title'), text: t('app.tagline'), url };
+
+    if (isNativeApp()) {
       try {
-        await navigator.share({ title: t('app.title'), text: t('app.tagline'), url });
+        const { Share } = await import('@capacitor/share');
+        await Share.share({ ...payload, dialogTitle: t('lobby.share') });
+        return;
+      } catch {
+        // kullanıcı vazgeçti ya da eklenti yüklenemedi
+      }
+    } else if (navigator.share) {
+      try {
+        await navigator.share(payload);
         return;
       } catch {
         // paylaşım iptal edildi
       }
     }
-    void copyLink();
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (
@@ -101,7 +132,7 @@ export function LobbyScreen({ view }: { view: PlayerView }) {
             <p className="text-4xl font-black tracking-[0.35em] text-moon-100">{view.roomId}</p>
           </div>
           <div className="flex gap-2">
-            <button type="button" className="btn-secondary flex-1" onClick={() => void copyLink()}>
+            <button type="button" className="btn-secondary flex-1" onClick={() => void copyCode()}>
               {copied ? t('common.copied') : t('common.copy')}
             </button>
             <button type="button" className="btn-secondary flex-1" onClick={() => void share()}>

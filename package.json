@@ -13,12 +13,14 @@
     "test:watch": "vitest",
     "lint:strings": "node scripts/check-hardcoded-strings.mjs",
     "check": "npm run lint:strings && npm run test && npm run build && npm run lint:build",
-    "lint:build": "node scripts/check-build.mjs"
+    "lint:build": "node scripts/check-build.mjs",
+    "release": "node scripts/release.mjs"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.1.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/share": "^8.0.1",
     "@capgo/native-purchases": "^8.7.0",
     "@trystero-p2p/mqtt": "^0.25.3",
     "@trystero-p2p/nostr": "^0.25.3",
