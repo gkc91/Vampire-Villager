@@ -220,13 +220,33 @@ Dürüst cevapla; abartmak da eksik beyan da zarar veriyor.
 - **Dijital satın alma:** VAR (`premium_roles`, tek seferlik).
 - **Reklam:** VAR (oyun sonu geçiş + isteğe bağlı ödüllü).
 
-**TAMAMLANDI — 16 Eylül 2026.** IARC notları canlıda.
+**YENİDEN DOLDURULMASI GEREKİYOR.**
 
 | | |
 |---|---|
 | Global Rating ID | `59118a9e-5098-8ddd-8680-3f93cc624e7b` |
-| Tarih | 16 Eylül 2026 |
+| Anketin gönderildiği tarih | **26 Ağustos 2026, 20:36** |
+| Sonuç | 12+ (PEGI 12, ESRB T, USK 12, vb.) |
 | Mağaza | Google Play |
+
+16 Eylül'de gelen IARC e-postası yalnız "notlar canlıya geçti"
+bildirimiydi; anketin kendisi 26 Ağustos'tan kalma. O tarihte reklam da
+`premium_roles` de yoktu — yani cevaplarda "dijital satın alma yok"
+yazıyor ve bu artık doğru değil.
+
+IARC anketi uygulama içi satın almayı "etkileşimli öğe" olarak soruyor;
+monetizasyon eklenince anket yeniden doldurulmak zorunda (IARC şartları
+md. 5). Doğru cevaplar:
+
+- **Dijital satın alma: EVET** — tek seferlik, sabit içerik.
+- **Rastgele/şans öğesi: HAYIR.** `premium_roles` ne verdiği belli üç
+  rolü açıyor; loot box değil. Bu ayrım önemli, "rastgele öğe içerir"
+  demek mağaza sayfasına ayrı bir uyarı etiketi ekliyor.
+- Geri kalan her şey aynı: sohbet yok, kullanıcı üretimi içerik yok,
+  konum paylaşımı yok, şiddet hâlâ yalnız metinle anlatılıyor.
+
+Sonucun 12+ olarak kalması bekleniyor; değişen şey mağaza sayfasındaki
+"Uygulama içi satın alımlar" ve "Reklam içerir" etiketleri.
 
 Bu kimliği sakla: **IARC lisanslı BAŞKA bir mağazaya** (Samsung Galaxy
 Store, Microsoft Store, Epic…) çıkarsan anketi yeniden doldurmuyorsun,
