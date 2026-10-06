@@ -55,7 +55,11 @@ calistir('npx cap sync android');
 
 const jdk = process.env.JAVA_HOME ?? 'C:/Users/user/Java/jdk-21.0.12.1+1';
 if (!existsSync(jdk)) dur(`JDK bulunamadı: ${jdk}. JAVA_HOME ayarla.`);
-calistir('gradlew bundleRelease', {
+// Yolu açıkça yaz. Git Bash içinden çalıştırıldığında ortamda
+// `NoDefaultCurrentDirectoryInExePath` oluyor; cmd.exe o zaman çalışma
+// dizinine bakmıyor ve çıplak `gradlew` "bulunamadı" diyor.
+const gradlew = process.platform === 'win32' ? '.\\gradlew.bat' : './gradlew';
+calistir(`${gradlew} bundleRelease`, {
   cwd: 'android',
   env: { ...process.env, JAVA_HOME: jdk },
   shell: true,
