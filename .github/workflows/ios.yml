@@ -71,6 +71,21 @@ jobs:
           printf '%s' "$KEY" > ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8
           chmod 600 ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8
 
+      # ARŞİV İMZASIZ ALINIYOR. İmza bir sonraki adımda, dışa aktarmada
+      # atılıyor. Sebebi şu ikilem:
+      #
+      #   xcodebuild arşivlerken otomatik imzalamayla GELİŞTİRME profili
+      #   istiyor; geliştirme profili en az bir KAYITLI CİHAZ gerektiriyor
+      #   ("your team has no devices from which to generate a provisioning
+      #   profile"). Bizim hiç cihazımız yok ve App Store yüklemesinin
+      #   cihazla ilgisi de yok. Karşı tarafta CODE_SIGN_IDENTITY elle
+      #   "Apple Distribution" yazılırsa bu sefer "conflicting provisioning
+      #   settings" diyor — otomatik imzalama elle verilen kimliği kabul
+      #   etmiyor. İlk iki deneme tam buralarda düştü.
+      #
+      # Çözüm: arşivde imzayı hiç açma, `-exportArchive` adımında
+      # ExportOptions'taki app-store-connect yöntemiyle imzalat. DAĞITIM
+      # profili cihaz istemiyor, API anahtarıyla kendiliğinden üretiliyor.
       - name: Arşivle
         run: |
           xcodebuild archive \
@@ -79,13 +94,9 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8 \
-            -authenticationKeyID ${{ secrets.APPSTORE_KEY_ID }} \
-            -authenticationKeyIssuerID ${{ secrets.APPSTORE_ISSUER_ID }} \
             DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
             CURRENT_PROJECT_VERSION=${{ inputs.build_number }} \
-            CODE_SIGN_STYLE=Automatic
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Dışa aktarma ayarları
         run: |
