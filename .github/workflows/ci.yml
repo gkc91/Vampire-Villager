@@ -37,7 +37,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 22 ŞART, keyfi değil: Capacitor 8 CLI Node 22'nin altında
+          # "[fatal] requires NodeJS >=22" deyip çıkıyor. Zemin
+          # package.json'daki engines alanında yazılı; CI bilerek O
+          # zeminde koşuyor ki daha yenisini gerektiren bir şey
+          # girdiğinde burada patlasın, kullanıcının cihazında değil.
+          node-version: 22
           cache: npm
       - run: npm ci
       # lint:strings + test + build + lint:build (reklam kimliği raporu dahil)

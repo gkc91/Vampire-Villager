@@ -34,7 +34,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 22 ŞART: `npx cap sync ios` Node 20'de
+          # "[fatal] The Capacitor CLI requires NodeJS >=22.0.0" ile
+          # düşüyor. İlk TestFlight denemesi tam buradan patladı.
+          node-version: 22
           cache: npm
 
       - name: Sırlar tanımlı mı
