@@ -15,7 +15,8 @@
  * betik YAYINLANAN iki tarafın ayrışmasını engelliyor.
  */
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const calistir = (cmd, opts = {}) =>
   execSync(cmd, { stdio: 'inherit', encoding: 'utf8', ...opts });
@@ -53,8 +54,32 @@ calistir('npx wrangler deploy');
 console.log('\n--- Android paketi derleniyor ---');
 calistir('npx cap sync android');
 
-const jdk = process.env.JAVA_HOME ?? 'C:/Users/user/Java/jdk-21.0.12.1+1';
-if (!existsSync(jdk)) dur(`JDK bulunamadı: ${jdk}. JAVA_HOME ayarla.`);
+// Proje `source/target 21` ile derleniyor. Bu makinede JAVA_HOME hâlâ
+// 17'yi gösteriyor, bu yüzden JAVA_HOME'a körü körüne güvenmek
+// "invalid source release: 21" ile bitiyordu. Adayları sırayla deneyip
+// sürümünü doğruluyoruz; 21'den küçüğü kabul etmiyoruz.
+const jdkSurumu = (yol) => {
+  try {
+    const m = /^JAVA_VERSION="(\d+)/m.exec(readFileSync(join(yol, 'release'), 'utf8'));
+    return m ? Number(m[1]) : 0;
+  } catch {
+    return 0;
+  }
+};
+const jdkAdaylari = [
+  process.env.BITECLUB_JDK,
+  'C:/Users/user/Java/jdk-21.0.12.1+1',
+  process.env.JAVA_HOME,
+].filter(Boolean);
+const jdk = jdkAdaylari.find((yol) => existsSync(yol) && jdkSurumu(yol) >= 21);
+if (!jdk) {
+  dur(
+    'JDK 21 veya üstü bulunamadı. Denenen yollar:\n  ' +
+      jdkAdaylari.map((y) => `${y} (${jdkSurumu(y) || 'yok/okunamadı'})`).join('\n  ') +
+      '\n\nBITECLUB_JDK ortam değişkenine 21+ bir JDK yolu ver.',
+  );
+}
+console.log(`JDK: ${jdk} (${jdkSurumu(jdk)})`);
 // Yolu açıkça yaz. Git Bash içinden çalıştırıldığında ortamda
 // `NoDefaultCurrentDirectoryInExePath` oluyor; cmd.exe o zaman çalışma
 // dizinine bakmıyor ve çıplak `gradlew` "bulunamadı" diyor.
