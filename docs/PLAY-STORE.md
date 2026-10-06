@@ -415,6 +415,398 @@ Everyone joins from their own phone — share the room code and play.
 
 From 4 up to 24 players. No moderator, no lost cards, no arguments
 about the rules.
+
+### Diğer diller (6 Ekim 2026'da eklendi)
+
+Uygulama adında markadan sonra o dildeki **tür adı** var: Play araması
+"Werwolf", "Loup-Garou", "人狼" gibi yerel terimlerle yapılıyor. Kısa
+açıklama 80, uzun açıklama 4000 karakterle sınırlı.
+
+#### Almanca — de-DE
+
+```
+Bite Club — Werwolf & Vampire
+```
+```
+Einer von euch trinkt Blut. Nehmt eure Handys und findet heraus, wer lügt.
+```
+```
+Bite Club ist ein Partyspiel für Freunde am Tisch — soziale Deduktion,
+wie ihr sie von Werwolf oder Mafia kennt. Nur gibt es diesmal keine
+Karten, die verloren gehen, und niemand muss als Spielleiter zusehen.
+
+Alle spielen vom eigenen Handy. Teilt den Raumcode, und das Spiel
+verteilt die Rollen, führt durch die Nächte und sagt euch, wann
+gesprochen wird. Ihr spielt einfach.
+
+NACHT
+Die Vampire wählen ihr Opfer. Der Arzt beschützt jemanden. Die Seherin
+liest die Identität eines Spielers. Alle schließen die Augen — das Handy
+bewahrt die Geheimnisse.
+
+TAG
+Der Dorfplatz füllt sich. Beschuldigen, verteidigen, bluffen. Dann die
+Abstimmung: wer wird gehängt?
+
+11 ROLLEN
+Dorfbewohner, Seherin, Arzt, Detektiv, Magier, Jäger, Vampir,
+Vampirfürst, Blutmagier, Nebelvampir und Dieb. Jede Rolle hat ihren
+eigenen Zug in der Nacht, und der Gastgeber entscheidet, welche Rollen
+im Spiel sind.
+
+SO WIRD GESPIELT
+Alle treten vom eigenen Handy bei — Raumcode teilen und losspielen.
+
+Für 4 bis 24 Spieler. Kein Spielleiter, keine verlorenen Karten, kein
+Streit über die Regeln.
+```
+
+#### Fransızca — fr-FR
+
+```
+Bite Club — Loups-Garous
+```
+```
+L'un de vous boit du sang. Prenez vos téléphones et trouvez qui ment.
+```
+```
+Bite Club est un jeu de déduction sociale à jouer entre amis, autour
+d'une table. Si vous connaissez Loups-Garous ou Mafia, vous êtes chez
+vous — sauf qu'ici aucune carte ne se perd et personne n'est obligé de
+rester meneur de jeu.
+
+Chacun joue depuis son propre téléphone. Partagez le code de la partie :
+le jeu distribue les rôles, gère les nuits et vous dit quand parler.
+Vous n'avez qu'à jouer.
+
+LA NUIT
+Les vampires choisissent une victime. Le médecin protège quelqu'un. La
+voyante lit l'identité d'un joueur. Tout le monde ferme les yeux — le
+téléphone garde les secrets.
+
+LE JOUR
+La place du village se remplit. Accusez, défendez-vous, bluffez. Puis le
+vote : qui sera pendu ?
+
+11 RÔLES
+Villageois, Voyante, Médecin, Détective, Sorcier, Chasseur, Vampire,
+Seigneur Vampire, Sorcier de Sang, Vampire des Brumes et Voleur. Chaque
+rôle a son action de nuit, et l'hôte choisit les rôles en jeu.
+
+COMMENT JOUER
+Chacun rejoint depuis son téléphone — partagez le code et c'est parti.
+
+De 4 à 24 joueurs. Pas de meneur, pas de cartes perdues, pas de disputes
+sur les règles.
+```
+
+#### İspanyolca (İspanya) — es-ES
+
+```
+Bite Club — Hombres Lobo
+```
+```
+Alguien entre vosotros bebe sangre. Coged los móviles y descubrid quién miente.
+```
+```
+Bite Club es un juego de deducción social para jugar con amigos
+alrededor de una mesa. Si habéis jugado a Hombres Lobo o a Mafia, ya lo
+conocéis — solo que esta vez no hay cartas que perder y nadie tiene que
+quedarse fuera haciendo de narrador.
+
+Cada uno juega desde su propio móvil. Compartís el código de la sala y
+el juego reparte los roles, dirige las noches y os dice cuándo hablar.
+Vosotros solo jugáis.
+
+NOCHE
+Los vampiros eligen víctima. El médico protege a alguien. La vidente lee
+la identidad de un jugador. Todos cierran los ojos — el móvil guarda los
+secretos.
+
+DÍA
+La plaza del pueblo se llena. Acusad, defendeos, farolead. Y después la
+votación: ¿a quién colgamos?
+
+11 ROLES
+Aldeano, Vidente, Médico, Detective, Hechicero, Cazador, Vampiro, Señor
+Vampiro, Brujo de Sangre, Vampiro de la Niebla y Ladrón. Cada rol tiene
+su jugada nocturna, y el anfitrión decide qué roles entran en partida.
+
+CÓMO SE JUEGA
+Cada uno entra desde su móvil — compartid el código de la sala y a jugar.
+
+De 4 a 24 jugadores. Sin narrador, sin cartas perdidas, sin discusiones
+sobre las reglas.
+```
+
+#### İspanyolca (Latin Amerika) — es-419
+
+```
+Bite Club — Hombres Lobo
+```
+```
+Alguien entre ustedes bebe sangre. Tomen el celular y descubran quién miente.
+```
+```
+Bite Club es un juego de deducción social para jugar con amigos
+alrededor de una mesa. Si alguna vez jugaron Hombres Lobo o Mafia, ya lo
+conocen — solo que esta vez no hay cartas que se pierdan y nadie tiene
+que quedarse afuera haciendo de narrador.
+
+Cada uno juega desde su propio celular. Comparten el código de la sala y
+el juego reparte los roles, dirige las noches y les dice cuándo hablar.
+Ustedes solo juegan.
+
+NOCHE
+Los vampiros eligen víctima. El médico protege a alguien. La vidente lee
+la identidad de un jugador. Todos cierran los ojos — el celular guarda
+los secretos.
+
+DÍA
+La plaza del pueblo se llena. Acusen, defiéndanse, mientan. Y después la
+votación: ¿a quién cuelgan?
+
+11 ROLES
+Aldeano, Vidente, Médico, Detective, Hechicero, Cazador, Vampiro, Señor
+Vampiro, Brujo de Sangre, Vampiro de la Niebla y Ladrón. Cada rol tiene
+su jugada nocturna, y el anfitrión decide qué roles entran en la partida.
+
+CÓMO SE JUEGA
+Cada uno entra desde su celular — comparten el código de la sala y a
+jugar.
+
+De 4 a 24 jugadores. Sin narrador, sin cartas perdidas, sin discusiones
+sobre las reglas.
+```
+
+#### Portekizce (Brezilya) — pt-BR
+
+```
+Bite Club — Lobisomem
+```
+```
+Alguém entre vocês bebe sangue. Peguem o celular e descubram quem mente.
+```
+```
+Bite Club é um jogo de dedução social para jogar com amigos em volta da
+mesa. Se vocês já jogaram Lobisomem ou Máfia, vão se sentir em casa —
+só que desta vez não tem carta para perder e ninguém precisa ficar de
+fora como narrador.
+
+Cada um joga do próprio celular. Vocês compartilham o código da sala e o
+jogo distribui os papéis, conduz as noites e avisa quando é hora de
+falar. Vocês só jogam.
+
+NOITE
+Os vampiros escolhem a vítima. O médico protege alguém. A vidente lê a
+identidade de um jogador. Todo mundo fecha os olhos — o celular guarda
+os segredos.
+
+DIA
+A praça da vila se enche. Acusem, se defendam, blefem. Depois a votação:
+quem vai para a forca?
+
+11 PAPÉIS
+Aldeão, Vidente, Médico, Detetive, Feiticeiro, Caçador, Vampiro, Senhor
+Vampiro, Bruxo de Sangue, Vampiro da Névoa e Ladrão. Cada papel tem a
+sua jogada noturna, e o anfitrião escolhe quais papéis entram na
+partida.
+
+COMO JOGAR
+Cada um entra pelo próprio celular — compartilhem o código da sala e
+comecem.
+
+De 4 a 24 jogadores. Sem narrador, sem cartas perdidas, sem discussão
+sobre as regras.
+```
+
+#### Portekizce (Portekiz) — pt-PT
+
+```
+Bite Club — Lobisomem
+```
+```
+Alguém entre vocês bebe sangue. Peguem no telemóvel e descubram quem mente.
+```
+```
+Bite Club é um jogo de dedução social para jogar com amigos à volta da
+mesa. Se já jogaram Lobisomem ou Máfia, vão sentir-se em casa — só que
+desta vez não há cartas para perder e ninguém tem de ficar de fora a
+fazer de narrador.
+
+Cada um joga no seu próprio telemóvel. Partilham o código da sala e o
+jogo distribui os papéis, conduz as noites e avisa quando é altura de
+falar. Vocês só jogam.
+
+NOITE
+Os vampiros escolhem a vítima. O médico protege alguém. A vidente lê a
+identidade de um jogador. Toda a gente fecha os olhos — o telemóvel
+guarda os segredos.
+
+DIA
+A praça da aldeia enche-se. Acusem, defendam-se, finjam. Depois a
+votação: quem vai para a forca?
+
+11 PAPÉIS
+Aldeão, Vidente, Médico, Detetive, Feiticeiro, Caçador, Vampiro, Senhor
+Vampiro, Bruxo de Sangue, Vampiro da Névoa e Ladrão. Cada papel tem a
+sua jogada noturna, e o anfitrião escolhe que papéis entram na partida.
+
+COMO JOGAR
+Cada um entra pelo seu telemóvel — partilhem o código da sala e comecem.
+
+De 4 a 24 jogadores. Sem narrador, sem cartas perdidas, sem discussões
+sobre as regras.
+```
+
+#### İtalyanca — it-IT
+
+```
+Bite Club — Lupo Mannaro
+```
+```
+Uno di voi beve sangue. Prendete i telefoni e scoprite chi sta mentendo.
+```
+```
+Bite Club è un gioco di deduzione sociale da fare con gli amici intorno
+a un tavolo. Se avete giocato a Lupo Mannaro o a Mafia lo riconoscerete
+subito — solo che stavolta non ci sono carte da perdere e nessuno deve
+restare fuori a fare il narratore.
+
+Ognuno gioca dal proprio telefono. Condividete il codice della stanza e
+il gioco distribuisce i ruoli, gestisce le notti e vi dice quando
+parlare. A voi resta solo giocare.
+
+NOTTE
+I vampiri scelgono la vittima. Il medico protegge qualcuno. La veggente
+legge l'identità di un giocatore. Tutti chiudono gli occhi — il telefono
+custodisce i segreti.
+
+GIORNO
+La piazza del villaggio si riempie. Accusate, difendetevi, bluffate. Poi
+il voto: chi finisce impiccato?
+
+11 RUOLI
+Villico, Veggente, Medico, Detective, Mago, Cacciatore, Vampiro, Signore
+dei Vampiri, Stregone del Sangue, Vampiro della Nebbia e Ladro. Ogni
+ruolo ha la sua mossa notturna, e chi crea la partita decide quali ruoli
+entrano in gioco.
+
+COME SI GIOCA
+Ognuno entra dal proprio telefono — condividete il codice e si parte.
+
+Da 4 a 24 giocatori. Niente narratore, niente carte perse, niente
+discussioni sulle regole.
+```
+
+#### Rusça — ru-RU
+
+```
+Bite Club — Мафия и вампиры
+```
+```
+Кто-то из вас пьёт кровь. Возьмите телефоны и найдите того, кто лжёт.
+```
+```
+Bite Club — игра на социальную дедукцию для компании за одним столом.
+Если вы играли в «Мафию» или «Оборотня», всё будет знакомо — только
+теперь не нужны карты и никому не придётся весь вечер быть ведущим.
+
+Каждый играет со своего телефона. Поделитесь кодом комнаты: игра раздаст
+роли, проведёт ночи и подскажет, когда говорить. Вам остаётся только
+играть.
+
+НОЧЬ
+Вампиры выбирают жертву. Доктор кого-то защищает. Провидец узнаёт роль
+одного из игроков. Все закрывают глаза — телефон хранит секреты.
+
+ДЕНЬ
+Площадь наполняется. Обвиняйте, защищайтесь, блефуйте. Потом
+голосование: кого повесим?
+
+11 РОЛЕЙ
+Житель, Провидец, Доктор, Детектив, Волшебник, Охотник, Вампир,
+Повелитель вампиров, Кровавый маг, Туманный вампир и Вор. У каждой роли
+свой ночной ход, а создатель комнаты решает, какие роли будут в игре.
+
+КАК ИГРАТЬ
+Каждый заходит со своего телефона — поделитесь кодом комнаты и
+начинайте.
+
+От 4 до 24 игроков. Без ведущего, без потерянных карт, без споров о
+правилах.
+```
+
+#### Japonca — ja-JP
+
+```
+Bite Club — 人狼とヴァンパイア
+```
+```
+この中の誰かが血を吸っています。スマホを持って、嘘をついているのは誰か見つけ出しましょう。
+```
+```
+Bite Clubは、テーブルを囲んで友だちと遊ぶ正体隠匿ゲームです。人狼やマフィアを
+知っているなら、すぐに馴染めます。ただし今回はなくす札もなければ、誰かが
+ゲームマスターとして見ているだけ、ということもありません。
+
+全員が自分のスマホから参加します。ルームコードを共有すれば、ゲームが役職を
+配り、夜を進行し、誰がいつ話すかを教えてくれます。あなたたちはただ遊ぶだけ。
+
+夜
+ヴァンパイアが獲物を選びます。医者が誰かを守ります。占い師が一人の正体を
+読みます。全員が目を閉じ、秘密はスマホが預かります。
+
+昼
+広場に人が集まります。疑い、弁明し、ブラフをかける。そして投票 ——
+吊るされるのは誰か。
+
+11の役職
+村人、占い師、医者、探偵、魔術師、狩人、ヴァンパイア、ヴァンパイアロード、
+血の魔導士、霧のヴァンパイア、盗賊。役職ごとに夜の行動があり、どの役職を
+使うかは部屋を作った人が決めます。
+
+遊び方
+全員が自分のスマホから参加 —— ルームコードを共有するだけ。
+
+4人から24人まで。進行役は不要、カードは失くならず、ルールで揉めることも
+ありません。
+```
+
+#### Korece — ko-KR
+
+```
+Bite Club — 마피아 뱀파이어
+```
+```
+여러분 중 누군가는 피를 마십니다. 휴대폰을 들고 누가 거짓말하는지 찾아내세요.
+```
+```
+Bite Club은 친구들과 테이블에 둘러앉아 즐기는 사회적 추리 게임입니다.
+마피아나 늑대인간을 해봤다면 금방 익숙해집니다. 다만 이번에는 잃어버릴
+카드도 없고, 누군가 혼자 사회자로 앉아 있을 필요도 없습니다.
+
+모두 자기 휴대폰으로 참여합니다. 방 코드를 공유하면 게임이 역할을 나누고,
+밤을 진행하고, 누가 언제 말할지 알려줍니다. 여러분은 그냥 플레이하면 됩니다.
+
+밤
+뱀파이어가 희생자를 고릅니다. 의사가 누군가를 지킵니다. 예언자가 한 사람의
+정체를 읽습니다. 모두 눈을 감고, 비밀은 휴대폰이 지킵니다.
+
+낮
+광장이 들어찹니다. 의심하고, 변호하고, 속이세요. 그리고 투표 — 누구를
+매달까요?
+
+11가지 역할
+마을 사람, 예언자, 의사, 탐정, 마법사, 사냥꾼, 뱀파이어, 뱀파이어 군주,
+피의 마술사, 안개 뱀파이어, 도둑. 역할마다 밤 행동이 있고, 어떤 역할을
+쓸지는 방을 만든 사람이 정합니다.
+
+플레이 방법
+모두 자기 휴대폰으로 참여 — 방 코드를 공유하면 끝입니다.
+
+4명부터 24명까지. 사회자도, 잃어버린 카드도, 규칙 다툼도 없습니다.
+```
 ```
 
 ---
