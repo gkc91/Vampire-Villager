@@ -45,13 +45,23 @@ const HTTP_PATH = /^\/(stream|send)\/([A-Z0-9]{4,12})$/i;
  * kabuktan (Capacitor) gelir ve serbesttir.
  */
 const LOCAL_ORIGIN_PREFIXES = [
+  // Capacitor'ın Android kabuğu sayfayı HTTPS üzerinden sunuyor; origin
+  // tam olarak `https://localhost`. Bu satır EKSİKTİ ve sonucu şuydu:
+  // yayındaki uygulama kendi aktarıcısı tarafından 403'le reddediliyordu.
+  // Hem WebSocket yükseltmesi hem HTTP yedeği (SSE/POST) kapalıydı, yani
+  // uygulamadan kurulan hiçbir oda çalışmıyordu. Cihazdaki teşhis paneli
+  // bunu "internet kopuk" diye raporluyordu çünkü fetch CORS'tan patlıyor.
+  // (6 Ekim 2026'da gerçek cihazda bulundu.)
+  'https://localhost',
+  'https://127.0.0.1',
   'http://localhost',
   'http://127.0.0.1',
+  // iOS kabuğu ve eski Ionic kabuğu.
   'capacitor://',
   'ionic://',
 ];
 
-function isAllowedOrigin(origin: string | null, requestUrl: string): boolean {
+export function isAllowedOrigin(origin: string | null, requestUrl: string): boolean {
   if (!origin) return true; // native kabuk
   if (LOCAL_ORIGIN_PREFIXES.some((p) => origin.startsWith(p))) return true;
   try {
@@ -112,6 +122,25 @@ export default {
      * geçiyorsa oyunu o cihaza HTTP üzerinden taşımak mümkün demektir;
      * SSE de geçmiyorsa o ağda yapılabilecek bir şey yoktur.
      */
+    /**
+     * Teşhis: siteye HTTP ile ulaşılabiliyor mu?
+     *
+     * Statik yola istek atmak YETMİYOR: uygulamanın origin'i
+     * `https://localhost`, yani her istek çapraz kaynak. Statik yanıtta
+     * CORS başlığı olmadığı için `fetch` patlıyor ve panel bunu "internet
+     * kopuk" diye raporluyordu — sunucu gayet ayaktayken. Bu uç, ölçümün
+     * ölçmek istediği şeyi gerçekten ölçebilmesi için var.
+     */
+    if (url.pathname === '/probe/ping') {
+      return new Response('ok', {
+        headers: {
+          'content-type': 'text/plain',
+          'cache-control': 'no-store',
+          'access-control-allow-origin': '*',
+        },
+      });
+    }
+
     if (url.pathname === '/probe/sse') {
       const stream = new ReadableStream({
         start(controller) {

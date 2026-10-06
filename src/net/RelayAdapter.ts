@@ -92,7 +92,11 @@ export async function probeRelay(): Promise<RelayProbe> {
 
   try {
     const httpBase = base ? base.replace(/^ws/, 'http') : window.location.origin;
-    const res = await fetch(`${httpBase}/?probe=${Date.now()}`, { cache: 'no-store' });
+    // `/probe/ping` BİLEREK seçildi: uygulamanın origin'i `https://localhost`
+    // olduğu için her istek çapraz kaynak ve statik yanıtlarda CORS başlığı
+    // yok. Statik bir yolu yoklamak, sunucu ayaktayken bile `fetch`i
+    // patlatıp "internet kopuk" teşhisi ürettiriyordu.
+    const res = await fetch(`${httpBase}/probe/ping?t=${Date.now()}`, { cache: 'no-store' });
     // 404 bile olsa sunucuya ULAŞILMIŞ demektir; aranan şey budur.
     result.site = res.status > 0;
   } catch {
