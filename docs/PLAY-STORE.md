@@ -967,3 +967,85 @@ kanalda karışıklık yaratıyordu.
 
 **Genişletmeden önce bakılacaklar:** AdMob'un mağaza bağlantısı onaylandı
 mı (doluluk oranı), ilk satın almalar geldi mi, Android vitals temiz mi.
+
+---
+
+## 16. Sürüm notları — 2.1 (versionCode 16)
+
+Play'de sürüm notu dil başına 500 karakter. Boş bırakılan dil varsayılana
+(Türkçe) düşer; o yüzden mağaza girişi olan her dile yazıldı.
+
+2.0 (15) ile 2.1 (16) arasındaki kullanıcıya görünen fark: on dil, yeni
+uygulama simgesi, Android ↔ web bağlantı düzeltmesi.
+
+```tr-TR
+• Oyun artık on dilde: Türkçe, İngilizce, Almanca, Fransızca, İspanyolca, Portekizce, İtalyanca, Rusça, Japonca, Korece. Ayarlar'dan değiştirilir.
+• Android ile web arasındaki bağlantı sorunu giderildi.
+• Yeni uygulama simgesi.
+```
+
+```en-US
+• The game now speaks ten languages: Turkish, English, German, French, Spanish, Portuguese, Italian, Russian, Japanese and Korean. Switch in Settings.
+• Fixed the connection problem between the Android app and the web version.
+• New app icon.
+```
+
+```de-DE
+• Das Spiel spricht jetzt zehn Sprachen: Türkisch, Englisch, Deutsch, Französisch, Spanisch, Portugiesisch, Italienisch, Russisch, Japanisch und Koreanisch. Umschalten in den Einstellungen.
+• Verbindungsproblem zwischen App und Webversion behoben.
+• Neues App-Symbol.
+```
+
+```fr-FR
+• Le jeu parle maintenant dix langues : turc, anglais, allemand, français, espagnol, portugais, italien, russe, japonais et coréen. À changer dans les paramètres.
+• Correction du problème de connexion entre l'application et la version web.
+• Nouvelle icône.
+```
+
+```es-ES
+• El juego ya habla diez idiomas: turco, inglés, alemán, francés, español, portugués, italiano, ruso, japonés y coreano. Se cambia en Ajustes.
+• Corregido el problema de conexión entre la aplicación y la versión web.
+• Nuevo icono.
+```
+
+```es-419
+• El juego ya habla diez idiomas: turco, inglés, alemán, francés, español, portugués, italiano, ruso, japonés y coreano. Se cambia en Configuración.
+• Corregido el problema de conexión entre la aplicación y la versión web.
+• Nuevo ícono.
+```
+
+```pt-BR
+• O jogo agora fala dez idiomas: turco, inglês, alemão, francês, espanhol, português, italiano, russo, japonês e coreano. Troque em Configurações.
+• Corrigido o problema de conexão entre o aplicativo e a versão web.
+• Novo ícone.
+```
+
+```pt-PT
+• O jogo fala agora dez idiomas: turco, inglês, alemão, francês, espanhol, português, italiano, russo, japonês e coreano. Mude nas Definições.
+• Corrigido o problema de ligação entre a aplicação e a versão web.
+• Novo ícone.
+```
+
+```it-IT
+• Il gioco ora parla dieci lingue: turco, inglese, tedesco, francese, spagnolo, portoghese, italiano, russo, giapponese e coreano. Si cambia dalle impostazioni.
+• Risolto il problema di connessione tra l'app e la versione web.
+• Nuova icona.
+```
+
+```ru-RU
+• Игра теперь на десяти языках: турецкий, английский, немецкий, французский, испанский, португальский, итальянский, русский, японский и корейский. Меняется в настройках.
+• Исправлена проблема соединения между приложением и веб-версией.
+• Новая иконка.
+```
+
+```ja-JP
+・10言語に対応しました：トルコ語、英語、ドイツ語、フランス語、スペイン語、ポルトガル語、イタリア語、ロシア語、日本語、韓国語。設定から切り替えられます。
+・アプリとWeb版のあいだの接続不具合を修正しました。
+・アプリアイコンを新しくしました。
+```
+
+```ko-KR
+• 열 가지 언어를 지원합니다: 터키어, 영어, 독일어, 프랑스어, 스페인어, 포르투갈어, 이탈리아어, 러시아어, 일본어, 한국어. 설정에서 바꿀 수 있습니다.
+• 앱과 웹 버전 사이의 연결 문제를 고쳤습니다.
+• 새 앱 아이콘.
+```
