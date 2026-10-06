@@ -193,3 +193,87 @@ girilir.
   zaten var.
 - **ATT metni**: `NSUserTrackingUsageDescription` dolu. Belirsiz metin
   sık bir ret sebebi.
+
+## App Store mağaza metinleri
+
+Play'den farkları: Apple'da **alt başlık** ve **anahtar kelimeler** alanları
+var, Play'de yok. Anahtar kelimeler 100 karakter, virgülle ayrılır ve
+**boşluk konmaz** (boşluk da karakter sayılıyor). Uygulama adındaki
+kelimeler zaten dizine giriyor, onları tekrar yazmak yer israfı — bu
+yüzden listede "bite club" ya da "vampir" yok.
+
+**Tanıtım metni** incelemeye girmeden değiştirilebilen tek alan; kampanya
+ya da duyuru için orayı kullan.
+
+### Ortak alanlar
+
+| Alan | Değer |
+|---|---|
+| Destek adresi | `https://biteclub.lampwickgames.com/nasil-oynanir` |
+| Pazarlama adresi | `https://biteclub.lampwickgames.com` |
+| Gizlilik politikası | `https://biteclub.lampwickgames.com/privacy` |
+| Telif | `2026 Lampwick Games` |
+| Kategori | Birincil: **Games → Party**, ikincil: **Games → Word** değil → **Trivia** da değil; ikincil boş bırakılabilir |
+
+### Türkçe (birincil dil)
+
+**Alt başlık (30):**
+```
+Aranızda kan içen biri var
+```
+
+**Tanıtım metni (170):**
+```
+On bir rol, dörtten yirmi dörde kadar oyuncu. Anlatıcıya gerek yok: telefon rolleri dağıtır, geceleri yönetir, sırları saklar.
+```
+
+**Anahtar kelimeler (100):**
+```
+kurt adam,mafya,parti oyunu,grup,arkadaş,sosyal çıkarım,blöf,gece,köy,kan,oylama
+```
+
+**Açıklama:** Play'deki Türkçe uzun açıklamanın aynısı (§11).
+
+### İngilizce (en-US)
+
+**Alt başlık (30):**
+```
+One of you drinks blood
+```
+
+**Tanıtım metni (170):**
+```
+Eleven roles, four to twenty-four players. No moderator needed: the phone deals the roles, runs the nights and keeps every secret.
+```
+
+**Anahtar kelimeler (100):**
+```
+werewolf,mafia,party game,group,friends,social deduction,bluff,night,village,blood
+```
+
+**Açıklama:** Play'deki İngilizce uzun açıklamanın aynısı (§11).
+
+### Sürüm numarası 2.2 olacak, 1.0 değil
+
+App Store Connect uygulamayı `1.0` ile açtı. Düzeltilecek: web, Android ve
+iOS'un sürümü **her zaman aynı** olmalı — bu kullanıcının koyduğu kural ve
+"hangi sürümde ne var" sorusunu tek bir numaraya indiriyor. Paket zaten
+`MARKETING_VERSION 2.2` ile derleniyor; App Store'daki sürüm dizesi onunla
+birebir uyuşmak zorunda, yoksa yükleme reddediliyor.
+
+### App Privacy anketi — doğru cevaplar
+
+En sık ret sebeplerinden biri burası. Topladığımız veri:
+
+| Veri türü | Topluyor muyuz | Niçin | Kimliğe bağlı mı |
+|---|---|---|---|
+| **Device ID** (reklam kimliği / IDFA) | **Evet** | Üçüncü taraf reklamcılık, analiz | Hayır, takip için kullanılıyor → "Used for Tracking" **Evet** |
+| Purchases | **Evet** | Uygulama işlevi (satın alma geçmişi) | Hayır |
+| Crash/Performance | Hayır | Toplamıyoruz, SDK yok | — |
+| Contact Info, Location, Contacts, Photos | Hayır | Hiçbirine erişmiyoruz | — |
+| User Content | Hayır | Oyun içi konuşma kaydedilmiyor, sesli sohbet yok | — |
+| Identifiers → User ID | Hayır | Hesap yok, giriş yok | — |
+
+Reklam kimliği "tracking" sayıldığı için ATT izni zorunlu — `Info.plist`'te
+`NSUserTrackingUsageDescription` dolu, `adGate.ts` izni SDK başlamadan
+istiyor.
