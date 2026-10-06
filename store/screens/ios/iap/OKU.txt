@@ -1,0 +1,27 @@
+IAP INCELEME KARESI — premium_roles
+===================================
+
+premium-offer.png       1242x2208  App Store Connect'e yuklenen kare
+premium-offer-1242.png  1242x2208  ayni dosya, uretildigi addiyla
+
+NEDEN 1242x2208
+---------------
+Apple'in belgesi "en az 640x920" diyor ama App Store Connect'in
+dogrulayicisi uygulama ekran goruntusu olculerini bekliyor:
+
+  860x1310   -> "The dimensions of one or more screenshots are wrong."
+  1290x2796  -> olcu gecti, YUKLEME hata verdi (istek Apple'in varlik
+                sunucusuna hic gitmedi)
+  1242x2208  -> gecti
+
+KARE NASIL ALINDI
+-----------------
+PremiumOffer karti webde hic render edilmiyor (isNativeApp() kapisi).
+Kare icin platform.ts'teki o kapi gecici olarak true yapildi, dev
+sunucusunda oda kurulup lobideki "Kilitli roller" karti cekildi, sonra
+yama geri alindi (git checkout).
+
+Ham cekim 430x932. Kirpma: ust 45 px (localhost'un "Yeniden baglaniyor"
+seridi) ve alt 232 px (yalnizca gelistirmede gorunen TEST ARACI paneli)
+atildi -> 430x655. Sonra 1242 genislige olceklenip ust/alt oyunun kendi
+gradyan renkleriyle (#070413 / #110B1F) 2208'e tamamlandi.

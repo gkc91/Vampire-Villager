@@ -277,3 +277,84 @@ En sık ret sebeplerinden biri burası. Topladığımız veri:
 Reklam kimliği "tracking" sayıldığı için ATT izni zorunlu — `Info.plist`'te
 `NSUserTrackingUsageDescription` dolu, `adGate.ts` izni SDK başlamadan
 istiyor.
+
+## App Store Connect — doldurulan alanlar (6 Ekim 2026)
+
+Sırası önemli: **App Privacy yayınlanmadan**, **IAP incelemeye
+eklenmeden** ve **derleme işlenmeden** sürüm gönderilemiyor.
+
+### App Privacy (yayınlandı)
+
+| Veri türü | Amaç | Kimliğe bağlı | Takip |
+|---|---|---|---|
+| Device ID | Üçüncü taraf reklamcılık | Hayır | **Evet** |
+| Advertising Data | Üçüncü taraf reklamcılık | Hayır | **Evet** |
+| Purchase History | Uygulama işlevi | Hayır | Hayır |
+
+`Advertising Data` planda yoktu, sonradan eklendi: Google Mobile Ads SDK
+gösterim/tıklama verisini Google'a gönderiyor, bu Apple'ın "Usage Data →
+Advertising Data" tanımına birebir giriyor. Yalnız Device ID beyan etmek
+eksik beyan olurdu — en sık ret sebeplerinden biri.
+
+Gizlilik politikası adresi: `https://biteclub.lampwickgames.com/privacy`.
+
+### `premium_roles` (Apple ID 6819822416)
+
+| Alan | Değer |
+|---|---|
+| Tür | Non-Consumable |
+| Referans adı | Tüm Roller |
+| Ülkeler | 181 (hepsi) |
+| Taban fiyat | ABD $3,99 |
+| Türkiye | **elle ₺149,99** |
+| Vergi kategorisi | Match to parent app |
+| Family Sharing | Kapalı |
+
+**Türkiye fiyatı elle sabitlendi.** Apple $3,99 tabanından ₺199,99
+öneriyordu (Türk KDV'si + kur). Play'de ürün ₺149,99 — sürüm/fiyat
+paritesi kullanıcının koyduğu kural, o yüzden Apple'da da ₺149,99'a
+çekildi. **Bedeli var:** elle verilen fiyat Apple'ın otomatik kur/vergi
+güncellemesinin dışında kalıyor, yani enflasyonla birlikte dolar
+karşılığı eriyor. Geri almak tek tık: Price Schedule → Edit → Türkiye →
+"$3,99 (USD) Price" seçeneği.
+
+Adlar ve açıklamalar (sınır: ad 35, açıklama 55 karakter):
+
+| Dil | Ad | Açıklama |
+|---|---|---|
+| Türkçe | Tüm Roller | Üç premium rol kalıcı açılır, masadaki herkese. |
+| English (U.S.) | All Roles | Three premium roles, unlocked for your whole table. |
+
+### IAP inceleme ekran görüntüsü — ölçü tuzağı
+
+Apple burada **uygulama ekran görüntüsü ölçülerini** istiyor, belgelerde
+yazan "en az 640x920" yetmiyor:
+
+- 860x1310 → *"The dimensions of one or more screenshots are wrong."*
+- 1290x2796 → ölçü geçti ama **yükleme hep hata verdi**
+  (*"There was an error uploading your screenshot"*), istek Apple'ın
+  varlık sunucusuna hiç gitmedi
+- **1242x2208 → geçti.** Kullanılan ölçü bu.
+
+Kare `store/screens/ios/iap/premium-offer.png` — lobideki "Kilitli
+roller" kartının gerçek ekran görüntüsü. Üretmek için `isNativeApp()`
+geçici olarak true yapıldı (teklif webde hiç render edilmiyor), kare
+alındıktan sonra yama geri alındı.
+
+### Sürüm 2.2 — App Review bilgileri
+
+- **Giriş gerekmiyor:** hesap sistemi yok, "Sign-in required" işaretsiz.
+- **Tek cihazla test:** notlarda "Oda Kur → Bot ekle ×3 → Oyunu Başlat"
+  anlatıldı. Dört oyuncu şartı yüzünden bu şart; yazılmazsa inceleyen
+  oyunu hiç başlatamaz.
+- **Yayın biçimi:** onaydan sonra otomatik.
+- **Fiyat:** ücretsiz · **Ülke:** 175 (hepsi, gelecekte eklenenler dahil).
+- **İletişim telefonu boş** — tek eksik alan, hesap sahibinin kendi
+  numarası girilecek.
+
+### Güney Kore
+
+Apple'ın "tümü" listesi 175 ülke ve Kore yaş sınıflandırmasında ayrıca
+**GRAC RCN** istiyor (Play'de IARC bunu kapsıyordu, Apple'da kapsamıyor).
+Ülke listesi olduğu gibi bırakıldı; Kore'de yayın RCN alınana kadar
+açılmayacak, bu sürümü bloke etmiyor.
