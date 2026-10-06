@@ -37,7 +37,9 @@ if (kirli) {
 }
 
 const commit = oku('git rev-parse --short HEAD');
-const tarih = oku('git log -1 --format=%cd --date=format:%Y-%m-%d %H:%M');
+// Tırnak ŞART: format dizesindeki boşluk olmadan git `%H:%M`'i ayrı bir
+// argüman — bir revizyon adı — sanıyor ve "invalid object name" diyor.
+const tarih = oku('git log -1 --format=%cd --date=format:"%Y-%m-%d %H:%M"');
 console.log(`\n=== Sürüm: ${commit} (${tarih}) ===\n`);
 
 // 2. Kapı: testler, i18n taraması, derleme, paket denetimi.
