@@ -953,6 +953,48 @@ tutmanın hiçbir faydası olmadığı için tutmuyoruz.
 uygulama aktarıcıyı bulamaz ve sessizce P2P'ye düşer — 16 Eylül'de
 Android'in webe bağlanamamasının sebebi buydu.
 
+### AB rızası (UMP/CMP) — ülke açılımının ön şartı
+
+Google'ın AB Kullanıcı Rızası Politikası: **AEA, Birleşik Krallık ve
+İsviçre'de** reklam gösteren her uygulamada Google onaylı bir rıza ekranı
+(CMP) olmak zorunda. Yoksa AdMob o ülkelerde **sessizce reklam vermeyi
+keser** — hata yok, log yok, sadece doluluk sıfır — ve GDPR tarafında da
+dayanağımız olmaz.
+
+Bu yüzden ülke açılımı 2.2'ye bağlandı: önce rıza akışı, sonra tüm ülkeler.
+
+**Kodda** (`src/monetization/adGate.ts`):
+
+- `onayAl()` → `AdMob.requestConsentInfo()`, gerekiyorsa
+  `AdMob.showConsentForm()`. Sıra: **UMP → ATT → initialize**. Google'ın
+  sıralaması bu; ters sırada kullanıcı iki kutuyu bağlamsız görüyor.
+- `canRequestAds: false` (kullanıcı reddetti) → reklam isteği hiç
+  atılmıyor; oyun aynen akıyor.
+- `privacyOptionsRequirementStatus: REQUIRED` → Ayarlar'da "Gizlilik
+  seçenekleri" düğmesi beliriyor (`PrivacyOptions.tsx`), AdMob'un hazır
+  formunu açıyor. AB dışında düğme hiç görünmüyor.
+- UMP katmanı patlarsa reklamlar AB dışında aynen çalışıyor.
+
+Testler: `adGate.test.ts` → "AB kullanıcı rızası (UMP)" bloğu (8 test).
+`onayAl` çağrısını silince 9 test düşüyor — kontrol edildi.
+
+**AdMob konsolunda yapılması gereken (kodla gelmiyor):**
+
+1. AdMob → **Gizlilik ve mesajlaşma** → **AB kullanıcı rızası**
+2. **Mesaj oluştur** → uygulamayı seç (Bite Club)
+3. Reklam ortakları: Google'ın önerdiği liste yeterli
+4. Dil: en azından İngilizce + mağaza girişi açtığımız diller
+5. **Yayınla** — yayınlanmadan form cihazda çıkmaz,
+   `isConsentFormAvailable: false` döner ve kod sessizce geçer
+
+Aynı yerden "ABD eyalet düzenlemeleri" mesajı da açılabilir; şart değil,
+ama CCPA tarafı için ileride bakılacak.
+
+**Test etmek için:** gerçek AB cihazı gerekmiyor —
+`requestConsentInfo({ debugGeography: AdmobConsentDebugGeography.EEA,
+testDeviceIdentifiers: ['...'] })`. Üretim kodunda bilerek yok; denemek
+için geçici olarak eklenip geri alınmalı.
+
 ## 15. İlk yayın kararları (16 Eylül 2026)
 
 | Karar | Değer | Gerekçe |

@@ -150,7 +150,8 @@
     "tts": "Gesprochener Erzähler",
     "ttsHint": "Wird vom Gerät selbst vorgelesen. Schalte es beim Gastgeber ein, wenn ihr im selben Raum sitzt.",
     "on": "An",
-    "off": "Aus"
+    "off": "Aus",
+    "privacyOptions": "Datenschutzoptionen"
   },
   "status": {
     "reconnecting": "Verbinde erneut…",

@@ -1,1 +1,1 @@
-{"root":["./worker/index.ts"],"version":"5.9.3"}
+{"root":["./worker/index.ts","./worker/origin.test.ts"],"version":"5.9.3"}

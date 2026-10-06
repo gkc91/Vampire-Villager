@@ -150,7 +150,8 @@
     "tts": "Sesli anlatıcı",
     "ttsHint": "Cihazın kendi sesiyle okur. Aynı odada oynuyorsanız kurucunun cihazında açın.",
     "on": "Açık",
-    "off": "Kapalı"
+    "off": "Kapalı",
+    "privacyOptions": "Gizlilik seçenekleri"
   },
   "status": {
     "reconnecting": "Yeniden bağlanılıyor…",

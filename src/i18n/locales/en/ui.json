@@ -150,7 +150,8 @@
     "tts": "Spoken narrator",
     "ttsHint": "Read aloud by the device itself. Turn it on for the host if you are in the same room.",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "privacyOptions": "Privacy options"
   },
   "status": {
     "reconnecting": "Reconnecting…",

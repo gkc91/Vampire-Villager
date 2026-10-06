@@ -57,12 +57,40 @@ async function yukle(sdk: {
   showInterstitial?: SahteAdim<void>;
   attDurumu?: 'authorized' | 'denied' | 'notDetermined' | 'restricted';
   attHata?: boolean;
+  onayDurumu?: 'NOT_REQUIRED' | 'REQUIRED' | 'OBTAINED' | 'UNKNOWN';
+  onayFormuVar?: boolean;
+  /** Formdan sonra kullanıcı reddettiyse false. */
+  reklamIstenebilir?: boolean;
+  gizlilikSecenekleri?: 'REQUIRED' | 'NOT_REQUIRED' | 'UNKNOWN';
+  onayHata?: boolean;
 }) {
   vi.resetModules();
   izlek = [];
   vi.doMock('../util/platform', () => ({ isNativeApp: () => true }));
   vi.doMock('@capacitor-community/admob', () => ({
     AdMob: {
+      requestConsentInfo: async () => {
+        if (sdk.onayHata) throw new Error('UMP yok');
+        izlek.push('onay-bilgisi');
+        return {
+          status: sdk.onayDurumu ?? 'NOT_REQUIRED',
+          isConsentFormAvailable: sdk.onayFormuVar ?? true,
+          canRequestAds: sdk.reklamIstenebilir ?? true,
+          privacyOptionsRequirementStatus: sdk.gizlilikSecenekleri ?? 'NOT_REQUIRED',
+        };
+      },
+      showConsentForm: async () => {
+        izlek.push('onay-formu');
+        return {
+          status: 'OBTAINED',
+          isConsentFormAvailable: true,
+          canRequestAds: sdk.reklamIstenebilir ?? true,
+          privacyOptionsRequirementStatus: sdk.gizlilikSecenekleri ?? 'REQUIRED',
+        };
+      },
+      showPrivacyOptionsForm: async () => {
+        izlek.push('gizlilik-formu');
+      },
       trackingAuthorizationStatus: async () => {
         if (sdk.attHata) throw new Error('eski iOS');
         izlek.push('durum');
@@ -76,7 +104,10 @@ async function yukle(sdk: {
       },
       prepareRewardVideoAd: (sdk.prepareRewardVideoAd ?? hemen<void>(undefined)).fn,
       showRewardVideoAd: (sdk.showRewardVideoAd ?? hemen<unknown>({ amount: 1 })).fn,
-      prepareInterstitial: (sdk.prepareInterstitial ?? hemen<void>(undefined)).fn,
+      prepareInterstitial: (...a: unknown[]) => {
+        izlek.push('reklam-istegi');
+        return (sdk.prepareInterstitial ?? hemen<void>(undefined)).fn(...(a as []));
+      },
       showInterstitial: (sdk.showInterstitial ?? hemen<void>(undefined)).fn,
     },
   }));
@@ -162,14 +193,14 @@ describe('iOS izleme izni (ATT)', () => {
     const m = await yukle({ attDurumu: 'notDetermined' });
     await m.initAds();
 
-    expect(izlek).toEqual(['durum', 'izin-iste', 'initialize']);
+    expect(izlek).toEqual(['onay-bilgisi', 'durum', 'izin-iste', 'initialize']);
   });
 
   it('karar verilmişse tekrar sorulmuyor', async () => {
     const m = await yukle({ attDurumu: 'denied' });
     await m.initAds();
 
-    expect(izlek).toEqual(['durum', 'initialize']);
+    expect(izlek).toEqual(['onay-bilgisi', 'durum', 'initialize']);
   });
 
   it('izin katmanı patlasa da SDK başlıyor', async () => {
@@ -178,6 +209,85 @@ describe('iOS izleme izni (ATT)', () => {
     const m = await yukle({ attHata: true });
     await m.initAds();
 
-    expect(izlek).toEqual(['initialize']);
+    expect(izlek).toEqual(['onay-bilgisi', 'initialize']);
+  });
+});
+
+describe('AB kullanıcı rızası (UMP)', () => {
+  /**
+   * Google'ın AB Kullanıcı Rızası Politikası: bu bölgelerde reklam
+   * göstermeden önce onaylı bir rıza ekranı gösterilmek zorunda. Sıra da
+   * Google'ın dediği gibi — rıza, ATT'den ve initialize'dan ÖNCE.
+   */
+  it("rıza gerekiyorsa form, ATT ve initialize'dan ÖNCE gösteriliyor", async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', attDurumu: 'notDetermined' });
+    await m.initAds();
+
+    expect(izlek).toEqual(['onay-bilgisi', 'onay-formu', 'durum', 'izin-iste', 'initialize']);
+  });
+
+  it('AB dışında hiçbir form açılmıyor', async () => {
+    const m = await yukle({ onayDurumu: 'NOT_REQUIRED', attDurumu: 'denied' });
+    await m.initAds();
+
+    expect(izlek).toEqual(['onay-bilgisi', 'durum', 'initialize']);
+  });
+
+  it('rıza gerekli ama form yoksa takılmıyor', async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', onayFormuVar: false, attDurumu: 'denied' });
+    await m.initAds();
+
+    expect(izlek).toEqual(['onay-bilgisi', 'durum', 'initialize']);
+  });
+
+  it('kullanıcı reddederse reklam İSTENMİYOR', async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', reklamIstenebilir: false });
+
+    expect(await m.watchRewardedForPremium(), 'ödül yok').toBe(false);
+    // SDK'ya hiç reklam isteği gitmemeli: izlekte prepare adımı yok.
+    expect(izlek).not.toContain('initialize-sonrasi-istek');
+  });
+
+  it('reddeden kullanıcıda oyun sonu reklamı oyunu durdurmuyor', async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', reklamIstenebilir: false });
+    // SDK'yı önceden kur: dinamik import bittikten SONRA sahte zamana
+    // geçiyoruz, yoksa modül yüklemesi gerçek tik beklerken zaman duruyor.
+    await m.initAds();
+    vi.useFakeTimers();
+
+    const sonuc = m.showPreResultAd();
+    await vi.advanceTimersByTimeAsync(5_000);
+
+    await expect(sonuc).resolves.toBeUndefined();
+    // Reddedildiği için SDK'ya hiç reklam isteği gitmedi.
+    expect(izlek).not.toContain('reklam-istegi');
+  });
+
+  it("AB'de gizlilik seçenekleri girişi gerekli işaretleniyor", async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', gizlilikSecenekleri: 'REQUIRED' });
+    await m.initAds();
+
+    expect(m.isPrivacyOptionsRequired()).toBe(true);
+  });
+
+  it('AB dışında gizlilik seçenekleri girişi istenmiyor', async () => {
+    const m = await yukle({ onayDurumu: 'NOT_REQUIRED', gizlilikSecenekleri: 'NOT_REQUIRED' });
+    await m.initAds();
+
+    expect(m.isPrivacyOptionsRequired()).toBe(false);
+  });
+
+  it('UMP katmanı patlasa da reklamlar çalışmaya devam ediyor', async () => {
+    // Eski eklenti ya da ağ yok: AB dışındaki oyuncu bundan etkilenmemeli.
+    const m = await yukle({ onayHata: true });
+
+    expect(await m.watchRewardedForPremium(), 'ödül verildi').toBe(true);
+  });
+
+  it('gizlilik formu kullanıcı isteyince açılıyor', async () => {
+    const m = await yukle({ onayDurumu: 'REQUIRED', gizlilikSecenekleri: 'REQUIRED' });
+    await m.showPrivacyOptions();
+
+    expect(izlek).toContain('gizlilik-formu');
   });
 });

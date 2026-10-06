@@ -5,6 +5,7 @@ import { setMusicEnabled, setSfxEnabled } from '../../audio/audioManager';
 import { isTtsSupported, stopSpeaking } from '../../audio/tts';
 import { ConnectionDiagnostics } from './ConnectionDiagnostics';
 import { ConnectionInfo } from './ConnectionInfo';
+import { PrivacyOptions } from './PrivacyOptions';
 import { RestorePurchases } from './RestorePurchases';
 import { useGameStore } from '../../store/gameStore';
 
@@ -78,6 +79,10 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         {/* App Store Review 3.1.1: geri yükleme yolu görünür olmak zorunda. */}
         <RestorePurchases />
+
+        {/* AB Kullanıcı Rızası Politikası: rıza sonradan değiştirilebilmeli.
+            AB dışında hiç görünmüyor. */}
+        <PrivacyOptions />
 
         {/* Ana ekrandan buraya taşındı; odada olsun olmasın erişilebilir. */}
         <div className="mt-4">

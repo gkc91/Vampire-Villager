@@ -38,6 +38,17 @@ type AdMobApi = typeof import('@capacitor-community/admob');
 let sdk: AdMobApi | null = null;
 let baslatildi = false;
 
+/**
+ * UMP'nin verdiği cevap: bu kullanıcıya reklam isteyebilir miyiz?
+ *
+ * AB'de kullanıcı "reddet" derse false oluyor. Varsayılan true: UMP
+ * katmanı hiç çalışmazsa (eski eklenti, ağ yok) oyun AB dışında
+ * reklamsız kalmasın.
+ */
+let reklamIstenebilir = true;
+/** AB'de ayarlarda bir "gizlilik seçenekleri" girişi bulunmak zorunda. */
+let gizlilikSecenekleriGerekli = false;
+
 /** Bir oyunluk premium: ödüllü reklam izlenince açılır, oyun bitince kapanır. */
 let birOyunlukPremium = false;
 
@@ -58,11 +69,67 @@ export async function initAds(): Promise<void> {
   baslatildi = true;
   try {
     sdk = await import('@capacitor-community/admob');
+    await onayAl(sdk);
     await attIzniIste(sdk);
     await sdk.AdMob.initialize({ initializeForTesting: false });
   } catch {
     // SDK yoksa oyun reklamsız çalışır; bu bir hata değil.
     sdk = null;
+  }
+}
+
+/**
+ * AB/İngiltere/İsviçre kullanıcı onayı (Google UMP).
+ *
+ * NEDEN VAR: oyunu Türkiye dışına, özellikle Almanya-Fransa-İtalya'ya
+ * açıyoruz. Google'ın AB Kullanıcı Rızası Politikası, bu bölgelerde
+ * reklam gösteren her uygulamada onaylı bir rıza ekranı (CMP) olmasını
+ * şart koşuyor. Olmadan AdMob o ülkelerde reklam vermeyi kesiyor —
+ * hata vermeden, sessizce — ve GDPR tarafında da dayanağımız olmuyor.
+ *
+ * Ekranın kendisi bizim değil: metni ve seçenekleri AdMob konsolundaki
+ * "GDPR mesajı" belirliyor. Buradaki iş yalnız doğru anda sormak.
+ *
+ * SIRA ÖNEMLİ: UMP, ATT'den de initialize'dan da ÖNCE. Google'ın
+ * sıralaması bu — rıza ekranı IDFA iznini de açıklıyor, ters sırada
+ * kullanıcı ne sorulduğunu anlamadan iki kutu görüyor.
+ *
+ * AB dışında `status` NOT_REQUIRED geliyor ve hiçbir ekran açılmıyor;
+ * Türkiye'deki oyuncu bu kodun varlığını fark etmez.
+ */
+async function onayAl(api: AdMobApi): Promise<void> {
+  try {
+    let bilgi = await api.AdMob.requestConsentInfo();
+    if (bilgi.status === 'REQUIRED' && bilgi.isConsentFormAvailable) {
+      bilgi = await api.AdMob.showConsentForm();
+    }
+    reklamIstenebilir = bilgi.canRequestAds !== false;
+    gizlilikSecenekleriGerekli = bilgi.privacyOptionsRequirementStatus === 'REQUIRED';
+  } catch {
+    // UMP katmanı yoksa ya da patladıysa reklam katmanını komple
+    // öldürmüyoruz: AB dışındaki oyuncu için hiçbir şey değişmemeli.
+    // AB'de zaten AdMob'un kendisi reklam vermeyecek.
+  }
+}
+
+/** Ayarlarda gizlilik seçenekleri düğmesi gösterilmeli mi? */
+export function isPrivacyOptionsRequired(): boolean {
+  return gizlilikSecenekleriGerekli;
+}
+
+/**
+ * Kullanıcı rıza tercihini sonradan değiştirmek isterse. Google, AB'de
+ * uygulamanın içinden erişilebilir bir giriş noktası bulunmasını
+ * zorunlu tutuyor; ayarlardaki düğme bunu çağırıyor.
+ */
+export async function showPrivacyOptions(): Promise<void> {
+  if (!isNativeApp()) return;
+  await initAds();
+  if (!sdk) return;
+  try {
+    await sdk.AdMob.showPrivacyOptionsForm();
+  } catch {
+    // Form açılamadıysa ayarlar ekranı olduğu gibi kalır.
   }
 }
 
@@ -108,7 +175,9 @@ export async function showPreResultAd(): Promise<void> {
     return;
   }
   await initAds();
-  if (!sdk) {
+  // `reklamIstenebilir`: AB'de kullanıcı rızayı reddettiyse istek bile
+  // atmıyoruz. AdMob zaten vermezdi; boşuna bekletmenin anlamı yok.
+  if (!sdk || !reklamIstenebilir) {
     await wait(PRE_RESULT_DELAY_MS);
     return;
   }
@@ -129,7 +198,7 @@ export async function showPreResultAd(): Promise<void> {
 export async function watchRewardedForPremium(): Promise<boolean> {
   if (!isNativeApp()) return false;
   await initAds();
-  if (!sdk) return false;
+  if (!sdk || !reklamIstenebilir) return false;
   try {
     await withTimeout(sdk.AdMob.prepareRewardVideoAd({ adId: AD_UNITS.rewarded }));
     // Gösterim sarmalanmaz: ödül ancak video bitince geliyor, 15-30 saniye.

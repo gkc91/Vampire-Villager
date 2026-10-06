@@ -150,7 +150,8 @@
     "tts": "Narrateur vocal",
     "ttsHint": "Lu à voix haute par l'appareil lui-même. Active-le chez l'hôte si vous êtes dans la même pièce.",
     "on": "Activé",
-    "off": "Désactivé"
+    "off": "Désactivé",
+    "privacyOptions": "Options de confidentialité"
   },
   "status": {
     "reconnecting": "Reconnexion…",

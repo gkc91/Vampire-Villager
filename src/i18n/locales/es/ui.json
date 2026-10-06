@@ -150,7 +150,8 @@
     "tts": "Narrador hablado",
     "ttsHint": "Lo lee en voz alta el propio dispositivo. Actívalo en el anfitrión si estáis en la misma habitación.",
     "on": "Activado",
-    "off": "Desactivado"
+    "off": "Desactivado",
+    "privacyOptions": "Opciones de privacidad"
   },
   "status": {
     "reconnecting": "Reconectando…",

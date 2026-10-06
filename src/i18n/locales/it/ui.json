@@ -150,7 +150,8 @@
     "tts": "Narratore vocale",
     "ttsHint": "Letto ad alta voce dal dispositivo stesso. Attivalo sull'host se siete nella stessa stanza.",
     "on": "Attivo",
-    "off": "Disattivo"
+    "off": "Disattivo",
+    "privacyOptions": "Opzioni sulla privacy"
   },
   "status": {
     "reconnecting": "Riconnessione…",
