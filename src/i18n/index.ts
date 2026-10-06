@@ -2,26 +2,65 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-import trUi from './locales/tr/ui.json';
-import trRoles from './locales/tr/roles.json';
-import trNarration from './locales/tr/narration.json';
-import enUi from './locales/en/ui.json';
-import enRoles from './locales/en/roles.json';
-import enNarration from './locales/en/narration.json';
+/**
+ * Çeviri dosyaları tek tek import EDİLMİYOR.
+ *
+ * On dil × üç dosya = otuz import satırı demekti ve yeni bir dil eklerken
+ * üçünden birini unutmak sessiz bir hata olurdu: eksik ad alanı çalışma
+ * anında anahtar adını ekrana basar. Klasörü taramak, dil eklemeyi
+ * "klasörü oluştur" adımına indiriyor. Eksik/fazla anahtarları
+ * `locales.test.ts` yakalıyor.
+ */
+const paketler = import.meta.glob<Record<string, unknown>>('./locales/*/*.json', {
+  eager: true,
+  import: 'default',
+});
 
-export const SUPPORTED_LANGUAGES = ['tr', 'en'] as const;
+/**
+ * Sıra, ayarlardaki dil listesinin sırasıdır. Türkçe ilk: asıl hedef pazar.
+ * Sonra İngilizce, sonra alfabetik olmayan ama kasıtlı bir sıra — Avrupa
+ * dilleri, ardından tür için güçlü pazarlar.
+ */
+export const SUPPORTED_LANGUAGES = [
+  'tr',
+  'en',
+  'de',
+  'fr',
+  'es',
+  'pt',
+  'it',
+  'ru',
+  'ja',
+  'ko',
+] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 /** Dil adları çevrilmez; her dil kendi adını kendi dilinde yazar. */
 export const LANGUAGE_LABELS: Record<Language, string> = {
   tr: 'Türkçe',
   en: 'English',
+  de: 'Deutsch',
+  fr: 'Français',
+  es: 'Español',
+  pt: 'Português',
+  it: 'Italiano',
+  ru: 'Русский',
+  ja: '日本語',
+  ko: '한국어',
 };
 
-export const resources = {
-  tr: { ui: trUi, roles: trRoles, narration: trNarration },
-  en: { ui: enUi, roles: enRoles, narration: enNarration },
-} as const;
+function paket(lang: string, ad: string): Record<string, unknown> {
+  const m = paketler[`./locales/${lang}/${ad}.json`];
+  if (!m) throw new Error(`çeviri dosyası yok: ${lang}/${ad}.json`);
+  return m;
+}
+
+export const resources = Object.fromEntries(
+  SUPPORTED_LANGUAGES.map((lang) => [
+    lang,
+    { ui: paket(lang, 'ui'), roles: paket(lang, 'roles'), narration: paket(lang, 'narration') },
+  ]),
+);
 
 void i18n
   .use(LanguageDetector)
@@ -30,6 +69,13 @@ void i18n
     resources,
     fallbackLng: 'tr',
     supportedLngs: [...SUPPORTED_LANGUAGES],
+    /**
+     * Tarayıcı `pt-BR`, `en-GB`, `de-AT` gibi bölgesel kodlar veriyor.
+     * Bunlar desteklenenler listesinde olmadığı için doğrudan yedek dile
+     * düşerdi: Brezilyalı bir kullanıcı Portekizce dosyası dururken
+     * Türkçe görürdü. `languageOnly` bölge ekini atıp ana dile indiriyor.
+     */
+    load: 'languageOnly',
     ns: ['ui', 'roles', 'narration'],
     defaultNS: 'ui',
     interpolation: { escapeValue: false },

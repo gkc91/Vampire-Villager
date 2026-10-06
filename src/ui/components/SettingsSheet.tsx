@@ -33,13 +33,18 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         <div className="mb-4">
           <p className="mb-2 text-sm text-moon-200/70">{t('settings.language')}</p>
-          <div className="flex gap-2">
+          {/*
+            İki dilken yan yana iki düğmeydi. On dilde `flex-1` her birini
+            ekrana sığmayacak kadar inceltiyor ve etiketler kırpılıyordu;
+            üç sütunlu ızgara 380px'te de okunur kalıyor.
+          */}
+          <div className="grid grid-cols-3 gap-2">
             {SUPPORTED_LANGUAGES.map((lang) => (
               <button
                 key={lang}
                 type="button"
                 onClick={() => setLanguage(lang as Language)}
-                className={`flex-1 rounded-xl border px-3 py-2 text-sm font-semibold ${
+                className={`rounded-xl border px-2 py-2 text-sm font-semibold ${
                   i18n.language.startsWith(lang)
                     ? 'border-blood-400 bg-blood-500/20'
                     : 'border-night-600 bg-night-800'

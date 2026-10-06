@@ -1,0 +1,62 @@
+{
+  "team": {
+    "village": "Village",
+    "vampire": "Vampires",
+    "neutral": "Neutre"
+  },
+  "vampire": {
+    "name": "Vampire",
+    "short": "Chaque nuit tu choisis une victime.",
+    "description": "Chaque nuit, les vampires et toi vous accordez sur un villageois. Le jour, tu caches qui tu es. Vous gagnez quand les vampires égalent le nombre de villageois en vie."
+  },
+  "villager": {
+    "name": "Villageois",
+    "short": "Aucun pouvoir, seulement l'instinct.",
+    "description": "Tu n'as aucune capacité spéciale. Tes armes sont ta voix le jour et ton vote. Le village gagne quand tous les vampires sont pendus."
+  },
+  "seer": {
+    "name": "Voyante",
+    "short": "Chaque nuit tu sondes une identité.",
+    "description": "Chaque nuit tu choisis un joueur et tu apprends s'il est vampire. À toi de décider quand parler — une voyante qui parle tôt meurt tôt."
+  },
+  "doctor": {
+    "name": "Médecin",
+    "short": "Deux protections pour toute la partie.",
+    "description": "La nuit, tu protèges un joueur de l'attaque des vampires — mais seulement deux fois dans toute la partie. Tu peux te protéger toi-même, jamais la même personne deux nuits de suite, et cela n'empêche pas une pendaison."
+  },
+  "hunter": {
+    "name": "Chasseur",
+    "short": "Les vampires ne peuvent pas te toucher.",
+    "description": "Tu n'as pas d'action nocturne. Si les vampires viennent pour toi, l'attaque se retourne : l'un d'eux redevient discrètement simple villageois et personne ne meurt cette nuit-là. Tu peux toujours être pendu le jour."
+  },
+  "detective": {
+    "name": "Détective",
+    "short": "Tu vois qui s'est réveillé la nuit.",
+    "description": "Chaque nuit tu choisis un joueur et le jeu te dit s'il s'est réveillé cette nuit-là. Ni le rôle ni le camp ne sont révélés — une personne éveillée peut être la voyante comme un vampire."
+  },
+  "wizard": {
+    "name": "Mage",
+    "short": "Une fois, tu empêches une pendaison.",
+    "description": "Une fois par partie, pendant la discussion du jour, tu lances ton sort. Personne n'est pendu ce jour-là, une minute est ajoutée à la discussion, et le joueur que tu choisis ne pourra pas se réveiller cette nuit. Personne ne saura que c'était toi."
+  },
+  "vampireLord": {
+    "name": "Seigneur Vampire",
+    "short": "Une fois, tu transformes quelqu'un en vampire.",
+    "description": "Une fois par partie tu transformes un joueur la nuit ; il l'apprend et rejoint l'équipe, mais ne peut pas participer au meurtre de cette même nuit. Essaie sur le chasseur et cela se retourne contre toi."
+  },
+  "bloodWizard": {
+    "name": "Sorcier de Sang",
+    "short": "Deux nuits, tu scelles quelqu'un.",
+    "description": "Durant deux nuits de la partie tu scelles un non-vampire : il ne peut ni se réveiller ni utiliser sa capacité cette nuit-là. Sceller le chasseur échoue — et le chasseur s'en aperçoit."
+  },
+  "mistVampire": {
+    "name": "Vampire des Brumes",
+    "short": "Le brouillard aveugle les rôles d'information.",
+    "description": "Lors d'une nuit de brouillard, la voyante et le détective ne se réveillent pas du tout. Ton premier brouillard peut tomber n'importe quelle nuit ; ensuite tu dois attendre deux nuits."
+  },
+  "thief": {
+    "name": "Voleur",
+    "short": "Une fois, tu voles un rôle.",
+    "description": "Tu te réveilles en dernier. Tu voles le rôle du joueur que tu choisis ; même un vampire redevient simple villageois. À partir de cet instant tu es ce rôle — et dans ce camp."
+  }
+}

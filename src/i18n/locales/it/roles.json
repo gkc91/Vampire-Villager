@@ -1,0 +1,62 @@
+{
+  "team": {
+    "village": "Villaggio",
+    "vampire": "Vampiri",
+    "neutral": "Neutrale"
+  },
+  "vampire": {
+    "name": "Vampiro",
+    "short": "Ogni notte scegli una vittima.",
+    "description": "Ogni notte tu e gli altri vampiri vi accordate su un abitante del villaggio. Di giorno nascondi chi sei. Vincete quando i vampiri eguagliano il numero degli abitanti vivi."
+  },
+  "villager": {
+    "name": "Abitante",
+    "short": "Nessun potere, solo istinto.",
+    "description": "Non hai alcuna abilità speciale. Le tue armi sono la voce di giorno e il tuo voto. Il villaggio vince quando tutti i vampiri sono stati impiccati."
+  },
+  "seer": {
+    "name": "Veggente",
+    "short": "Ogni notte leggi un'identità.",
+    "description": "Ogni notte scegli un giocatore e scopri se è un vampiro. Quando parlare lo decidi tu: una veggente che parla presto muore presto."
+  },
+  "doctor": {
+    "name": "Medico",
+    "short": "Due protezioni per tutta la partita.",
+    "description": "Di notte proteggi un giocatore dall'attacco dei vampiri, ma solo due volte in tutta la partita. Puoi proteggere te stesso, mai la stessa persona due notti di fila, e non impedisce un'impiccagione."
+  },
+  "hunter": {
+    "name": "Cacciatore",
+    "short": "I vampiri non possono toccarti.",
+    "description": "Non hai azione notturna. Se i vampiri vengono a prenderti, l'attacco si ritorce contro di loro: uno di essi scende in silenzio a semplice abitante e quella notte non muore nessuno. Di giorno puoi comunque essere impiccato."
+  },
+  "detective": {
+    "name": "Detective",
+    "short": "Vedi chi si è svegliato di notte.",
+    "description": "Ogni notte scegli un giocatore e il gioco ti dice se quella notte si è svegliato. Non rivela mai il ruolo né la squadra: chi era sveglio può essere la veggente come un vampiro."
+  },
+  "wizard": {
+    "name": "Mago",
+    "short": "Una volta, fermi un'impiccagione.",
+    "description": "Una volta a partita, durante la discussione diurna, lanci il tuo incantesimo. Quel giorno non viene impiccato nessuno, alla discussione si aggiunge un minuto e il giocatore che scegli non potrà svegliarsi quella notte. Nessuno saprà che sei stato tu."
+  },
+  "vampireLord": {
+    "name": "Signore dei Vampiri",
+    "short": "Una volta, trasformi qualcuno in vampiro.",
+    "description": "Una volta a partita trasformi un giocatore di notte; lui lo scopre e si unisce alla squadra, ma non può partecipare all'uccisione della stessa notte. Provaci con il cacciatore e si ritorce contro di te."
+  },
+  "bloodWizard": {
+    "name": "Stregone del Sangue",
+    "short": "In due notti, sigilli qualcuno.",
+    "description": "In due notti della partita sigilli un non vampiro: quella notte non può svegliarsi né usare la sua abilità. Sigillare il cacciatore fallisce, e il cacciatore se ne accorge."
+  },
+  "mistVampire": {
+    "name": "Vampiro della Nebbia",
+    "short": "La nebbia acceca i ruoli informativi.",
+    "description": "In una notte di nebbia la veggente e il detective non si svegliano affatto. La tua prima nebbia può cadere in qualsiasi notte; dopo devi aspettare due notti."
+  },
+  "thief": {
+    "name": "Ladro",
+    "short": "Una volta, rubi un ruolo.",
+    "description": "Ti svegli per ultimo. Rubi il ruolo del giocatore che scegli; anche un vampiro scende a semplice abitante. Da quel momento sei quel ruolo, e in quella squadra."
+  }
+}

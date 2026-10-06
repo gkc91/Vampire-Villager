@@ -1,0 +1,62 @@
+{
+  "team": {
+    "village": "Pueblo",
+    "vampire": "Vampiros",
+    "neutral": "Neutral"
+  },
+  "vampire": {
+    "name": "Vampiro",
+    "short": "Cada noche eliges una víctima.",
+    "description": "Cada noche los vampiros y tú os ponéis de acuerdo sobre un aldeano. De día ocultas quién eres. Ganáis cuando los vampiros igualan al número de aldeanos vivos."
+  },
+  "villager": {
+    "name": "Aldeano",
+    "short": "Sin poder, solo instinto.",
+    "description": "No tienes ninguna habilidad especial. Tus armas son tu voz de día y tu voto. El pueblo gana cuando todos los vampiros han sido colgados."
+  },
+  "seer": {
+    "name": "Vidente",
+    "short": "Cada noche lees una identidad.",
+    "description": "Cada noche eliges a un jugador y descubres si es vampiro. Cuándo hablar es decisión tuya: una vidente que habla pronto muere pronto."
+  },
+  "doctor": {
+    "name": "Médico",
+    "short": "Dos protecciones para toda la partida.",
+    "description": "De noche proteges a un jugador del ataque de los vampiros, pero solo dos veces en toda la partida. Puedes protegerte a ti mismo, nunca a la misma persona dos noches seguidas, y no impide una horca."
+  },
+  "hunter": {
+    "name": "Cazador",
+    "short": "Los vampiros no pueden tocarte.",
+    "description": "No tienes acción nocturna. Si los vampiros van a por ti, el ataque se vuelve en su contra: uno de ellos pasa discretamente a aldeano corriente y esa noche no muere nadie. De día sí pueden colgarte."
+  },
+  "detective": {
+    "name": "Detective",
+    "short": "Ves quién despertó por la noche.",
+    "description": "Cada noche eliges a un jugador y el juego te dice si despertó esa noche. Nunca revela el rol ni el bando: quien despertó puede ser la vidente o un vampiro."
+  },
+  "wizard": {
+    "name": "Mago",
+    "short": "Una vez, impides una horca.",
+    "description": "Una vez por partida, durante la discusión del día, lanzas tu hechizo. Ese día no cuelga nadie, se añade un minuto a la discusión y el jugador que elijas no podrá despertar esa noche. Nadie sabrá que fuiste tú."
+  },
+  "vampireLord": {
+    "name": "Señor Vampiro",
+    "short": "Una vez, conviertes a alguien en vampiro.",
+    "description": "Una vez por partida conviertes a un jugador de noche; él lo sabe y se une al equipo, pero no puede participar en la muerte de esa misma noche. Si lo intentas con el cazador, se vuelve en tu contra."
+  },
+  "bloodWizard": {
+    "name": "Hechicero de Sangre",
+    "short": "Dos noches, sellas a alguien.",
+    "description": "En dos noches de la partida sellas a un no vampiro: esa noche no puede despertar ni usar su habilidad. Sellar al cazador falla, y el cazador se da cuenta."
+  },
+  "mistVampire": {
+    "name": "Vampiro de la Niebla",
+    "short": "La niebla ciega a los roles de información.",
+    "description": "En una noche de niebla la vidente y el detective no despiertan en absoluto. Tu primera niebla puede caer cualquier noche; después debes esperar dos noches."
+  },
+  "thief": {
+    "name": "Ladrón",
+    "short": "Una vez, robas un rol.",
+    "description": "Despiertas el último. Robas el rol del jugador que elijas; incluso un vampiro pasa a aldeano corriente. Desde ese momento eres ese rol, y de ese bando."
+  }
+}

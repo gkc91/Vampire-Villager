@@ -1,0 +1,62 @@
+{
+  "team": {
+    "village": "Dorf",
+    "vampire": "Vampire",
+    "neutral": "Neutral"
+  },
+  "vampire": {
+    "name": "Vampir",
+    "short": "Jede Nacht wählst du ein Opfer.",
+    "description": "Jede Nacht einigt ihr Vampire euch auf einen Dorfbewohner. Tagsüber verbirgst du, wer du bist. Ihr gewinnt, wenn die Vampire so zahlreich sind wie die lebenden Dorfbewohner."
+  },
+  "villager": {
+    "name": "Dorfbewohner",
+    "short": "Keine Fähigkeit, nur Instinkt.",
+    "description": "Du hast keine besondere Fähigkeit. Deine Waffen sind deine Stimme am Tag und dein Votum. Das Dorf gewinnt, wenn jeder Vampir gehängt ist."
+  },
+  "seer": {
+    "name": "Seherin",
+    "short": "Jede Nacht liest du eine Identität.",
+    "description": "Jede Nacht wählst du einen Spieler und erfährst, ob er ein Vampir ist. Wann du sprichst, entscheidest du — eine Seherin, die früh redet, stirbt früh."
+  },
+  "doctor": {
+    "name": "Arzt",
+    "short": "Zwei Schutzschilde im ganzen Spiel.",
+    "description": "Nachts schützt du einen Spieler vor dem Vampirangriff — aber nur zweimal im ganzen Spiel. Du darfst dich selbst schützen, nie dieselbe Person zwei Nächte hintereinander, und gegen den Strang hilft es nicht."
+  },
+  "hunter": {
+    "name": "Jäger",
+    "short": "Vampire können dich nicht anrühren.",
+    "description": "Du hast keine Nachtaktion. Kommen die Vampire zu dir, schlägt der Angriff zurück: Einer von ihnen sinkt still zum einfachen Dorfbewohner herab und niemand stirbt in dieser Nacht. Am Tag kannst du trotzdem gehängt werden."
+  },
+  "detective": {
+    "name": "Detektiv",
+    "short": "Du siehst, wer nachts wach war.",
+    "description": "Jede Nacht wählst du einen Spieler und das Spiel sagt dir, ob er in dieser Nacht wach war. Rolle und Team bleiben verborgen — wer wach war, kann die Seherin sein oder ein Vampir."
+  },
+  "wizard": {
+    "name": "Magier",
+    "short": "Einmal verhinderst du eine Hinrichtung.",
+    "description": "Einmal pro Spiel wirkst du während der Tagesdiskussion deinen Zauber. An diesem Tag wird niemand gehängt, die Diskussion wird um eine Minute verlängert, und der Spieler deiner Wahl kann in dieser Nacht nicht erwachen. Niemand erfährt, dass du es warst."
+  },
+  "vampireLord": {
+    "name": "Vampirfürst",
+    "short": "Einmal machst du jemanden zum Vampir.",
+    "description": "Einmal pro Spiel verwandelst du nachts einen Spieler; er erfährt es und tritt dem Team bei, kann sich am Mord derselben Nacht aber nicht beteiligen. Versuchst du es beim Jäger, schlägt es zurück."
+  },
+  "bloodWizard": {
+    "name": "Blutmagier",
+    "short": "In zwei Nächten versiegelst du jemanden.",
+    "description": "In zwei Nächten des Spiels versiegelst du einen Nicht-Vampir: Er kann in dieser Nacht weder erwachen noch seine Fähigkeit nutzen. Beim Jäger scheitert es — und der Jäger merkt es."
+  },
+  "mistVampire": {
+    "name": "Nebelvampir",
+    "short": "Nebel blendet die Informationsrollen.",
+    "description": "In einer Nebelnacht erwachen Seherin und Detektiv überhaupt nicht. Deinen ersten Nebel kannst du in jeder Nacht bringen; danach musst du zwei Nächte warten."
+  },
+  "thief": {
+    "name": "Dieb",
+    "short": "Einmal stiehlst du eine Rolle.",
+    "description": "Du erwachst als Letzter. Du stiehlst die Rolle des Spielers deiner Wahl; selbst ein Vampir sinkt zum einfachen Dorfbewohner herab. Von diesem Moment an bist du diese Rolle — und in diesem Team."
+  }
+}

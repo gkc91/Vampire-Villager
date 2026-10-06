@@ -1,0 +1,62 @@
+{
+  "team": {
+    "village": "Vila",
+    "vampire": "Vampiros",
+    "neutral": "Neutro"
+  },
+  "vampire": {
+    "name": "Vampiro",
+    "short": "Toda noite você escolhe uma vítima.",
+    "description": "Toda noite você e os outros vampiros escolhem um aldeão. De dia você esconde quem é. Vocês vencem quando os vampiros igualam o número de aldeões vivos."
+  },
+  "villager": {
+    "name": "Aldeão",
+    "short": "Sem poder, só instinto.",
+    "description": "Você não tem nenhuma habilidade especial. Suas armas são sua voz durante o dia e seu voto. A vila vence quando todos os vampiros forem enforcados."
+  },
+  "seer": {
+    "name": "Vidente",
+    "short": "Toda noite você lê uma identidade.",
+    "description": "Toda noite você escolhe um jogador e descobre se ele é vampiro. Quando falar é decisão sua — uma vidente que fala cedo morre cedo."
+  },
+  "doctor": {
+    "name": "Médico",
+    "short": "Duas proteções para a partida inteira.",
+    "description": "À noite você protege um jogador do ataque dos vampiros — mas só duas vezes na partida inteira. Pode proteger a si mesmo, nunca a mesma pessoa em duas noites seguidas, e isso não impede um enforcamento."
+  },
+  "hunter": {
+    "name": "Caçador",
+    "short": "Os vampiros não podem te tocar.",
+    "description": "Você não tem ação noturna. Se os vampiros vierem atrás de você, o ataque volta contra eles: um deles vira discretamente um aldeão comum e ninguém morre naquela noite. De dia você ainda pode ser enforcado."
+  },
+  "detective": {
+    "name": "Detetive",
+    "short": "Você vê quem acordou à noite.",
+    "description": "Toda noite você escolhe um jogador e o jogo diz se ele acordou naquela noite. O papel e o time nunca são revelados — quem acordou pode ser a vidente ou um vampiro."
+  },
+  "wizard": {
+    "name": "Mago",
+    "short": "Uma vez, você impede um enforcamento.",
+    "description": "Uma vez por partida, durante a discussão do dia, você lança seu feitiço. Ninguém é enforcado naquele dia, um minuto é somado à discussão e o jogador que você escolher não pode acordar naquela noite. Ninguém descobre que foi você."
+  },
+  "vampireLord": {
+    "name": "Lorde Vampiro",
+    "short": "Uma vez, você transforma alguém em vampiro.",
+    "description": "Uma vez por partida você transforma um jogador à noite; ele descobre e entra no time, mas não pode participar da morte naquela mesma noite. Tente no caçador e isso volta contra você."
+  },
+  "bloodWizard": {
+    "name": "Feiticeiro de Sangue",
+    "short": "Em duas noites, você sela alguém.",
+    "description": "Em duas noites da partida você sela um não vampiro: naquela noite ele não pode acordar nem usar sua habilidade. Selar o caçador falha — e o caçador percebe."
+  },
+  "mistVampire": {
+    "name": "Vampiro da Névoa",
+    "short": "A névoa cega os papéis de informação.",
+    "description": "Numa noite de névoa, a vidente e o detetive não acordam de jeito nenhum. Sua primeira névoa pode ser em qualquer noite; depois você precisa esperar duas noites."
+  },
+  "thief": {
+    "name": "Ladrão",
+    "short": "Uma vez, você rouba um papel.",
+    "description": "Você acorda por último. Você rouba o papel do jogador que escolher; até um vampiro vira aldeão comum. A partir daquele momento você é aquele papel — e daquele time."
+  }
+}
