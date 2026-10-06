@@ -26,6 +26,8 @@ const DEMO = {
   rewarded: 'ca-app-pub-3940256099942544/5224354917',
 } as const;
 
+import { isIos } from '../util/platform';
+
 const env = import.meta.env;
 
 function unit(gercek: string | undefined, demo: string): string {
@@ -33,11 +35,29 @@ function unit(gercek: string | undefined, demo: string): string {
   return temiz && temiz.startsWith('ca-app-pub-') ? temiz : demo;
 }
 
+/**
+ * Birimler PLATFORMA GÖRE ayrı.
+ *
+ * AdMob'da Android ve iOS ayrı birer uygulama; birim kimlikleri de ayrı
+ * ve biri diğerinin yerine kullanılamıyor. Yanlış platformun kimliğiyle
+ * istek atmak hata vermiyor — reklam gelmiyor, istekler "geçersiz
+ * etkinlik" olarak işaretlenebiliyor. Bu yüzden seçim derleme zamanında
+ * değil, çalışma zamanında kabuğa bakılarak yapılıyor: tek paket iki
+ * platformda da doğru kimliği kullanıyor.
+ */
+const iosta = isIos();
+
 export const AD_UNITS = {
   /** Oyun sonu, kazanan açıklanmadan önce. */
-  interstitial: unit(env.VITE_ADMOB_INTERSTITIAL as string | undefined, DEMO.interstitial),
+  interstitial: unit(
+    (iosta ? env.VITE_ADMOB_INTERSTITIAL_IOS : env.VITE_ADMOB_INTERSTITIAL) as string | undefined,
+    DEMO.interstitial,
+  ),
   /** Bir oyunluk premium açan ödüllü reklam. */
-  rewarded: unit(env.VITE_ADMOB_REWARDED as string | undefined, DEMO.rewarded),
+  rewarded: unit(
+    (iosta ? env.VITE_ADMOB_REWARDED_IOS : env.VITE_ADMOB_REWARDED) as string | undefined,
+    DEMO.rewarded,
+  ),
 } as const;
 
 /** Canlı kimliklerle mi çalışıyoruz? Tanılama ekranı bunu gösterir. */

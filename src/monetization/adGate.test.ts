@@ -66,7 +66,8 @@ async function yukle(sdk: {
 }) {
   vi.resetModules();
   izlek = [];
-  vi.doMock('../util/platform', () => ({ isNativeApp: () => true }));
+  // isIos de gerekiyor: adUnits platforma göre birim seçiyor.
+  vi.doMock('../util/platform', () => ({ isNativeApp: () => true, isIos: () => false }));
   vi.doMock('@capacitor-community/admob', () => ({
     AdMob: {
       requestConsentInfo: async () => {

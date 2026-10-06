@@ -13,3 +13,18 @@ export function isNativeApp(): boolean {
     return false; // test ortamı / eski tarayıcı
   }
 }
+
+/**
+ * iOS kabuğunda mıyız?
+ *
+ * Reklam birimi kimlikleri için gerekiyor: AdMob'da Android ve iOS AYRI
+ * birer uygulama, dolayısıyla birim kimlikleri de ayrı. Aynı kimliği iki
+ * platformda kullanmak "geçersiz etkinlik" sayılıyor.
+ */
+export function isIos(): boolean {
+  try {
+    return Capacitor.getPlatform() === 'ios';
+  } catch {
+    return false;
+  }
+}

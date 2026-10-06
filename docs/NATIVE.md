@@ -115,3 +115,81 @@ ek izin gerekmez. Android 9+ cleartext kapalıdır (`allowMixedContent: false`).
       yalnız cihazda ve oyuncular arasında P2P akar; bunu yazan tek
       sayfalık bir metin yeterli.
 - [ ] İçerik derecelendirmesi anketi (şiddet: hafif tematik).
+
+## iOS yayın (6 Ekim 2026)
+
+Mac yok, gerek de yok: `ios/` klasörü depoda duruyor ve
+`.github/workflows/ios.yml` macOS runner'da derleyip TestFlight'a
+yüklüyor. Depo public olduğu için macOS dakikaları ücretsiz.
+
+### Sabitler
+
+| | Değer |
+|---|---|
+| Takım kimliği (Team ID) | `K7H463X474` |
+| Paket kimliği | `com.lampwickgames.biteclub` (Android ile aynı, App ID kayıtlı) |
+| App Store adı | Bite Club — Vampir Köylü |
+| Birincil dil | Türkçe |
+| SKU | `biteclub-ios` |
+| Sürüm | `MARKETING_VERSION 2.2`, derleme numarası iş akışına elle girilir |
+
+### iPhone'a kilitlendi — bilerek
+
+`TARGETED_DEVICE_FAMILY = 1`. iPad'i açmak Apple'ın iPad ekran
+görüntülerini (13" 2064x2752) ve iPad düzeninin incelemeden geçmesini
+şart koşuyor. İlk sürümde risk/iş oranı kötü; iPad desteği sonraki bir
+sürümde eklenebilir, geri alınamaz bir karar değil.
+
+### Ekran görüntüleri
+
+Apple TEK ölçü istiyor: 6,9" iPhone için **1290x2796**. Play'in
+1080x2122'lik kareleri `store/screens/ios.sh` ile çevriliyor; betik
+ölçüyü doğrulamadan çıkmıyor. Çıktı `store/screens/ios/`.
+
+### Reklam kimlikleri PLATFORMA GÖRE
+
+AdMob'da Android ve iOS ayrı birer uygulama; birim kimlikleri de ayrı.
+Yanlış platformun kimliğiyle istek atmak hata vermiyor — reklam gelmiyor
+ve istek "geçersiz etkinlik" sayılabiliyor.
+
+`.env.production.local` (depoda yok):
+
+```
+VITE_ADMOB_INTERSTITIAL=...        # Android
+VITE_ADMOB_REWARDED=...            # Android
+VITE_ADMOB_INTERSTITIAL_IOS=...    # iOS
+VITE_ADMOB_REWARDED_IOS=...        # iOS
+```
+
+Seçim çalışma zamanında, `Capacitor.getPlatform()` ile. Testi
+`src/monetization/adUnits.test.ts`; platform ayrımı kaldırılınca 2 test
+düşüyor — kontrol edildi.
+
+`ios/App/App/Info.plist` içindeki `GADApplicationIdentifier` **hâlâ
+Google'ın test kimliği**. AdMob'da iOS uygulaması açılınca gerçeğiyle
+değiştirilmeli; o anahtar yanlışsa Google Mobile Ads SDK açılışta
+çöküyor.
+
+### GitHub Secrets (iş akışı bunlarsız başlamıyor)
+
+| Sır | Nereden |
+|---|---|
+| `APPLE_TEAM_ID` | `K7H463X474` |
+| `APPSTORE_ISSUER_ID` | App Store Connect → Integrations → Keys, sayfanın üstü |
+| `APPSTORE_KEY_ID` | Aynı sayfadaki anahtarın Key ID'si |
+| `APPSTORE_PRIVATE_KEY` | `.p8` dosyasının içeriği, BEGIN/END satırları dahil |
+
+`.p8` Apple'da **bir kez** iniyor; kaybolursa anahtar iptal edilip
+yenisi üretilir. Sırları depoya yazan yok, Settings → Secrets'tan
+girilir.
+
+### Apple'ın kendi kapıları
+
+- **Trader status** (App Store Connect → Business): AB'de dağıtım için
+  zorunlu, beyan sahibinin kendisi doldurmalı.
+- **App Privacy**: AdMob reklam kimliği topluyor; "Identifiers →
+  Device ID, üçüncü taraf reklamcılık" işaretlenmeli.
+- **Geri yükleme düğmesi**: 3.1.1 gereği, `RestorePurchases.tsx` ile
+  zaten var.
+- **ATT metni**: `NSUserTrackingUsageDescription` dolu. Belirsiz metin
+  sık bir ret sebebi.
