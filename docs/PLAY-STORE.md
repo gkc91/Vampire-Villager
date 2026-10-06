@@ -896,11 +896,31 @@ yalnız üç rolün çiziminden oluşuyor.
 
 Hesap: `pub-3566083608754052` (AdSense ödeme profiliyle aynı numara).
 
+**Android**
+
 | Ne | Kimlik | Nerede duruyor |
 |---|---|---|
 | Uygulama kimliği | `ca-app-pub-3566083608754052~3903512524` | `AndroidManifest.xml`, kalıcı |
 | Geçiş — "Oyun sonu geçiş" | `ca-app-pub-3566083608754052/4127225453` | `.env.production.local` → `VITE_ADMOB_INTERSTITIAL` |
 | Ödüllü — "Bir oyunluk premium" | `ca-app-pub-3566083608754052/1632572404` | `.env.production.local` → `VITE_ADMOB_REWARDED` |
+
+**iOS** (6 Ekim 2026'da açıldı)
+
+| Ne | Kimlik | Nerede duruyor |
+|---|---|---|
+| Uygulama kimliği | `ca-app-pub-3566083608754052~3768878638` | `ios/App/App/Info.plist`, kalıcı |
+| Geçiş — "iOS Gecis - oyun sonu" | `ca-app-pub-3566083608754052/2511726576` | `.env.production.local` → `VITE_ADMOB_INTERSTITIAL_IOS` |
+| Ödüllü — "iOS Odullu - roller" | `ca-app-pub-3566083608754052/7054351672` | `.env.production.local` → `VITE_ADMOB_REWARDED_IOS` |
+
+**İKİSİ BİRBİRİNİN YERİNE KULLANILAMAZ.** AdMob'da Android ve iOS ayrı
+birer uygulama. Yanlış platformun birimiyle istek atmak hata vermiyor —
+reklam gelmiyor ve istek "geçersiz etkinlik" sayılabiliyor. Seçim
+çalışma zamanında yapılıyor (`src/monetization/adUnits.ts`), testi
+`adUnits.test.ts`.
+
+iOS uygulaması şu an **"İnceleme gerekli / Sınırlı reklam sunumu"**
+durumunda: App Store'da yayınlanıp AdMob'a mağaza bağlanana kadar
+doluluk düşük olacak. Android'de de aynısı yaşandı, normal.
 
 **Uygulama kimliği her derlemede manifest'te duruyor, değiştirilmiyor.**
 Tehlikesiz: o kimlik yalnız uygulamayı tanıtıyor, hangi reklamın geleceğini

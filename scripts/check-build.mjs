@@ -45,9 +45,13 @@ const DEMO_YAYINCI = 'ca-app-pub-3940256099942544';
 // ilk yazdığımda öyle yapmıştım ve denetçi doğru üretim paketini
 // "KARIŞIK" diye işaretledi, "CANLI" sonucuna hiç ulaşamıyordu.
 //
-// Doğru ölçüt: DEMO OLMAYAN kaç ayrı reklam birimi gömülü. İki birim
-// kullanıyoruz (geçiş + ödüllü), ikisi de varsa ortam değişkenleri
-// okunmuş demektir.
+// Doğru ölçüt: DEMO OLMAYAN kaç ayrı reklam birimi gömülü.
+//
+// DÖRT bekliyoruz, iki değil: geçiş + ödüllü, Android ve iOS için ayrı
+// ayrı. AdMob'da iki platform ayrı birer uygulama, birimleri de ayrı.
+// Eşik 2'de kalsaydı, yalnız Android kimlikleri dolu bir paket "CANLI"
+// görünürdü ve iOS sürümü sessizce demo reklamla çıkardı — tam olarak bu
+// satırın engellemek için var olduğu hata, bir platform ötede.
 const canliBirimler = new Set();
 for (const file of readdirSync(dir).filter((f) => f.endsWith('.js'))) {
   const text = readFileSync(join(dir, file), 'utf8');
@@ -56,13 +60,17 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith('.js'))) {
   }
 }
 
-const BEKLENEN_BIRIM = 2; // geçiş + ödüllü
+const BEKLENEN_BIRIM = 4; // (geçiş + ödüllü) × (Android + iOS)
+const DEGISKENLER =
+  'VITE_ADMOB_INTERSTITIAL, VITE_ADMOB_REWARDED, ' +
+  'VITE_ADMOB_INTERSTITIAL_IOS, VITE_ADMOB_REWARDED_IOS';
+
 if (canliBirimler.size >= BEKLENEN_BIRIM) {
   console.log(`reklamlar: CANLI (${canliBirimler.size} birim) — üretim sürümü.`);
 } else if (canliBirimler.size > 0) {
   console.log(
     `reklamlar: KARIŞIK — ${canliBirimler.size}/${BEKLENEN_BIRIM} birim canlı. ` +
-      '.env.production.local eksik.',
+      `.env.production.local eksik: ${DEGISKENLER}`,
   );
 } else {
   console.log('reklamlar: DEMO — üretime çıkarken .env.production.local doldurulmalı.');

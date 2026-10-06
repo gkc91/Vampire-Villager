@@ -23,14 +23,19 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<!--
-		AdMob iOS uygulama kimliği.
+		AdMob iOS uygulama kimliği. CANLI.
 
-		ŞU AN GOOGLE'IN TEST KİMLİĞİ. Gerçek kimlik AdMob'da iOS uygulaması
-		açılınca buraya yazılacak; Android'inkinden FARKLI olacak.
-		Bu anahtar olmadan Google Mobile Ads SDK açılışta çöküyor.
+		Android'inkinden FARKLI ve öyle olmak zorunda: AdMob'da Android ile
+		iOS ayrı birer uygulama. Bu anahtar yoksa ya da yanlışsa Google
+		Mobile Ads SDK uygulamayı AÇILIŞTA çökertiyor — sessiz bir hata
+		değil, ilk ekranı bile göremezsin.
+
+		Reklam BİRİMİ kimlikleri burada değil: onlar da platforma göre
+		ayrışıyor ve `.env.production.local` üzerinden giriyor
+		(bkz. src/monetization/adUnits.ts).
 	-->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-3566083608754052~3768878638</string>
 
 	<!--
 		App Tracking Transparency izin metni.
