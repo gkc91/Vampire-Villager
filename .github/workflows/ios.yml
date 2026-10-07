@@ -59,7 +59,20 @@ jobs:
 
       # Aynı kapı Android'de de geçiliyor: i18n taraması, testler, derleme,
       # paket denetimi. iOS için ayrı bir kalite ölçütü yok.
+      # REKLAM KİMLİKLERİ BURADA AÇIKÇA. Sır değiller: derlenmiş her
+      # uygulamanın içinde düz metin duruyorlar ve docs/PLAY-STORE.md §14'te
+      # zaten yazılılar. Yerelde .env.production.local'dan geliyorlar; o
+      # dosya depoda yok, dolayısıyla CI'da da yoktu — 2.2'nin ilk iOS
+      # derlemesi bu yüzden yalnız Google'ın DEMO birimleriyle çıktı.
+      # BITECLUB_CANLI_REKLAM=1: dört birimden biri bile eksikse
+      # check-build.mjs derlemeyi düşürüyor.
       - run: npm run check
+        env:
+          BITECLUB_CANLI_REKLAM: '1'
+          VITE_ADMOB_INTERSTITIAL: ca-app-pub-3566083608754052/4127225453
+          VITE_ADMOB_REWARDED: ca-app-pub-3566083608754052/1632572404
+          VITE_ADMOB_INTERSTITIAL_IOS: ca-app-pub-3566083608754052/2511726576
+          VITE_ADMOB_REWARDED_IOS: ca-app-pub-3566083608754052/7054351672
 
       - run: npx cap sync ios
 

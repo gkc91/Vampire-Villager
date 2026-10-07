@@ -15,20 +15,24 @@
 <plist version="1.0">
 <dict>
 	<!--
-		Reklam kimliği (IDFA) kişiselleştirilmiş reklam için kullanılıyor,
-		yani Apple'ın tanımıyla "izleme" yapıyoruz. ATT izin ekranı tam
-		olarak bunun için var (bkz. Info.plist NSUserTrackingUsageDescription).
-	-->
-	<key>NSPrivacyTracking</key>
-	<true/>
+		ÜST DÜZEY NSPrivacyTracking ve NSPrivacyTrackingDomains BİLEREK YOK.
 
-	<!--
-		Kendi izleme alan adımız yok. Reklam ağının alan adlarını Google
-		Mobile Ads SDK kendi manifestinde beyan ediyor; buraya kopyalamak
-		mükerrer beyan olur.
+		İlk sürümde NSPrivacyTracking = true ve boş bir alan adı listesi
+		vardı. Apple derlemeyi ITMS-91064 ile geri çevirdi: izleme bayrağı
+		true ise alan adı listesi dolu olmalı (ve tersi).
+
+		Alan adı yazmak çözüm değil: iOS 17+ ATT'ye "hayır" diyen
+		kullanıcıda listedeki alan adlarına bağlantıyı KESİYOR. Google'ın
+		reklam alan adlarını buraya yazmak, kişiselleştirilmemiş reklamları
+		bile o kullanıcıların çoğunda öldürürdü.
+
+		Google Mobile Ads'in kendi manifesti de aynen böyle: üst düzey
+		izleme anahtarı yok, izleme VERİ TÜRÜ düzeyinde beyan ediliyor
+		(Device ID, Tracking = true). Aşağıdaki DeviceID girdisi aynısını
+		yapıyor. App Store'daki gizlilik etiketi "Used to Track You"
+		demeye devam ediyor ve ATT izni yine isteniyor — beyan değişmedi,
+		yalnız biçimi Apple'ın doğrulayıcısına uydu.
 	-->
-	<key>NSPrivacyTrackingDomains</key>
-	<array/>
 
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>

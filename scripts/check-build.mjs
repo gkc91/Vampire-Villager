@@ -75,3 +75,17 @@ if (canliBirimler.size >= BEKLENEN_BIRIM) {
 } else {
   console.log('reklamlar: DEMO — üretime çıkarken .env.production.local doldurulmalı.');
 }
+
+// MAĞAZA DERLEMESİNDE DEMO = HATA. Yukarıdaki sonuç yalnız yazdırılıyor;
+// yerelde demo derleme meşru. Ama iOS 2.2'nin ilk derlemesi CI'dan
+// yalnız Google'ın demo birimleriyle çıktı ve incelemeye gönderildi —
+// iş akışında kimlikler yoktu, bu denetim de "DEMO" yazıp geçti. Onay
+// gelseydi uygulama test reklamı gösterip hiç kazanmayacaktı.
+// Mağazaya giden iş akışları BITECLUB_CANLI_REKLAM=1 ile çağırıyor.
+if (process.env.BITECLUB_CANLI_REKLAM === '1' && canliBirimler.size < BEKLENEN_BIRIM) {
+  console.error(
+    `HATA: mağaza derlemesi ama yalnız ${canliBirimler.size}/${BEKLENEN_BIRIM} reklam birimi canlı. ` +
+      `Eksik olabilecekler: ${DEGISKENLER}`,
+  );
+  process.exit(1);
+}
