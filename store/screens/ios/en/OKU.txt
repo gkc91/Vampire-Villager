@@ -1,0 +1,33 @@
+BITE CLUB — APP STORE KARELERI, INGILIZCE (en-US)
+================================================
+
+7 dosya, hepsi 1206x2622 (App Store "iPhone with Dynamic Island,
+medium display" yuvasi). Turkce karelerle ayni sira ve ayni ekranlar:
+
+  01-role-card-seer.png    Rol karti — Seer
+  02-lobby-room-code.png   Village Square, oda kodu + 10 oyuncu
+  03-role-setup.png        11 rol, premium roller acik
+  04-night.png             Night 3, sayac isliyor, 2 not
+  05-discussion.png        Day 2 tartisma, 3:00
+  06-notes-day.png         Day 3, 3 not birikmis
+  07-game-over.png         The Village Wins, roller + ozet
+
+NASIL CEKILDI
+-------------
+Telefondan degil: bassiz Chrome, 402x874 @3x (= 1206x2622, olcekleme
+yok), CDP ile suruldu ve GERCEK bir oyun oynatildi — kurucu "Sam"
+(Seer, test araci ile) + 9 bot. Notlar, olumler, ozet oyunun kendisinden.
+Koyun kazandigi kare 4. oyunda geldi (botlar rastgele oy veriyor).
+
+Cekim sirasinda YALNIZ YERELDE, commit edilmeden:
+  - isNativeApp() ve hasPremium() true (uygulama + premium gorunumu)
+  - bot adlari Ingilizce (Ava, Ben, Chloe...) — oyuncu adlari kullanicinin
+    yazdigi sey, Ingilizce masada boyle gorunur
+  - yerel aktarici (wrangler dev, 8788) + VITE_PUBLIC_URL, yoksa ustte
+    kirmizi "Reconnecting..." seridi ve katilim baglantisinda localhost
+    cikiyordu
+  - yalniz gelistirmede gorunen "Night x-ray" test paneli gizlendi
+Hepsi cekimden sonra geri alindi.
+
+Yazi tipi: basliklar Trebuchet MS (uygulamanin kendi tanimi, iOS'ta da
+var), govde sistem yazi tipi.
