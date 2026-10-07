@@ -32,6 +32,11 @@ emin ol.
 
 ## Müzik (Suno ile üretildi)
 
+**Ücretli Suno planıyla üretildi** (kullanıcı teyidi, 7 Ekim 2026): ticari
+kullanım hakkı var. Oyunda ve tanıtım videosunda (`store/promo/`) kullanılabilir.
+Suno'nun ücretsiz planı ticari kullanıma izin VERMİYOR; yeni müzik eklenirse
+yine ücretli hesapla üretilmeli.
+
 | Dosya | Üretim tarihi | Not |
 |---|---|---|
 | audio/music/lobby.mp3 | | 90 sn döngü |
