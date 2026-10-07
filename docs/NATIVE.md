@@ -349,8 +349,30 @@ alındıktan sonra yama geri alındı.
   oyunu hiç başlatamaz.
 - **Yayın biçimi:** onaydan sonra otomatik.
 - **Fiyat:** ücretsiz · **Ülke:** 175 (hepsi, gelecekte eklenenler dahil).
-- **İletişim telefonu boş** — tek eksik alan, hesap sahibinin kendi
-  numarası girilecek.
+- **İletişim:** hesap sahibi, telefon ve e-posta girildi.
+
+**TUZAK — "Sign-in required" varsayılan olarak İŞARETLİ geliyor.**
+İşaretliyken kullanıcı adı/şifre boş kalınca Apple App Review
+bilgilerini (iletişim + notlar) **hiç kaydetmiyor**: Kaydet düğmesi
+"Saved" diyor, hata yok, ama `appStoreReviewDetails` isteği gitmiyor ve
+sayfa yenilenince alanlar boş. Kutu kaldırılınca POST 201 ile kaydoldu.
+Bir sonraki sürümde ilk bakılacak yer burası.
+
+### İhracat uyumu (export compliance)
+
+Derleme "Missing Compliance" ile takıldı. Cevap: **"None of the
+algorithms mentioned above"** — uygulama şifrelemeyi yalnız işletim
+sisteminden kullanıyor (HTTPS/WSS ve WebRTC, WebKit içinden), kendi
+algoritması yok. Bu soru her derlemede tekrar gelmesin diye
+`Info.plist`'e `ITSAppUsesNonExemptEncryption = false` eklendi; bir
+sonraki derlemeden itibaren geçerli.
+
+### Gönderim
+
+7 Ekim 2026 sabahı iOS 2.2 (derleme 1) ve `premium_roles` **aynı
+gönderide** incelemeye yollandı — ilk tüketilmez IAP'nin bir sürümle
+birlikte gitmesi şart. Durum: *Waiting for Review*. Onaydan sonra
+otomatik yayın.
 
 ### Güney Kore
 

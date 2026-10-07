@@ -34,6 +34,8 @@
 		ayrışıyor ve `.env.production.local` üzerinden giriyor
 		(bkz. src/monetization/adUnits.ts).
 	-->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3566083608754052~3768878638</string>
 
