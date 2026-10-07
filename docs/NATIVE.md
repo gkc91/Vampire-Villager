@@ -404,9 +404,13 @@ IAP üçü de `WAITING_FOR_REVIEW`. Onaydan sonra otomatik yayın.
 Yalnız **"Bite Club" alınamadı**: Apple'da adlar mağaza genelinde tekil,
 başka bir uygulamada kayıtlı. Türkçe adın birebir karşılığı seçildi.
 
-Ekran görüntüsü İngilizce için ayrıca yüklenmedi; Apple boş dilde
-birincil dilin (Türkçe) karelerini gösteriyor. İngilizce arayüzden
-kareler çekilirse en-US'ye ayrıca yüklenmeli.
+**Ekran görüntüleri — 2.3 İLE YÜKLENECEK.** İngilizce arayüzden yedi
+kare çekildi: `store/screens/ios/en/` (1206x2622, nasıl çekildiği
+`OKU.txt`'te). 2.2 incelemedeyken yüklenemedi — Apple "Can't Create
+Screenshot Set while In Review" diyor ve yayındaki bir sürümün kareleri
+yalnız yeni sürümle değişiyor. Kullanıcı kararı (7 Ekim 2026): 2.2'yi
+geri çekmek yerine 2.3'te en-US'nin `APP_IPHONE_61` yuvasına yüklenecek.
+O zamana kadar İngilizce sayfa Türkçe kareleri gösteriyor.
 
 **Apple 2.3.2 — açıklama ücretli öğeleri söylemeli.** İki dilde de "11
 rol" yazıyordu ama üçü ücretli. İkisine de eklendi: Büyücü, Kan Büyücüsü
