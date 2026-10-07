@@ -369,10 +369,53 @@ sonraki derlemeden itibaren geçerli.
 
 ### Gönderim
 
-7 Ekim 2026 sabahı iOS 2.2 (derleme 1) ve `premium_roles` **aynı
-gönderide** incelemeye yollandı — ilk tüketilmez IAP'nin bir sürümle
-birlikte gitmesi şart. Durum: *Waiting for Review*. Onaydan sonra
-otomatik yayın.
+**İlk deneme (derleme 1) geri döndü — ITMS-91064.** Kök
+`PrivacyInfo.xcprivacy`'de `NSPrivacyTracking = true` ama
+`NSPrivacyTrackingDomains` boştu; Apple ikisini tutarlı istiyor. Alan adı
+yazmak çözüm değildi (iOS ATT'ye "hayır" diyende o alan adlarını
+engelliyor, reklamlar ölürdü). Google Mobile Ads'in manifestindeki gibi
+üst düzey izleme anahtarları kaldırıldı, izleme veri türü düzeyinde
+kaldı. `privacyManifest.test.ts` bunu bekçiliyor.
+
+**Derleme 1'in içinde yalnız DEMO reklam birimleri vardı.** CI'da
+`.env.production.local` yok; kimlikler artık `ios.yml`'de, ve
+`BITECLUB_CANLI_REKLAM=1` ile `check-build.mjs` dört canlı birim yoksa
+derlemeyi düşürüyor. Derleme 2 paketi açılıp doğrulandı: dört canlı
+birim, düzeltilmiş manifest, `ITSAppUsesNonExemptEncryption = false`
+(ihracat sorusu bu derlemede kendiliğinden geçti).
+
+**Eski gönderi iptal edilip yeniden gönderildi.** Derleme 2 sürüme
+bağlanınca eski gönderi "Waiting for Review" görünmeye devam etti ama
+öğeleri API'de `READY_FOR_REVIEW`, sürüm `PREPARE_FOR_SUBMISSION`'daydı —
+kuyrukta gerçekte bir şey yoktu. İptal edildi (IAP o sırada `IN_REVIEW`
+idi; iptal onu da geri çekti, *Developer Rejected* oldu) ve ikisi yeni
+bir gönderide yollandı. 7 Ekim 2026 09:11: gönderi, sürüm (derleme 2) ve
+IAP üçü de `WAITING_FOR_REVIEW`. Onaydan sonra otomatik yayın.
+
+### İngilizce (en-US) yerelleştirme
+
+| Alan | Değer |
+|---|---|
+| Ad | **Bite Club — Vampire Villager** |
+| Alt başlık | One of you drinks blood |
+| Gizlilik adresi | aynı (`/privacy`, sayfa iki dilli) |
+| Açıklama / tanıtım / anahtar kelimeler | §App Store mağaza metinleri + Play §11 |
+
+Yalnız **"Bite Club" alınamadı**: Apple'da adlar mağaza genelinde tekil,
+başka bir uygulamada kayıtlı. Türkçe adın birebir karşılığı seçildi.
+
+Ekran görüntüsü İngilizce için ayrıca yüklenmedi; Apple boş dilde
+birincil dilin (Türkçe) karelerini gösteriyor. İngilizce arayüzden
+kareler çekilirse en-US'ye ayrıca yüklenmeli.
+
+**Apple 2.3.2 — açıklama ücretli öğeleri söylemeli.** İki dilde de "11
+rol" yazıyordu ama üçü ücretli. İkisine de eklendi: Büyücü, Kan Büyücüsü
+ve Sisler Vampiri tek seferlik satın almayla ya da ödüllü reklamla bir
+oyunluğuna açılır.
+
+**Apple 1.5 — destek adresinde iletişim yolu.** Destek adresi olan
+`nasil-oynanir.html`'de e-posta yoktu; altbilgiye iki dilli
+`info@lampwickgames.com` satırı eklendi.
 
 ### Güney Kore
 
