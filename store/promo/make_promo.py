@@ -313,7 +313,10 @@ def main() -> None:
     cikti = OUT / f'biteclub-promo-{DIL}.mp4'
     ff(*girdi, *ses_girdi, '-filter_complex', ';'.join(zincir + katman),
        '-map', onceki, '-map', '[a]',
-       '-c:v', 'libx264', '-preset', 'slow', '-crf', '19', '-pix_fmt', 'yuv420p',
+       # Film greni sıkıştırmayı zorluyor: sınırsız crf 19'da 36 sn = 70 MB.
+       # Sosyal platformlar zaten yeniden kodluyor; 6 Mbit/sn tavanı yeterli.
+       '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-maxrate', '6M', '-bufsize', '12M',
+       '-tune', 'grain', '-pix_fmt', 'yuv420p',
        '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
        '-t', f'{toplam:.3f}', str(cikti))
     print(f'{cikti.relative_to(KOK)}  {toplam:.1f} sn  |  seslendirme: {len(sesler)}/{len(satirlar)} satır')
