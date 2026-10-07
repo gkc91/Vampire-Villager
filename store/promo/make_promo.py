@@ -253,7 +253,7 @@ def main() -> None:
         if v.exists():
             sesler[i] = v
             # Ses geçişin yarısında başlıyor; arkasında nefes payı kalıyor.
-            sureler.append(max(s.en_az, sure_al(v) + GECIS + 0.7))
+            sureler.append(max(s.en_az, sure_al(v) + GECIS * 0.5 + 0.9))
         else:
             sureler.append(s.en_az)
 
@@ -308,14 +308,16 @@ def main() -> None:
         govde = ['[muzik]']
     hepsi = govde + efektler
     katman.append(f"{''.join(hepsi)}amix=inputs={len(hepsi)}:duration=first:normalize=0,"
-                  f"alimiter=limit=0.95[a]")
+                  # Sosyal platformların hedefi ~-14 LUFS; normalleştirmeden -18'de
+                  # kalıyordu, telefonda kısık duyuluyordu.
+                  f"loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[a]")
 
     cikti = OUT / f'biteclub-promo-{DIL}.mp4'
     ff(*girdi, *ses_girdi, '-filter_complex', ';'.join(zincir + katman),
        '-map', onceki, '-map', '[a]',
        # Film greni sıkıştırmayı zorluyor: sınırsız crf 19'da 36 sn = 70 MB.
-       # Sosyal platformlar zaten yeniden kodluyor; 6 Mbit/sn tavanı yeterli.
-       '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-maxrate', '6M', '-bufsize', '12M',
+       # Sosyal platformlar zaten yeniden kodluyor; 5 Mbit/sn tavanı yeterli.
+       '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-maxrate', '5M', '-bufsize', '10M',
        '-tune', 'grain', '-pix_fmt', 'yuv420p',
        '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
        '-t', f'{toplam:.3f}', str(cikti))
