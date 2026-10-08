@@ -107,3 +107,31 @@ top right). The second button on the same card, "Watch an ad, unlock for
 this game", is a rewarded ad that unlocks the roles for one game only; it is
 not a purchase.
 ```
+
+---
+
+## Gönderildi — 8 Ekim 2026, 10:24
+
+- Cevap metni yukarıdaki gibi (paragraflar düz satıra çevrilerek) App
+  Review'a yazıldı, Hilal'in iPhone'unda çekilen kayıt (114 sn) eklendi.
+- Aynı metin, giriş paragrafı çıkarılıp "Attached to our App Review reply of
+  Oct 8, 2026" diye uyarlanarak **App Review Information → Notes**'a kondu
+  (3.370 karakter, sunucudan doğrulandı).
+- Kayıtta: ana ekrandan açılış, oda kurma, 3 bot, satın alma tamamlandı
+  ("Satın alma işleminiz başarılı"), roller açıldı, Ayarlar → Restore
+  purchases ("Your premium access has been restored."), iki tur oyun.
+- "Resubmit to App Review" pasif kaldı: bilgi talebinde sürüm değişmediği
+  için yeniden gönderim gerekmiyor, inceleyici cevabı okuyup devam ediyor.
+
+**Kayıt notları — sonraki sefer için:**
+- WhatsApp videoyu 384x848'e küçültüyor; "Belge" olarak gönderilse bile
+  kaynak olarak WhatsApp'taki kopya seçilirse aynı kalıyor. Orijinal için
+  Fotoğraflar'dan AirDrop / Mail.
+- İlk denemede satın alma Apple ID parolası kabul edilmediği için yarım
+  kaldı (Apple şifre sıfırlama ekranına geçti); uygulama doğru şekilde
+  "That did not go through" gösterdi.
+- TestFlight'ta düğmede "$3.99", satın alma penceresinde "149,99 TL"
+  görünüyor: StoreKit onaysız üründe taban fiyatı döndürüyor, uygulama
+  hatası değil.
+- Hilal App Store Connect'e "Marketing" rolüyle eklendi (ücretsiz Apple
+  ID yeterli), "test" iç TestFlight grubunda.
