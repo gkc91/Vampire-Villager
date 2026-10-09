@@ -120,8 +120,19 @@ not a purchase.
 - Kayıtta: ana ekrandan açılış, oda kurma, 3 bot, satın alma tamamlandı
   ("Satın alma işleminiz başarılı"), roller açıldı, Ayarlar → Restore
   purchases ("Your premium access has been restored."), iki tur oyun.
-- "Resubmit to App Review" pasif kaldı: bilgi talebinde sürüm değişmediği
-  için yeniden gönderim gerekmiyor, inceleyici cevabı okuyup devam ediyor.
+- **YANLIŞTI — cevap tek başına yetmiyor.** Gönderi bir gün boyunca
+  "Unresolved Issues", sürüm "Rejected" kaldı. "Resubmit to App Review"
+  pasifti çünkü reddedilen sürüm gönderiye geri bağlanmamıştı.
+
+**Doğru akış (9 Ekim 2026'da çalıştı):**
+1. Cevabı yaz (Reply to App Review), Notes'u güncelle.
+2. **Sürüm sayfasında "Update Review"** — reddedilen sürümü gönderiye geri
+   bağlıyor; iki öğe de `READY_FOR_REVIEW` oluyor.
+3. Gönderi sayfasında açılan **"Resubmit to App Review"**.
+9 Ekim 09:30'da yeniden gönderildi; gönderi, sürüm ve IAP `WAITING_FOR_REVIEW`.
+
+(IAP'ın API'de `MISSING_METADATA` görünmesi engel değil: v2 API taslak
+öğeyi böyle etiketliyor, arayüz "Ready for Review" diyor.)
 
 **Kayıt notları — sonraki sefer için:**
 - WhatsApp videoyu 384x848'e küçültüyor; "Belge" olarak gönderilse bile
