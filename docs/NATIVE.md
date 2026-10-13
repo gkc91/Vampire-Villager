@@ -427,3 +427,38 @@ Apple'ın "tümü" listesi 175 ülke ve Kore yaş sınıflandırmasında ayrıca
 **GRAC RCN** istiyor (Play'de IARC bunu kapsıyordu, Apple'da kapsamıyor).
 Ülke listesi olduğu gibi bırakıldı; Kore'de yayın RCN alınana kadar
 açılmayacak, bu sürümü bloke etmiyor.
+
+## Simge ve açılış ekranı — ŞABLON TUZAĞI (13 Ekim 2026)
+
+`npx cap add ios/android` platform klasörünü Capacitor'ın **kendi şablon
+görselleriyle** kuruyor: beyaz zeminde mavi bir işaret. Hiçbir şeyi bozmuyor
+— derleme geçiyor, testler geçiyor, uygulama açılıyor — ve öylece mağazaya
+gidiyor. Gitti de:
+
+- **iOS 2.2 (derleme 2) incelemeden döndü:** Guideline 2.3.8, *"the app icons
+  appear to be placeholder icons"*. İnceleme cihazı iPad Air 11" (M3);
+  uygulama iPhone'a kilitli olsa da iPad iPhone uygulamalarını çalıştırıyor.
+- **Açılış ekranı iki platformda da şablondu** ve ikisinde de gerçekten
+  gösteriliyor: iOS `LaunchScreen.storyboard` (`Splash` görseli,
+  scaleAspectFill), Android `styles.xml` → `android:background=@drawable/splash`.
+  Yani Play'de yayındaki sürüm de her açılışta Capacitor'ın işaretini
+  gösteriyordu.
+- Android'in **uygulama simgesi** doğruydu (adaptive icon, `#471A83` zemin).
+
+**Üretim:** `node scripts/make-native-assets.mjs` — hepsini
+`public/assets/icon/app-icon.png`'den türetiyor. Simge değişirse tekrar
+çalıştır, sonra `npm test`.
+
+| Çıktı | Ölçü | Not |
+|---|---|---|
+| iOS simge | 1024x1024 | **alfasız RGB** — alfalı dosyayı Apple reddediyor |
+| iOS açılış | 2732x2732 ×3 | Contents.json 1x/2x/3x için aynı ölçüyü istiyor |
+| Android açılış | 11 dosya | yoğunluk/yön varyantları, ölçüleri korunuyor |
+
+Açılış ekranının zemini simgenin kendi moru (`#461B83`): simge karesi zemine
+oturunca ek yeri görünmüyor, logo havada duruyor gibi oluyor.
+
+**Bekçi:** `src/util/nativeAssets.test.ts` PNG'yi zlib ile açıp köşe
+piksellerine bakıyor; marka moru değilse düşüyor. Ölçüt renk, hash değil —
+yeniden kodlama hash'i değiştirir ama görseli değiştirmez. Apple'ın
+reddettiği dosyalar geri konunca 7 test düşüyor (denendi).
