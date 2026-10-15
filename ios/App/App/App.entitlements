@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+	Associated Domains — paylaşılan davet bağlantısı uygulamada açılsın.
+
+	Bu dosya EKSİKTİ. iOS, bir adresi uygulamaya yönlendirmeden önce
+	uygulamanın o alan adını sahiplendiğini bilmek zorunda; bunu yalnız bu
+	yetkiden öğreniyor. Yetki yoksa sistem sessizce Safari'ye düşüyor — hata
+	vermiyor, sadece uygulama açılmıyor.
+
+	`applinks:` kurulumda iOS'un
+	https://biteclub.lampwickgames.com/.well-known/apple-app-site-association
+	dosyasını (Apple'ın CDN'i üzerinden) indirip uygulama kimliğini
+	karşılaştırmasını sağlıyor. Eşleşirse `/join/*` adresleri uygulamada
+	açılıyor; eşleşmezse tarayıcıda — yani bozulma riski yok.
+
+	Yalnız `/join/*` sahipleniliyor (sahiplenilen yollar AASA dosyasında);
+	ana sayfa, gizlilik ve nasıl oynanır sayfaları tarayıcıda kalmalı.
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:biteclub.lampwickgames.com</string>
+	</array>
+</dict>
+</plist>

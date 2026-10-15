@@ -13,7 +13,20 @@
     // /room/* WebSocket yükseltmesi ve /probe/* ölçüm uçları Worker'a
     // gitmeli, statik dosyaya değil. Aksi halde SPA yedeği devreye girip
     // 200 + index.html dönüyor ve ölçüm "engelli" sanıyor.
-    "run_worker_first": ["/room/*", "/stream/*", "/send/*", "/probe/*"]
+    //
+    // Derin link doğrulama dosyaları da BURADA olmak zorunda. Statik servis
+    // Worker'dan önce çalıştığı için bu yollar listede değilken SPA yedeği
+    // devreye giriyor ve Android/iOS doğrulaması JSON yerine 200 + index.html
+    // alıyor. Hata vermiyor; yalnız derin link sessizce çalışmıyor.
+    "run_worker_first": [
+      "/room/*",
+      "/stream/*",
+      "/send/*",
+      "/probe/*",
+      "/.well-known/assetlinks.json",
+      "/.well-known/apple-app-site-association",
+      "/apple-app-site-association"
+    ]
   },
   // Worker günlükleri. Kapalıyken console.log çıktısı hiçbir yere düşmez ve
   // panelde "No events found" görünür. Panelden elle açılabilir ama bir

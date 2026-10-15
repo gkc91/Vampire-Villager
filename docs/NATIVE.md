@@ -62,42 +62,85 @@ npx cap open ios
 
 ## Derin Link (link → uygulama → odaya düş)
 
-Uygulama içi yönlendirme hash tabanlıdır: `https://ALAN-ADI/#/join/ODA123`.
-Bu yüzden web'de ekstra sunucu ayarı gerekmez. Native tarafta iki yol açılır:
+**15 Ekim 2026'da uygulandı.** O güne kadar plan buradaydı ama kod yoktu:
+WhatsApp'tan paylaşılan davet bağlantısı hem Android'de hem iOS'ta siteyi
+açıyordu.
 
-1. **Özel şema** `vampirkoylu://join/ODA123`
-2. **App Link** `https://ALAN-ADI/join/ODA123`
+### Neden açılmıyordu — üç ayrı eksik
 
-`src/util/deepLink.ts` her iki biçimi de yakalar ve hash'e çevirir.
+1. **Bağlantının biçimi.** `joinLink()` `.../#/join/KOD` üretiyordu. App Links
+   ve Universal Links eşleşmeyi **yol** üzerinden yapıyor; `#` sonrası yolun
+   parçası değil, yani adresin yolu sadece `/`. Yakalamak için alan adının
+   tamamını sahiplenmek gerekirdi — o da ana sayfayı, gizlilik ve nasıl
+   oynanır sayfalarını uygulamaya çekerdi. Artık `.../join/KOD`.
+2. **Sahiplenme beyanı yoktu.** AndroidManifest'te yalnız MAIN/LAUNCHER
+   süzgeci vardı; iOS'ta Associated Domains yetkisi hiç yoktu.
+3. **Doğrulama dosyaları yoktu.** `/.well-known/assetlinks.json` ve
+   `/.well-known/apple-app-site-association` 200 dönüyordu ama içerik
+   `index.html`'di (SPA yedeği).
 
-### Android: `android/app/src/main/AndroidManifest.xml`
+Üçü de sessiz: hata yok, log yok, kilitlenme yok. Sistem doğrulayamayınca
+tarayıcıya düşüyor.
 
-`MainActivity` içindeki `<activity>` etiketine ekle:
+### Uygulama kurulu değilse ne oluyor
 
-```xml
-<intent-filter>
-  <action android:name="android.intent.action.VIEW" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="vampirkoylu" android:host="join" />
-</intent-filter>
+Aynı adres tarayıcıda açılıyor, `roomFromLocation()` kodu **yoldan** okuyor
+ve oda kodu alanı doluyor. Web akışı bilerek korundu.
 
-<intent-filter android:autoVerify="true">
-  <action android:name="android.intent.action.VIEW" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="https" android:host="ALAN-ADI" android:pathPrefix="/join" />
-</intent-filter>
+### Dosyalar Worker'dan servis ediliyor
+
+`worker/index.ts` → `wellKnownResponse()`. `public/` içine konmadı çünkü:
+
+- `apple-app-site-association` **uzantısız**; statik servis onu doğru içerik
+  türüyle vermiyor, Apple `application/json` bekliyor.
+- `not_found_handling: single-page-application` dosya bulunamazsa index.html
+  döndürüyor; doğrulama sessizce 200/HTML alıp başarısız oluyor.
+
+**`wrangler.jsonc` → `run_worker_first` listesine eklenmeleri ŞART.** Statik
+servis Worker'dan önce çalışıyor; liste dışındayken ikisi de SPA yedeğine
+düşüyordu. İlk denemede tam olarak bu oldu.
+
+### Parmak izleri
+
+`assetlinks.json` içinde **iki** SHA-256 var:
+
+| Anahtar | Nereden | Niçin gerekli |
+|---|---|---|
+| Uygulama imzalama | Play Console → Uygulama bütünlüğü | Play'den inen her kurulum bununla imzalı |
+| Yükleme | aynı sayfa | Yerelde derlenip doğrudan kurulan APK bununla imzalı |
+
+Yalnız ilkini yazmak elle kurulan test paketlerinde derin linki sessizce
+bozar.
+
+### Sahiplenilen yol: yalnız `/join/*`
+
+Android `pathPrefix="/join"`, iOS AASA `"/": "/join/*"`. Alan adının tamamını
+sahiplenmek ana sayfayı ve bilgi sayfalarını da uygulamaya yönlendirirdi.
+
+### Özel şema
+
+`vampirkoylu://join/KOD` — iki platformda da tanımlı. Universal Link asıl
+yol; bu, alan adı doğrulaması yapılamadığında (yerel test) çalışan yedek.
+
+### Bekçiler
+
+`worker/deepLink.test.ts` ve `src/util/identity.test.ts`: bağlantının hash
+içermediğini, manifest/entitlements'ın alan adını sahiplendiğini, iki parmak
+izinin de bulunduğunu ve sahiplenilen yolun `/join/*` ile sınırlı kaldığını
+doğruluyor. Eski hatalı hale dönülünce 5 test düşüyor (denendi).
+
+### Yayına çıktıktan sonra doğrulama
+
 ```
+curl -sD- https://biteclub.lampwickgames.com/.well-known/assetlinks.json | head -3
+curl -sD- https://biteclub.lampwickgames.com/.well-known/apple-app-site-association | head -3
+```
+İkisi de `content-type: application/json` dönmeli. Android tarafında cihazda:
+`adb shell pm verify-app-links --re-verify com.lampwickgames.biteclub`
 
-App Link doğrulaması için sitenin köküne
-`/.well-known/assetlinks.json` konur (Play Console imza parmak iziyle).
-
-### iOS
-
-Xcode → Signing & Capabilities → Associated Domains → `applinks:ALAN-ADI`
-ve `Info.plist` içine `CFBundleURLSchemes` = `vampirkoylu`.
-Siteye `/.well-known/apple-app-site-association` konur.
+**Android'de yeni sürüm kurulmadan çalışmaz** (süzgeçler manifest'te) ve
+**iOS'ta yeni derleme gerekir** (yetki pakette). Mevcut kurulumlar
+tarayıcıda açmaya devam eder.
 
 ## WebRTC İzinleri
 

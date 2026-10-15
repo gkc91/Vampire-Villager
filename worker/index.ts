@@ -73,6 +73,83 @@ export function isAllowedOrigin(origin: string | null, requestUrl: string): bool
   }
 }
 
+
+/**
+ * DERİN LİNK DOĞRULAMASI — paylaşılan bağlantı uygulamada açılsın diye.
+ *
+ * Paylaş düğmesi `https://ALAN/join/KOD` üretiyor. Bu adres bir tarayıcıda
+ * açıldığında Android ve iOS, uygulamanın bu alan adını gerçekten sahiplenip
+ * sahiplenmediğini ŞU İKİ DOSYADAN doğruluyor. Dosyalar yoksa sistem sessizce
+ * tarayıcıya düşüyor — hata vermiyor, sadece uygulama açılmıyor. Tam olarak
+ * bu oldu: WhatsApp'tan gelen bağlantı siteyi açıyordu.
+ *
+ * NEDEN WORKER'DAN SERVİS EDİLİYOR, public/ içinden değil:
+ *   - `apple-app-site-association` UZANTISIZ bir dosya; statik servis onu
+ *     doğru içerik türüyle vermiyor. Apple `application/json` bekliyor.
+ *   - `not_found_handling: single-page-application` ayarı, dosya bulunamazsa
+ *     index.html döndürüyor. O zaman doğrulama sessizce 200/HTML alıp
+ *     başarısız oluyor — teşhisi zor bir arıza.
+ * Burada ikisi de kodun içinde; içerik türü garanti ve test edilebilir.
+ */
+const ANDROID_PAKET = 'com.lampwickgames.biteclub';
+
+/**
+ * Play App Signing kullanıldığı için İKİ parmak izi de gerekiyor:
+ *   - uygulama imzalama anahtarı: Play'den inen her kurulum bununla imzalı
+ *   - yükleme anahtarı: yerelde derlenip doğrudan kurulan APK bununla imzalı
+ * Yalnız ilkini yazmak, elle kurulan test paketlerinde derin linki bozar.
+ * Kaynak: Play Console → Uygulama bütünlüğü → Uygulama imzalama.
+ */
+const ANDROID_PARMAK_IZLERI = [
+  'A5:40:B4:FF:1C:A7:D2:2A:10:BA:35:2B:91:87:C6:CD:A3:D5:6F:17:AF:FA:14:0B:E2:E9:1B:68:10:D7:83:D3',
+  '34:9A:F6:93:4C:20:F2:62:41:EC:B7:EC:BC:FF:24:BA:D1:BF:0A:32:A5:EA:88:85:58:2F:F1:69:B6:4F:52:EE',
+];
+
+/** Apple uygulama kimliği: <Takım kimliği>.<paket kimliği>. */
+const IOS_APP_ID = `K7H463X474.${ANDROID_PAKET}`;
+
+export const ASSETLINKS = [
+  {
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: ANDROID_PAKET,
+      sha256_cert_fingerprints: ANDROID_PARMAK_IZLERI,
+    },
+  },
+];
+
+/**
+ * YALNIZ `/join/*` sahipleniliyor. Alan adının tamamını (`*`) sahiplenmek
+ * ana sayfayı, gizlilik ve nasıl oynanır sayfalarını da uygulamaya
+ * yönlendirirdi — onların tarayıcıda açılması gerekiyor.
+ */
+export const AASA = {
+  applinks: {
+    details: [{ appIDs: [IOS_APP_ID], components: [{ '/': '/join/*', comment: 'oda daveti' }] }],
+  },
+};
+
+const WELL_KNOWN: Record<string, unknown> = {
+  '/.well-known/assetlinks.json': ASSETLINKS,
+  '/.well-known/apple-app-site-association': AASA,
+  // iOS eski sürümleri kök dizinde de arıyor.
+  '/apple-app-site-association': AASA,
+};
+
+/** Doğrulama dosyası mı? Değilse null. */
+export function wellKnownResponse(pathname: string): Response | null {
+  const govde = WELL_KNOWN[pathname];
+  if (!govde) return null;
+  return new Response(JSON.stringify(govde, null, 2), {
+    headers: {
+      'content-type': 'application/json',
+      // Parmak izi değişirse (anahtar sıfırlama) geç yayılmasın.
+      'cache-control': 'public, max-age=300',
+    },
+  });
+}
+
 /** SSE ölçüm yanıtı — tek olay, sonra akış kapanır. */
 const SSE_PROBE_PAYLOAD = 'data: ok\n\n';
 
@@ -157,6 +234,10 @@ export default {
       });
     }
 
+    // Derin link doğrulama dosyaları statik servise DÜŞMEDEN önce.
+    const dogrulama = wellKnownResponse(url.pathname);
+    if (dogrulama) return dogrulama;
+
     // Diğer her şey statik site (aynı Worker'dan servis ediliyorsa).
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response('not found', { status: 404 });

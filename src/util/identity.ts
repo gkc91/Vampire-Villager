@@ -91,13 +91,24 @@ export function initials(name: string): string {
  * ekran görüntüsünde de "https://localhost/#/join/…" yazıyordu.
  * Uygulamada herkese açık adresi kullan.
  */
+/**
+ * Paylaşılan davet bağlantısı. YOL TABANLI, hash'li DEĞİL.
+ *
+ * Eskiden `.../#/join/KOD` üretiliyordu ve WhatsApp'tan gelen bağlantı hep
+ * tarayıcıda açılıyordu. Sebep: Android App Links ve iOS Universal Links
+ * eşleşmeyi YOL üzerinden yapıyor, `#` sonrası ise yolun parçası değil —
+ * `/#/join/KOD` adresinin yolu sadece `/`. Uygulamanın bunu yakalaması için
+ * alan adının tamamını sahiplenmesi gerekirdi; o da ana sayfayı, gizlilik ve
+ * nasıl oynanır sayfalarını da uygulamaya çekerdi.
+ *
+ * `/join/KOD` ile uygulama yalnız daveti sahipleniyor. Uygulama kurulu
+ * değilse aynı adres tarayıcıda açılıyor ve `roomFromLocation()` kodu
+ * yoldan okuyor — web akışı aynen korunuyor.
+ */
 export function joinLink(roomId: string): string {
   const publicUrl = (import.meta.env.VITE_PUBLIC_URL as string | undefined)?.trim();
-  if (isNativeApp() && publicUrl) {
-    return `${publicUrl.replace(/\/+$/, '')}/#/join/${roomId}`;
-  }
-  const { origin, pathname } = window.location;
-  return `${origin}${pathname}#/join/${roomId}`;
+  const taban = isNativeApp() && publicUrl ? publicUrl : window.location.origin;
+  return `${taban.replace(/\/+$/, '')}/join/${roomId}`;
 }
 
 export function roomFromLocation(): string | null {

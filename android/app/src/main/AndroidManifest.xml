@@ -34,9 +34,45 @@
             android:launchMode="singleTask"
             android:exported="true">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+                DERİN LİNK: paylaşılan davet uygulamada açılsın.
+
+                Bu iki süzgeç EKSİKTİ; WhatsApp'tan gelen `/join/KOD`
+                bağlantısı hep tarayıcıya düşüyordu. Android bir adresi
+                uygulamaya yönlendirmeden önce uygulamanın o alan adını
+                sahiplendiğini bilmek zorunda ve bunu yalnız manifest'ten
+                öğreniyor.
+
+                autoVerify="true": Android kurulumda
+                https://biteclub.lampwickgames.com/.well-known/assetlinks.json
+                dosyasını indirip imza parmak izini karşılaştırıyor. Eşleşirse
+                bağlantı SORMADAN uygulamada açılıyor. Dosya yoksa ya da parmak
+                izi tutmazsa sessizce tarayıcıda açılıyor — kullanıcı için
+                bugünküyle aynı davranış, yani bozulma riski yok.
+
+                pathPrefix="/join": yalnız davet adresleri. Ana sayfa,
+                gizlilik ve nasıl oynanır sayfaları tarayıcıda kalmalı.
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                    android:host="biteclub.lampwickgames.com"
+                    android:pathPrefix="/join" />
+            </intent-filter>
+
+            <!-- Özel şema: QR/uygulama içi paylaşımlar ve yerel test için. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vampirkoylu" android:host="join" />
             </intent-filter>
 
         </activity>

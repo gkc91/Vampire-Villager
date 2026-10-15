@@ -34,6 +34,22 @@
 		ayrışıyor ve `.env.production.local` üzerinden giriyor
 		(bkz. src/monetization/adUnits.ts).
 	-->
+	<!--
+		Özel şema: QR ve uygulama içi paylaşımlar için ikinci kapı.
+		Universal Link (App.entitlements) asıl yol; bu, alan adı doğrulaması
+		yapılamadığında (ör. yerel test) çalışan yedek.
+	-->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.lampwickgames.biteclub</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>vampirkoylu</string>
+			</array>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>GADApplicationIdentifier</key>
