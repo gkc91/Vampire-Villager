@@ -217,3 +217,24 @@ Gönderimden sonra son kontrol — ikisi de `WAITING_FOR_REVIEW` olmalı:
 /iris/v2/inAppPurchases/<iap-id>  → attributes.isAppStoreReviewInProgress
 Gönderi sayfası                   → IAP satırının "REVIEW STATUS" hücresi
 ```
+
+## Yeniden gönderildi — 18 Ekim 2026, 14:31
+
+1. Derleme 4 alındı (CI run 39122566015). Satın alma kodu derleme 3 ile
+   birebir aynı; fazladan **derin link düzeltmesi** var (iOS'ta eksikti).
+2. Sürüm sayfasında derleme 3 kaldırıldı, **4** seçildi, kaydedildi.
+   Kaydetme sürümü gönderiye kendiliğinden geri bağladı — bu sefer ayrıca
+   "Update Review" gerekmedi.
+3. App Review'a cevap yazıldı (sebep: ürün incelemeye girmemişti).
+4. **Resubmit to App Review.**
+
+Gönderimden sonra doğrulandı:
+
+| Öğe | İnceleme durumu |
+|---|---|
+| Tüm Roller | **Waiting for Review** |
+| iOS App 2.2 (4) | **Waiting for Review** |
+
+Ürün kaydı: `state: WAITING_FOR_REVIEW`, `stateGroup: IN_REVIEW`,
+`isAppStoreReviewInProgress: true` — 8 Ekim'de TestFlight'ta fiyatın
+göründüğü durumun aynısı. Bir sonraki ret/onay bu satırlarla karşılaştırılsın.
