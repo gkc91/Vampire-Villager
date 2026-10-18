@@ -146,3 +146,74 @@ not a purchase.
   hatası değil.
 - Hilal App Store Connect'e "Marketing" rolüyle eklendi (ücretsiz Apple
   ID yeterli), "test" iç TestFlight grubunda.
+
+---
+
+# Guideline 2.1(b) — "products failed to load" (17 Ekim 2026)
+
+İkinci ret. Metin:
+
+> The In-App Purchase products in the app exhibited one or more bugs which
+> create a poor user experience. Specifically, when we attempted to purchase
+> in-app products, the products failed to load.
+> (iPhone 17 Pro Max, iOS 27.0, sürüm 2.2 (3))
+
+## Sebep: IAP gönderiye eklenmişti ama İNCELEMEYE GİRMEMİŞTİ
+
+Gönderi sayfasındaki tablo tek başına cevabı veriyor:
+
+| Öğe | Tür | İnceleme durumu |
+|---|---|---|
+| Tüm Roller | In-App Purchase | **Ready for Review** |
+| iOS App 2.2 | App Version | Rejected |
+
+Sürüm incelendi (bu yüzden "Rejected"), ürün **hiç incelenmedi**. Ürün
+kaydının kendisi de `stateGroup: DRAFT`, `isAppStoreReviewInProgress: false`.
+
+StoreKit taslak ürünü **sandbox'ta da sunmuyor**. İncelemeci uygulamayı
+açtı, `Product.products(for:)` boş döndü, düğmede fiyat çıkmadı, basınca
+"That did not go through" gördü. Apple'ın kendi yönlendirmesi de bunu
+söylüyordu: "Review the product configurations, complete any missing
+information, and test them in the sandbox."
+
+**Kod tarafında hata yoktu** ve arama şu sırayla elendi:
+
+- Paid Apps sözleşmesi aktif (13 Eki 2026 – 6 Eki 2027), banka ve vergi
+  formları tamam → Apple'ın ilk tahmini değil.
+- Ürün yapılandırması eksiksiz: iki yerelleştirme, fiyat çizelgesi (taban
+  ABD), tüm ülkeler, 1242x2208 inceleme karesi, inceleme notu.
+- `@capgo/native-purchases@8.7.0` **her iki derlemede de** pakette
+  (`cap sync` çıktısı, derleme 2 ve 3 birebir aynı).
+- `package-lock.json` 16 Eylül'den beri değişmemiş, CI `npm ci` kullanıyor
+  → sürüm kayması yok.
+
+Kalan tek fark ASC'deydi: 8 Ekim'de Hilal'in TestFlight'ında fiyat
+görünüyordu, çünkü o gün ürün `WAITING_FOR_REVIEW`'deydi (bu belgedeki
+9 Ekim notu da öyle diyor). 13 Ekim'deki yeniden gönderimde ürün
+gönderiye geri bağlanmadı, `Ready for Review`'de kaldı ve 17 Ekim
+incelemesine girmedi.
+
+## Yukarıdaki parantezi düzeltiyor
+
+9 Ekim notundaki "IAP'ın API'de `MISSING_METADATA` görünmesi engel değil"
+cümlesi **yanlış**. O gün engel değildi çünkü ürün ayrıca gönderide
+`WAITING_FOR_REVIEW` idi. Bakılacak alan API'deki `state` değil,
+**gönderi sayfasındaki satırın inceleme durumu**:
+
+- `Waiting for Review` / `In Review` → sandbox ürünü sunar.
+- `Ready for Review` → ürün sahnede değil, sandbox boş döner.
+
+## Yeniden gönderirken
+
+Reddedilen bir sürümü yeniden gönderirken **her iki satırı da** doğrula.
+"Update Review" yalnız sürümü geri bağlıyor; IAP satırı
+`Ready for Review`'de kalırsa ürün yine incelemeye girmez. Kalıyorsa
+ürünü gönderiden **Delete** edip ürün sayfasındaki **"Add for Review"**
+ile yeniden ekle.
+
+Gönderimden sonra son kontrol — ikisi de `WAITING_FOR_REVIEW` olmalı:
+
+```
+/iris/v2/inAppPurchases/<iap-id>  → attributes.isAppStoreReviewInProgress
+Gönderi sayfası                   → IAP satırının "REVIEW STATUS" hücresi
+```
