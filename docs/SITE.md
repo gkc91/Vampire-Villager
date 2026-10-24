@@ -148,14 +148,27 @@ düşüyor, hiçbir soru görünmüyordu. Doğrusu tek `<summary>` içine iki
 Aynı tuzak `<table>`/`<caption>` ve `<select>`/`<option>` için de
 geçerli — tekil olması beklenen çocuk elemanları çoğaltma.
 
-## Üretime çıkınca değişecek yerler
+## Mağaza bağlantıları (24 Ekim 2026'da açıldı)
 
-`site/public/index.html` içinde:
+Bite Club iki mağazada da yayında, düğmeler gerçek:
 
-1. `<span class="status">Kapalı testte</span>` rozetlerini sil (iki dil).
-2. Google Play düğmesindeki `class="btn soon"` yerine `class="btn"` +
-   `href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"`.
-3. `<small>Yakında</small>` / `<small>Coming soon</small>` satırlarını sil.
+| Mağaza | Bağlantı |
+|---|---|
+| Google Play | `https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub` |
+| App Store | `https://apps.apple.com/app/id6819688814` |
+
+App Store bağlantısı **ülke kodu taşımıyor** — Apple ziyaretçiyi kendi
+bölgesine yönlendiriyor. `/us/` yazmak Türkiye'deki kullanıcıyı Amerikan
+mağazasına düşürürdü.
+
+Alt yazılarda **iPad yazmıyor**: iOS derlemesi yalnız iPhone
+(`TARGETED_DEVICE_FAMILY = 1`). Değişirse alt yazı da değişmeli, yoksa
+indiremediği bir cihaz vaat etmiş oluruz.
+
+`.btn.soon` stili duruyor ama kullanılmıyor — sıradaki oyun yine
+"Yakında" rozetiyle girecek. Yeni oyun eklerken `<article class="game">`
+kopyalanır; o zaman rozet ve `soon` düğmeleri tekrar devreye girer,
+mağaza bağlantıları çıkınca bu bölümdeki gibi gerçek `href` konur.
 
 ## Dikkat edilecekler
 
