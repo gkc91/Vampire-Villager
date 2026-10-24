@@ -141,6 +141,8 @@
       .btn:hover { border-color: var(--accent); }
       .btn.primary { background: var(--blood); border-color: var(--blood); }
       .btn.primary:hover { filter: brightness(1.15); border-color: var(--blood); }
+      /* Bite Club iki mağazada da yayında olduğu için şu an KULLANILMIYOR.
+         Duruyor: sıradaki oyun yine "yakında" rozetiyle girecek. */
       .btn.soon { opacity: 0.45; cursor: default; }
       .btn.soon:hover { border-color: var(--line); }
       .btn small { display: block; font-weight: 400; font-size: 0.7rem; color: var(--muted); }
@@ -199,10 +201,8 @@
               alt="Bite Club"
             />
             <div class="copy">
-              <!-- Üretime çıkınca: rozeti sil, Google Play düğmesindeki
-                   class="btn soon" yerine class="btn" + href koy. -->
-              <span class="status" data-tr>Kapalı testte</span>
-              <span class="status" data-en>In closed testing</span>
+              <span class="status" data-tr>Yayında</span>
+              <span class="status" data-en>Out now</span>
               <h1>Bite Club</h1>
               <p class="pitch" data-tr>
                 Aranızda kan içen biri var. Köy tükenmeden bulun.
@@ -210,50 +210,75 @@
               <p class="pitch" data-en>
                 One of you drinks blood. Find out who — before the village runs out of people.
               </p>
+              <!--
+                "Uygulama indirmeye gerek yok" cümlesi mağaza düğmelerinin
+                hemen üstünde kendiyle çelişiyordu. Doğrusu şu: odaya KATILAN
+                hiçbir şey indirmiyor, bağlantıya dokunup tarayıcıda oynuyor.
+                Uygulama kuranın da masası aynı şekilde çalışıyor.
+              -->
               <p class="blurb" data-tr>
                 Masa etrafında 4-24 kişiyle oynanan bir parti oyunu. Herkes kendi
-                telefonundan katılır; uygulama indirmeye, anlatıcıya, kaybolan kartlara
-                gerek yok. On bir rol, gizli gece hamleleri ve içkiler eşliğinde bol
-                suçlama.
+                telefonundan katılır; katılanlar hiçbir şey indirmez, anlatıcıya ve
+                kaybolan kartlara gerek yok. On bir rol, gizli gece hamleleri ve içkiler
+                eşliğinde bol suçlama.
               </p>
               <p class="blurb" data-en>
                 A party game for 4 to 24 friends around one table. Everyone joins from their
-                own phone; no app store trip, no moderator, no cards to lose. Eleven roles,
-                secret night moves and a lot of accusing each other over drinks.
+                own phone; guests install nothing, no moderator, no cards to lose. Eleven
+                roles, secret night moves and a lot of accusing each other over drinks.
               </p>
+              <!--
+                Düğmeler dile göre GRUPLANMIŞ durumda (önce hepsi tr, sonra
+                hepsi en). Karşılıklı diziliydi ve hangi sıranın kullanıcıya
+                göründüğünü okumak zordu; CSS zaten aktif olmayan dili
+                gizliyor, tek listeymiş gibi davranıyor.
+
+                Mağaza bağlantıları 24 Ekim 2026'da açıldı: Play'de 20 (2.3),
+                App Store'da 2.2. iOS yalnız iPhone (TARGETED_DEVICE_FAMILY=1),
+                bu yüzden alt yazıda iPad yazmıyor.
+              -->
               <div class="stores">
                 <a class="btn primary" href="https://biteclub.lampwickgames.com" data-tr>
                   ▶ Tarayıcıda oyna
                   <small>Ücretsiz, kurulum yok</small>
                 </a>
-                <a class="btn primary" href="https://biteclub.lampwickgames.com" data-en>
-                  ▶ Play in your browser
-                  <small>Free, no install</small>
+                <a
+                  class="btn"
+                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
+                  data-tr
+                >
+                  Google Play
+                  <small>Android</small>
+                </a>
+                <a class="btn" href="https://apps.apple.com/app/id6819688814" data-tr>
+                  App Store
+                  <small>iPhone</small>
                 </a>
                 <a class="btn" href="https://biteclub.lampwickgames.com/nasil-oynanir" data-tr>
                   Nasıl oynanır
                   <small>Kurallar, roller, SSS</small>
                 </a>
-                <span class="btn soon" data-tr>
+
+                <a class="btn primary" href="https://biteclub.lampwickgames.com" data-en>
+                  ▶ Play in your browser
+                  <small>Free, no install</small>
+                </a>
+                <a
+                  class="btn"
+                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
+                  data-en
+                >
                   Google Play
-                  <small>Yakında</small>
-                </span>
+                  <small>Android</small>
+                </a>
+                <a class="btn" href="https://apps.apple.com/app/id6819688814" data-en>
+                  App Store
+                  <small>iPhone</small>
+                </a>
                 <a class="btn" href="https://biteclub.lampwickgames.com/nasil-oynanir" data-en>
                   How to play
                   <small>Rules, roles, FAQ</small>
                 </a>
-                <span class="btn soon" data-en>
-                  Google Play
-                  <small>Coming soon</small>
-                </span>
-                <span class="btn soon" data-tr>
-                  App Store
-                  <small>Yakında</small>
-                </span>
-                <span class="btn soon" data-en>
-                  App Store
-                  <small>Coming soon</small>
-                </span>
               </div>
             </div>
           </div>
