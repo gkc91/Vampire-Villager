@@ -25,7 +25,11 @@
       "/probe/*",
       "/.well-known/assetlinks.json",
       "/.well-known/apple-app-site-association",
-      "/apple-app-site-association"
+      "/apple-app-site-association",
+      // AdMob'un app-ads.txt doğrulaması da aynı tuzağa düştü: App Store
+      // girişi bu alan adını gösterdiği için AdMob dosyayı burada arıyor,
+      // listede olmayınca 200 + index.html alıp "eşleşmiyor" diyordu.
+      "/app-ads.txt"
     ]
   },
   // Worker günlükleri. Kapalıyken console.log çıktısı hiçbir yere düşmez ve

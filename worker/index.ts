@@ -130,24 +130,59 @@ export const AASA = {
   },
 };
 
-const WELL_KNOWN: Record<string, unknown> = {
-  '/.well-known/assetlinks.json': ASSETLINKS,
-  '/.well-known/apple-app-site-association': AASA,
-  // iOS eski sürümleri kök dizinde de arıyor.
-  '/apple-app-site-association': AASA,
-};
-
-/** Doğrulama dosyası mı? Değilse null. */
-export function wellKnownResponse(pathname: string): Response | null {
-  const govde = WELL_KNOWN[pathname];
-  if (!govde) return null;
-  return new Response(JSON.stringify(govde, null, 2), {
-    headers: {
-      'content-type': 'application/json',
-      // Parmak izi değişirse (anahtar sıfırlama) geç yayılmasın.
-      'cache-control': 'public, max-age=300',
-    },
-  });
+/**
+ * AdMob yetkilendirme satırı — IAB app-ads.txt.
+ *
+ * NEDEN BU DOSYA BURADA DA VAR: AdMob onu, mağaza girişindeki "geliştirici
+ * web sitesi" alan adının KÖKÜNDE arıyor ve iki mağaza iki ayrı alan
+ * gösteriyor:
+ *
+ *   Play girişi → lampwickgames.com          → site/public/app-ads.txt
+ *   App Store   → biteclub.lampwickgames.com → BU Worker
+ *
+ * 24 Ekim 2026'da iOS uygulaması AdMob'a bağlanırken doğrulama tam bundan
+ * düştü: `/app-ads.txt` isteğine SPA yedeği 200 + index.html döndürüyordu,
+ * AdMob da "bilgileriniz eşleşmiyor" dedi. Dosya eksik değildi — HTML'di.
+ * `.well-known` dosyalarındaki sessiz arızanın aynısı.
+ *
+ * İKİ KOPYA AYNI YAYINCI SATIRINI TAŞIMAK ZORUNDA. Biri değişirse diğeri
+ * de değişmeli; worker/deepLink.test.ts ikisini karşılaştırıyor.
+ */
+export const APP_ADS_TXT = `# AdMob yetkilendirme — IAB app-ads.txt
+#
+# İkinci kopya stüdyo sitesinde: site/public/app-ads.txt. AdMob dosyayı
+# mağaza girişindeki geliştirici alan adının kökünde arıyor; Play girişi
+# lampwickgames.com, App Store girişi biteclub.lampwickgames.com
+# gösteriyor — bu yüzden iki yerde de durması gerekiyor.
+#
+# Bu satır olmadan envanter "yetkilendirilmemiş" sayılıyor ve reklam
+# doluluğu düşüyor.
+google.com, pub-3566083608754052, DIRECT, f08c47fec0942fa0
+`;
+
+type DogrulamaDosyasi = { govde: string; tip: string };
+
+const JSON_TIP = 'application/json';
+
+const DOGRULAMA_DOSYALARI: Record<string, DogrulamaDosyasi> = {
+  '/.well-known/assetlinks.json': { govde: JSON.stringify(ASSETLINKS, null, 2), tip: JSON_TIP },
+  '/.well-known/apple-app-site-association': { govde: JSON.stringify(AASA, null, 2), tip: JSON_TIP },
+  // iOS eski sürümleri kök dizinde de arıyor.
+  '/apple-app-site-association': { govde: JSON.stringify(AASA, null, 2), tip: JSON_TIP },
+  '/app-ads.txt': { govde: APP_ADS_TXT, tip: 'text/plain; charset=utf-8' },
+};
+
+/** Mağaza/ağ doğrulama dosyası mı? Değilse null. */
+export function wellKnownResponse(pathname: string): Response | null {
+  const dosya = DOGRULAMA_DOSYALARI[pathname];
+  if (!dosya) return null;
+  return new Response(dosya.govde, {
+    headers: {
+      'content-type': dosya.tip,
+      // Parmak izi değişirse (anahtar sıfırlama) geç yayılmasın.
+      'cache-control': 'public, max-age=300',
+    },
+  });
 }
 
 /** SSE ölçüm yanıtı — tek olay, sonra akış kapanır. */

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { AASA, ASSETLINKS, wellKnownResponse } from './index';
+import { AASA, APP_ADS_TXT, ASSETLINKS, wellKnownResponse } from './index';
 
 /**
  * Derin link doğrulama dosyaları.
@@ -88,5 +88,44 @@ describe('iOS Universal Links', () => {
     // `*` ya da `/` sahiplenmek ana sayfayı, gizlilik ve nasıl oynanır
     // sayfalarını da uygulamaya yönlendirirdi.
     expect(bilesenler[0]['/']).not.toBe('*');
+  });
+});
+
+/**
+ * AdMob app-ads.txt.
+ *
+ * NEDEN TEST VAR: dosya İKİ yerde durmak zorunda, çünkü AdMob onu mağaza
+ * girişindeki geliştirici alan adının kökünde arıyor ve iki mağaza iki
+ * ayrı alan gösteriyor — Play lampwickgames.com, App Store
+ * biteclub.lampwickgames.com.
+ *
+ * Gerçek arıza (24 Ekim 2026): iOS uygulaması AdMob'a bağlanırken
+ * doğrulama düştü. Dosya "yok" değildi; `/app-ads.txt` isteğine SPA yedeği
+ * 200 + index.html döndürüyordu. AdMob da "bilgileriniz eşleşmiyor" dedi.
+ * Yetkilendirme olmadan envanter yetkisiz sayılıyor ve reklam doluluğu
+ * düşüyor — yine sessiz, yine logsuz.
+ */
+describe('AdMob app-ads.txt', () => {
+  const YAYINCI = 'google.com, pub-3566083608754052, DIRECT, f08c47fec0942fa0';
+
+  it('düz metin olarak servis ediliyor (HTML değil)', async () => {
+    const r = wellKnownResponse('/app-ads.txt');
+    expect(r, 'servis edilmiyor — SPA yedeği index.html döndürür').not.toBeNull();
+    // İçerik türü ŞART: AdMob text/html'i geçerli saymıyor.
+    expect(r!.headers.get('content-type')).toMatch(/^text\/plain/);
+    await expect(r!.text()).resolves.toContain(YAYINCI);
+  });
+
+  it('stüdyo sitesindeki kopya AYNI yayıncı satırını taşıyor', () => {
+    const studyo = readFileSync(resolve(KOK, 'site/public/app-ads.txt'), 'utf-8');
+    // İki kopya ayrışırsa bir mağazadaki envanter sessizce yetkisiz kalır.
+    expect(studyo).toContain(YAYINCI);
+    expect(APP_ADS_TXT).toContain(YAYINCI);
+  });
+
+  it('yayıncı kimliği reklam birimleriyle aynı hesaptan', () => {
+    // Birim kimlikleri ca-app-pub-3566083608754052/... biçiminde; yayıncı
+    // numarası tutmazsa AdMob dosyayı başka bir hesabın sanıyor.
+    expect(APP_ADS_TXT).toContain('pub-3566083608754052');
   });
 });
