@@ -1111,3 +1111,70 @@ uygulama simgesi, Android ↔ web bağlantı düzeltmesi.
 • 앱과 웹 버전 사이의 연결 문제를 고쳤습니다.
 • 새 앱 아이콘.
 ```
+
+## 17. R8 ve uçtan uca ekran — Play'in 2.2.2 önerileri (24 Ekim 2026)
+
+Play Console üretim kanalında 2.2.2 için üç öneri çıktı. İkisi gerçek, biri
+bizde değil.
+
+### R8 açıldı (yapıldı)
+
+> Uygulamanız optimize edilmemiş.
+
+`android/app/build.gradle` → `minifyEnabled true` + `shrinkResources true`.
+
+**Kendi keep kuralımız neredeyse yok ve olmaması doğru.** Capacitor
+eklentileri yansımayla bulunuyor (`@CapacitorPlugin` sınıfı, `@PluginMethod`
+metotları) ama kurallarını kendi AAR'i `consumerProguardFiles` ile
+getiriyor — `node_modules/@capacitor/android/capacitor/build.gradle:50`.
+Google reklam SDK'si ve Play Billing de öyle. Bu kuralları kendi
+`proguard-rules.pro`umuza kopyalamak işe yarar ama bir süre sonra eskir:
+kütüphane kuralını değiştirir, bizimki eski halde kalır. Kopyalamadık.
+
+Eklediğimiz tek şey kilitlenme raporları için
+`-keepattributes SourceFile,LineNumberTable`.
+
+### Neden paket denetimi şart oldu
+
+R8'in bozduğu şey derlemede görünmüyor: paket üretilir, uygulama açılır,
+yalnız yansımayla bulunan bir eklenti kaybolur. Reklam gelmez ya da satın
+alma başlamaz; hata yok, log yok.
+
+`scripts/check-aab.mjs` .aab'nin içine bakıyor (bağımlılık yok, ZIP'i ve
+dex'i elle okuyor):
+
+- `capacitor.plugins.json`daki her sınıf dex'te duruyor mu — liste
+  **paketin kendisinden** okunuyor, yeni eklenti kendiliğinden kapsanıyor;
+- JS'in adıyla çağırdığı 10 para-yolu metodu (reklam + satın alma) duruyor mu
+  — sınıfın kalması yetmiyor, metot yeniden adlandırılırsa çağrı sessizce düşer;
+- simge ve açılış ekranı `shrinkResources`a kurban gitmiş mi.
+
+`scripts/release.mjs` bunu `bundleRelease`den hemen sonra çağırıyor.
+
+İlk koşuda denetim düştü: `com.getcapacitor.Bridge` pakette yoktu. **Gerçek
+bir arıza değildi** — iç sınıf, JS onu adıyla çağırmıyor, R8 yeniden
+adlandırıyor. Denetimden çıkarıldı. Dört eklenti sınıfı ve on metodun hepsi
+yerinde.
+
+### Uçtan uca ekran (bizde yapılacak bir şey yok)
+
+İki ayrı öneri var, karıştırmamak gerekiyor:
+
+1. **"Uçtan uca ekran tüm kullanıcılara gösterilmeyebilir"** — SDK 35+
+   hedefleyen uygulamalar ekleri (insets) kullanmalı. **Zaten kullanıyoruz:**
+   `index.html`de `viewport-fit=cover`, `src/index.css`te `.app-frame`
+   üstte ve altta `env(safe-area-inset-*)`, alttan açılan paneller de
+   (`RolePocket`, `SettingsSheet`) alt eki hesaba katıyor.
+
+2. **"Desteği sonlandırılmış API kullanıyor"** —
+   `LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES`. Play'in gösterdiği çağrı
+   yerleri:
+
+   ```
+   com.google.android.gms.ads.internal.overlay.zzm.zzj
+   com.google.android.play.core.hsdp.service.HsdpShimActivity.onCreate
+   ```
+
+   İkisi de **Google'ın kendi kütüphaneleri** (reklam SDK'si ve Play Core).
+   Bizim kodumuzda o sabit hiç geçmiyor. Düzeltmesi Google'da; SDK sürümü
+   güncellenene kadar uyarı durmaya devam eder. Kovalanacak bir şey yok.

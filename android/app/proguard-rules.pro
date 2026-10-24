@@ -1,21 +1,25 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# R8 kurallari (minifyEnabled true, bkz. app/build.gradle).
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# BURASI NEDEN NEREDEYSE BOS: kutuphaneler kendi keep kurallarini
+# `consumerProguardFiles` ile getiriyor ve bunlar uygulamanin R8 kosusuna
+# otomatik katiliyor:
+#
+#   - Capacitor  -> @CapacitorPlugin sinifi, @PluginMethod metotlari ve
+#                   com.getcapacitor.Plugin'den turetilen her sey korunuyor
+#                   (node_modules/@capacitor/android/capacitor/proguard-rules.pro).
+#                   Admob, native-purchases, app ve share eklentileri bu
+#                   kurali devraliyor; her biri icin ayri kural YAZILMAMALI,
+#                   yoksa eklenti surumu degisince kurallar sessizce eskiyor.
+#   - Google reklam SDK'si ve Play Billing -> kendi kurallarini getiriyor.
+#
+# Buraya kural eklemeden once: sorunun gercekten R8'den geldigini dogrula
+# (surum paketini kur, ozelligi dene). Korumaya alinan her sinif
+# kucultmenin faydasini azaltiyor.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Kilitlenme raporlari okunabilir kalsin.
+#
+# Bunlar olmadan Play Console'daki yigin izleri satir numarasiz gelir. AGP
+# mapping.txt'yi .aab ile birlikte yukluyor ve Play izleri cozuyor; ama
+# cozulecek satir numarasinin once dosyada durmasi gerekiyor.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

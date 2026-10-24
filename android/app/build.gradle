@@ -18,8 +18,8 @@ android {
         applicationId "com.lampwickgames.biteclub"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "2.2.2"
+        versionCode 20
+        versionName "2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -44,7 +44,24 @@ android {
             } else {
                 println "UYARI: android/keystore.properties yok -- surum derlemesi IMZASIZ."
             }
-            minifyEnabled false
+            // R8: Play Console'un 2.2.2 icin onerdigi iyilestirme
+            // ("Uygulamaniz optimize edilmemis"). Kod kucultme + kullanilmayan
+            // kaynaklarin atilmasi.
+            //
+            // GUVENLI OLMASININ SEBEBI: Capacitor eklentileri YANSIMA ile
+            // bulunuyor (@CapacitorPlugin sinifi, @PluginMethod metotlari).
+            // Kurallarini kendi AAR'i consumerProguardFiles ile getiriyor
+            // (node_modules/@capacitor/android/capacitor/build.gradle:50), yani
+            // burada tekrar yazmaya gerek yok ve surum atlayinca eskimiyor.
+            // Google reklam SDK'si ve Play Billing de kendi kurallarini
+            // getiriyor. Bu yuzden kendi kural dosyamiz neredeyse bos.
+            //
+            // DOGRULAMA: derlemeden sonra .aab icindeki dex'te eklenti
+            // siniflari aranir -- R8 bir eklentiyi atarsa uygulama derlenir,
+            // acilir ve YALNIZ o ozellik calismaz. Sessiz arizalar
+            // listesindeki klasik: scripts/check-aab.mjs bunu kontrol ediyor.
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

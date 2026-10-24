@@ -90,6 +90,11 @@ calistir(`${gradlew} bundleRelease`, {
   shell: true,
 });
 
+// 5. R8 paketi bozmadı mı? `minifyEnabled true` olduğundan beri şart:
+//    eksik bir eklenti derlemede değil, kullanıcının elinde ortaya çıkıyor.
+console.log('\n--- Paket denetleniyor ---');
+calistir('node scripts/check-aab.mjs');
+
 console.log(`
 === Bitti ===
 
