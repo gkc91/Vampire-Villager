@@ -563,3 +563,40 @@ Dosya düzeldikten sonra "Güncellemeleri kontrol edin" hemen yeşile
 dönmüyor; AdMob'un tarayıcısı kendi döngüsünde çalışıyor ve **24 saati
 bulabiliyor**. O süre boyunca iOS'ta "Sınırlı reklam sunumu" yazmaya
 devam eder — yapılacak bir şey yoktur, beklenecektir.
+
+## 2.3 — İngilizce kareler ve R8 (24 Ekim 2026)
+
+iOS 2.2 (derleme 4) onaylanıp yayına çıktıktan sonra açılan sürüm.
+
+### iOS 2.3 (derleme 5)
+
+**Uygulama tarafında değişiklik yok** — 2.2 derleme 4 ile aynı web paketi.
+Sürümün sebebi mağaza sayfası: canlı bir sürümün kareleri değiştirilemiyor,
+bunun için yeni sürüm açmak gerekiyor. 7 İngilizce kare
+(`store/screens/ios/en/`, 1206x2622) en-US yerelleştirmesine yüklendi;
+böylece İngilizce sayfa artık Türkçe kare göstermiyor.
+
+Takıldığımız iki nokta:
+
+- **Kareler iki ayrı sekmede.** "Header and Search Results" yeni pazarlama
+  varlıkları; klasik cihaz kareleri **"App Previews and Screenshots"**
+  sekmesinde. İlkine bakıp "kare yuvası yok" sanmak kolay.
+- **Yeni sürüm karelerı yalnız VAR OLAN dillere taşıyor.** tr'nin 7 karesi
+  2.2'den geldi, en-US boş açıldı (`appScreenshotSets: []`). Arayüz bunu
+  söylemiyor; API söylüyor.
+- `04-night.png` yüklemede `UPLOAD_COMPLETE` durumunda takıldı (hata yok,
+  arayüzde bulut simgesi). Silip yeniden yüklemek çözdü; sıra bozulunca
+  `appScreenshotSets/<id>/relationships/appScreenshots` PATCH ile düzeltildi.
+
+**Gönderim yine iki adım:** "Add for Review" öğeyi yalnız sahneye koyuyor
+(`Ready for Review`), gerçek gönderim gönderim sayfasındaki
+**"Submit for Review"**. 2.1(b) reddinin sebebi tam buydu; bu sefer
+gönderimden sonra `WAITING_FOR_REVIEW` olduğu doğrulandı.
+
+`premium_roles` bu gönderime dahil DEĞİL — zaten `APPROVED` ve canlı,
+dokunulmadı.
+
+### Android 20 (2.3)
+
+R8 açıldı; ayrıntısı `docs/PLAY-STORE.md` §17. Paket `scripts/check-aab.mjs`
+ile denetleniyor.
