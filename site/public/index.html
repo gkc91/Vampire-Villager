@@ -147,6 +147,34 @@
       .btn.soon:hover { border-color: var(--line); }
       .btn small { display: block; font-weight: 400; font-size: 0.7rem; color: var(--muted); }
 
+      /* --- Resmî mağaza rozetleri --- */
+      .badges {
+        display: flex; flex-wrap: wrap; align-items: center;
+        gap: 0.5rem 0.75rem; margin-top: 1rem;
+      }
+      .badges a { display: inline-flex; border-radius: 0.5rem; }
+      .badges a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      /* Apple'ın SVG'si kırpılmış: kutu yüksekliği = görünen rozet. */
+      .badges img { display: block; height: 44px; width: auto; }
+      /*
+        Google'ın PNG'si saydam boşlukla geliyor: görünen rozet 646x250'lik
+        tuvalin yalnız %67,2'si (ölçüldü: 564x168). 44px verseydik Play
+        rozeti Apple'ınkinin yanında küçük kalırdı. Kutu, GÖRÜNEN yükseklik
+        ~44px olacak şekilde büyütülüyor: 44 / 0,672 ≈ 65.
+        Rozet dosyası değişirse oran yeniden ölçülmeli.
+      */
+      .badges img.play-en { height: 65px; }
+      /*
+        Dar ekranda YAN YANA kalsınlar. Tam boyda ikisi 312px tutuyor,
+        375px'lik telefonda kartın iç genişliği 279px — alt alta düşüyorlardı.
+        36px'lik görünen yükseklikte toplam ~259px oluyor ve sığıyor.
+        (Play yine oranla: 36 / 0,672 ≈ 54.)
+      */
+      @media (max-width: 28rem) {
+        .badges img { height: 36px; }
+        .badges img.play-en { height: 54px; }
+      }
+
       /* --- Rol şeridi: oyunun neye benzediğini gösterir --- */
       .strip {
         display: flex; gap: 0.75rem; padding: 0 1.75rem 1.75rem;
@@ -232,27 +260,11 @@
                 hepsi en). Karşılıklı diziliydi ve hangi sıranın kullanıcıya
                 göründüğünü okumak zordu; CSS zaten aktif olmayan dili
                 gizliyor, tek listeymiş gibi davranıyor.
-
-                Mağaza bağlantıları 24 Ekim 2026'da açıldı: Play'de 20 (2.3),
-                App Store'da 2.2. iOS yalnız iPhone (TARGETED_DEVICE_FAMILY=1),
-                bu yüzden alt yazıda iPad yazmıyor.
               -->
               <div class="stores">
                 <a class="btn primary" href="https://biteclub.lampwickgames.com" data-tr>
                   ▶ Tarayıcıda oyna
                   <small>Ücretsiz, kurulum yok</small>
-                </a>
-                <a
-                  class="btn"
-                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
-                  data-tr
-                >
-                  Google Play
-                  <small>Android</small>
-                </a>
-                <a class="btn" href="https://apps.apple.com/app/id6819688814" data-tr>
-                  App Store
-                  <small>iPhone</small>
                 </a>
                 <a class="btn" href="https://biteclub.lampwickgames.com/nasil-oynanir" data-tr>
                   Nasıl oynanır
@@ -263,21 +275,51 @@
                   ▶ Play in your browser
                   <small>Free, no install</small>
                 </a>
-                <a
-                  class="btn"
-                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
-                  data-en
-                >
-                  Google Play
-                  <small>Android</small>
-                </a>
-                <a class="btn" href="https://apps.apple.com/app/id6819688814" data-en>
-                  App Store
-                  <small>iPhone</small>
-                </a>
                 <a class="btn" href="https://biteclub.lampwickgames.com/nasil-oynanir" data-en>
                   How to play
                   <small>Rules, roles, FAQ</small>
+                </a>
+              </div>
+
+              <!--
+                RESMİ mağaza rozetleri, kendi markalarından indirildi
+                (24 Ekim 2026): Apple'ın pazarlama araç kutusu ve Google'ın
+                rozet servisi. Elle çizilmiş benzerleri değil — her iki
+                şirket de kendi rozetini şart koşuyor ve yaklaşık bir kopya
+                hem yanlış görünür hem marka kurallarına aykırı olur.
+
+                İKİ DİLDE DE İNGİLİZCE ROZET kullanılıyor. Türkçeleri de
+                indirildi ve denendi: "App Store'dan İndirin" ve "İNDİRİN /
+                Google Play" alt satırları rozeti sıkıştırıp hantallaştırıyor,
+                yan yana durduklarında da birbirini tutmuyor. İngilizce
+                rozetler zaten dünyanın her yerinde bu iki mağazanın işareti.
+                Metin İngilizce olduğu için alt yazı (alt) sayfanın dilinde
+                kalıyor — ekran okuyucu Türkçe duyuyor.
+
+                Rozetler DEĞİŞTİRİLMEDİ (kırpma, renk, oran yok). Google'ın
+                PNG'si saydam boşlukla geliyor; boşluk rozetin çevresinde
+                durması gereken temiz alanın ta kendisi, o yüzden kırpmak
+                yerine ölçüsü CSS'te telafi ediliyor.
+              -->
+              <div class="badges">
+                <a href="https://apps.apple.com/app/id6819688814" data-tr>
+                  <img src="/rozet/app-store-en.svg" alt="App Store'dan indirin" />
+                </a>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
+                  data-tr
+                >
+                  <img class="play-en" src="/rozet/google-play-en.png" alt="Google Play'den alın" />
+                </a>
+
+                <a href="https://apps.apple.com/app/id6819688814" data-en>
+                  <img src="/rozet/app-store-en.svg" alt="Download on the App Store" />
+                </a>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.lampwickgames.biteclub"
+                  data-en
+                >
+                  <img class="play-en" src="/rozet/google-play-en.png" alt="Get it on Google Play" />
                 </a>
               </div>
             </div>

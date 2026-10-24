@@ -170,6 +170,48 @@ indiremediği bir cihaz vaat etmiş oluruz.
 kopyalanır; o zaman rozet ve `soon` düğmeleri tekrar devreye girer,
 mağaza bağlantıları çıkınca bu bölümdeki gibi gerçek `href` konur.
 
+### Resmî rozetler (`site/public/rozet/`)
+
+Düğmeler metin değil, iki şirketin KENDİ rozetleri. Kaynaklar:
+
+| Dosya | Nereden |
+|---|---|
+| `app-store-en.svg` | `toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us` |
+| `google-play-en.png` | `play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png` |
+
+Elle çizilmiş benzerleri kullanılmaz: her iki şirket de kendi rozetini
+şart koşuyor ve yaklaşık bir kopya hem yanlış görünür hem marka
+kurallarına aykırı olur.
+
+**İki dilde de İngilizce rozet.** Türkçeleri de indirilip denendi;
+"App Store'dan İndirin" ve "İNDİRİN / Google Play" alt satırları rozeti
+sıkıştırıp hantallaştırıyor, yan yana dururken birbirini de tutmuyor.
+Rozetlerin metni İngilizce ama `alt` sayfanın dilinde — ekran okuyucu
+Türkçe duyuyor.
+
+#### Ölçü: Google'ın rozetinde saydam boşluk var
+
+Apple'ın SVG'si kırpılmış (119,66x40), Google'ın PNG'si değil:
+646x250'lik tuvalde görünen rozet yalnız **564x168**, yani yüksekliğin
+**%67,2'si**. İkisine de aynı `height` verilirse Play rozeti küçük kalır.
+Bu yüzden Play rozetinin kutusu, GÖRÜNEN yükseklik Apple'ınkine eşit
+olacak şekilde büyütülüyor:
+
+```
+.badges img          { height: 44px; }   /* Apple: kutu = görünen */
+.badges img.play-en  { height: 65px; }   /* 44 / 0,672 ≈ 65 */
+```
+
+Ölçülen sonuç: 44,0 ve 43,7 px. Dar ekranda (≤28rem) ikisi de küçülüyor
+(36 / 54) — tam boyda 375px'lik telefonda yan yana sığmayıp alt alta
+düşüyorlardı.
+
+Rozet dosyası güncellenirse **oran yeniden ölçülmeli**; aksi halde
+boyutlar sessizce kayar.
+
+Boşluk kırpılmıyor: o boşluk Google'ın rozet çevresinde istediği temiz
+alanın ta kendisi, kırpmak rozeti değiştirmek olurdu.
+
 ## Dikkat edilecekler
 
 **Oyunun Worker'ına dokunma.** `biteclub.lampwickgames.com` ayrı bir
