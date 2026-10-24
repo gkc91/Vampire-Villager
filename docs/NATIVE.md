@@ -505,3 +505,61 @@ oturunca ek yeri görünmüyor, logo havada duruyor gibi oluyor.
 piksellerine bakıyor; marka moru değilse düşüyor. Ölçüt renk, hash değil —
 yeniden kodlama hash'i değiştirir ama görseli değiştirmez. Apple'ın
 reddettiği dosyalar geri konunca 7 test düşüyor (denendi).
+
+## AdMob doğrulaması — app-ads.txt İKİ alanda (24 Ekim 2026)
+
+iOS 2.2 onaylandıktan sonra AdMob'daki iOS uygulaması mağaza kaydına
+bağlandı ("Sınırlı reklam sunumu" bu yüzden duruyordu). Mağaza bağlandı,
+ama **doğrulama düştü**:
+
+> Bir app-ads.txt dosyası oluşturmuş olabilirsiniz, ancak bilgileriniz
+> AdMob hesabınızdaki bilgilerle eşleşmiyor.
+
+Sebep, `.well-known` dosyalarındaki sessiz arızanın birebir aynısı:
+`biteclub.lampwickgames.com/app-ads.txt` isteğine SPA yedeği
+**200 + index.html** döndürüyordu. Dosya yok değildi — HTML'di.
+
+### AdMob dosyayı NEREDE arıyor
+
+Mağaza girişindeki geliştirici adresinin **kökünde**. İki mağaza iki ayrı
+alan gösteriyor:
+
+| Mağaza | Gösterdiği alan | Dosyanın yeri |
+|---|---|---|
+| Google Play | `lampwickgames.com` | `site/public/app-ads.txt` (stüdyo sitesi) |
+| App Store | `biteclub.lampwickgames.com` | `worker/index.ts` → `APP_ADS_TXT` |
+
+Android bu yüzden ilk günden "Hazır"dı, iOS değildi. App Store'un hangi
+adresi bildirdiği Apple'ın kendi API'sinden doğrulanabiliyor:
+
+```bash
+curl -s "https://itunes.apple.com/lookup?id=6819688814" | grep -o '"sellerUrl":"[^"]*"'
+# "sellerUrl":"https://biteclub.lampwickgames.com"
+```
+
+`sellerUrl` = ASC'deki **Marketing URL**. Değiştirilirse app-ads.txt de
+o alana taşınmalı.
+
+### Çözüm
+
+Worker'dan `text/plain` olarak servis + `wrangler.jsonc` →
+`run_worker_first` listesine `/app-ads.txt`. Liste adımı ŞART: statik
+servis Worker'dan önce çalışıyor.
+
+```bash
+curl -sD- https://biteclub.lampwickgames.com/app-ads.txt | head -3
+# HTTP/1.1 200 OK
+# Content-Type: text/plain; charset=utf-8
+```
+
+**Bekçiler** (`worker/deepLink.test.ts`): içerik türünün `text/plain`
+olduğunu, iki kopyanın aynı yayıncı satırını taşıdığını ve yayıncı
+numarasının reklam birimleriyle aynı hesaptan olduğunu doğruluyor.
+`/app-ads.txt` girdisi silinince test düşüyor (denendi).
+
+### Doğrulama ANINDA olmuyor
+
+Dosya düzeldikten sonra "Güncellemeleri kontrol edin" hemen yeşile
+dönmüyor; AdMob'un tarayıcısı kendi döngüsünde çalışıyor ve **24 saati
+bulabiliyor**. O süre boyunca iOS'ta "Sınırlı reklam sunumu" yazmaya
+devam eder — yapılacak bir şey yoktur, beklenecektir.
