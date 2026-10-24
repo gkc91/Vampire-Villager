@@ -1134,6 +1134,19 @@ kütüphane kuralını değiştirir, bizimki eski halde kalır. Kopyalamadık.
 Eklediğimiz tek şey kilitlenme raporları için
 `-keepattributes SourceFile,LineNumberTable`.
 
+### R8 ne kazandirdi (olculen)
+
+Play'in surum onay ekrani 20 (2.3) icin:
+
+| | 19 (2.2.2) | 20 (2.3) |
+|---|---|---|
+| Yeni yukleme boyutu | 15,0 MB | **11,5 MB** (-3,48 MB) |
+| Indirme suresi | 8 sn. | **6 sn.** (-2 sn.) |
+
+Desteklenen cihaz sayisi degismedi (telefon 12.413, tablet 6.816; "artik
+desteklenmeyen" sutunu her form faktorunde 0). Yani kucultme bir cihaz
+sinifini disarida birakmadi.
+
 ### Neden paket denetimi şart oldu
 
 R8'in bozduğu şey derlemede görünmüyor: paket üretilir, uygulama açılır,
