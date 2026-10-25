@@ -250,5 +250,13 @@
     "working": "Verifica con lo store…",
     "found": "Il tuo accesso premium è stato ripristinato.",
     "none": "Nessun acquisto da ripristinare su questo account."
+  },
+  "localSeat": {
+    "add": "Aggiungi giocatore locale",
+    "name": "Nome del giocatore",
+    "badge": "su questo telefono",
+    "passTo": "Passa il telefono",
+    "passHint": "Passa il telefono al giocatore successivo. Nessun altro deve guardare lo schermo.",
+    "ready": "Sono {{name}}, pronto"
   }
 }

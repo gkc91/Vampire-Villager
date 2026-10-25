@@ -250,5 +250,13 @@
     "working": "Mağazaya soruluyor…",
     "found": "Premium hakkın geri yüklendi.",
     "none": "Bu hesapta geri yüklenecek satın alma bulunamadı."
+  },
+  "localSeat": {
+    "add": "Yerel oyuncu ekle",
+    "name": "Oyuncu adı",
+    "badge": "bu telefonda",
+    "passTo": "Telefonu ver",
+    "passHint": "Telefonu sıradaki oyuncuya uzat. Başkası ekrana bakmasın.",
+    "ready": "Ben {{name}}, hazırım"
   }
 }

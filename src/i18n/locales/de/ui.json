@@ -250,5 +250,13 @@
     "working": "Frage den Store ab…",
     "found": "Dein Premium-Zugang wurde wiederhergestellt.",
     "none": "Für dieses Konto wurden keine wiederherstellbaren Käufe gefunden."
+  },
+  "localSeat": {
+    "add": "Lokalen Spieler hinzufügen",
+    "name": "Spielername",
+    "badge": "auf diesem Telefon",
+    "passTo": "Telefon weitergeben",
+    "passHint": "Gib das Telefon an den nächsten Spieler weiter. Niemand sonst soll auf den Bildschirm schauen.",
+    "ready": "Ich bin {{name}}, bereit"
   }
 }

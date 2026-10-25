@@ -1,6 +1,6 @@
 # 08 — Elden Ele Modu (yerel oyuncular)
 
-**Durum: TASARIM ONAYLANDI — kod bekliyor.**
+**Durum: KURULDU (M8).** Tasarım onaylandı, kod yazıldı, tarayıcıda uçtan uca oynandı.
 
 Kaynak: 25 Ekim 2026 oyun gecesi.
 
@@ -146,7 +146,31 @@ Kural değişikliği = test değişikliği (`CLAUDE.md`).
 
 ---
 
+## Sonradan eklenen kural: kurucu önce kendi işini bitirir
+
+Tarayıcıda denerken çıktı: telefon kurucunun elinde ama kurucu **kendi
+rolünü görmeden** "telefonu Ayşe'ye ver" perdesi iniyordu. Doğal akış
+kurucunun önce kendi rolünü görmesi.
+
+`nextLocalActor(state, hostId)` artık kurucunun yapacağı bir iş varken
+`null` dönüyor. Kurucu sadece anlatıcıysa (oyuncu değilse) beklenmiyor,
+perde hemen iniyor.
+
+## Geçmiş: bu özellik bir kez yazılıp kaldırılmıştı
+
+26 Ağustos 2026'da ayrı bir "elden ele" modu olarak kuruldu
+(`hotseat.ts`, `PassScreen`, kendi kurulum ekranı). 10 Eylül'de
+kaldırıldı; gerekçe "rol katmanları ve premium modeli oyuncu başına
+kimlik istiyor" idi.
+
+O gerekçe artık geçerli değil: premium **masa geneli**. `allowedRoles`
+kurucuda `currentUnlockedRoles()`'tan bir kez hesaplanıyor ve satın alma
+metni zaten "açarsan masadaki herkes bu rollerle oynar" diyor.
+
+Bu sefer ayrı bir mod değil: yerel oyuncular **normal odanın içinde**,
+uzaktan katılanların yanında duruyor. Ana ekran değişmedi, mağaza metnine
+dokunulmadı.
+
 ## Milestone
 
-M8. `07-tasks.md`'ye görev maddeleri olarak girer; her commit bir madde
-ile eşleşir.
+M8 — tamamlandı. Dört commit: motor, host/store, arayüz, sıralama.

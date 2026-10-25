@@ -250,5 +250,13 @@
     "working": "Checking with the store…",
     "found": "Your premium access has been restored.",
     "none": "No purchases found to restore on this account."
+  },
+  "localSeat": {
+    "add": "Add local player",
+    "name": "Player name",
+    "badge": "on this phone",
+    "passTo": "Pass the phone",
+    "passHint": "Hand the phone to the next player. Nobody else should look at the screen.",
+    "ready": "I'm {{name}}, ready"
   }
 }

@@ -268,6 +268,13 @@ function HostSettings({ view }: { view: PlayerView }) {
           <span>{t('lobby.addBot')}</span>
         </button>
         {botCount > 0 && <p className="text-[11px] text-moon-200/40">{t('lobby.botHint')}</p>}
+
+        {/*
+          Yerel oyuncu: telefonu olmayan ya da şarjı biten kişi kurucunun
+          cihazından oynasın (08-yerel-oyuncular.md). Bot eklemenin insan
+          hali — sırası gelince ekranda perde açılıyor.
+        */}
+        <LocalPlayerAdd disabled={roomFull} />
       </div>
     </Card>
   );
@@ -295,5 +302,48 @@ function Choice({
     >
       {label}
     </button>
+  );
+}
+
+/**
+ * Kurucunun telefonunda oynayacak oyuncuyu ekler.
+ *
+ * İsim ZORUNLU: perdede "Telefonu ___'e ver" yazacak olan bu. Boş isimle
+ * eklenirse sıra kime geldiği anlaşılmaz.
+ */
+function LocalPlayerAdd({ disabled }: { disabled: boolean }) {
+  const { t } = useTranslation();
+  const addLocalPlayer = useGameStore((s) => s.addLocalPlayer);
+  const [ad, setAd] = useState('');
+
+  const ekle = () => {
+    const temiz = ad.trim();
+    if (!temiz) return;
+    addLocalPlayer(temiz);
+    setAd('');
+  };
+
+  return (
+    <div className="flex gap-2">
+      <input
+        className="input flex-1"
+        value={ad}
+        maxLength={16}
+        placeholder={t('localSeat.name')}
+        onChange={(e) => setAd(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') ekle();
+        }}
+      />
+      <button
+        type="button"
+        className="btn-secondary w-auto shrink-0 px-4"
+        disabled={disabled || !ad.trim()}
+        onClick={ekle}
+      >
+        <span aria-hidden="true">📱</span>
+        <span>{t('localSeat.add')}</span>
+      </button>
+    </div>
   );
 }

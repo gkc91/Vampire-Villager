@@ -12,6 +12,7 @@ import { RoleRevealScreen } from './ui/screens/RoleRevealScreen';
 import { ConfirmLeave } from './ui/components/ConfirmLeave';
 import { exitApp, useBackButton } from './ui/hooks/useBackButton';
 import { RolePocket } from './ui/components/RolePocket';
+import { PassScreen } from './ui/components/PassScreen';
 import { NightScreen } from './ui/screens/NightScreen';
 import { NarrationScreen } from './ui/screens/NarrationScreen';
 import { DayScreen } from './ui/screens/DayScreen';
@@ -25,6 +26,7 @@ export default function App() {
   const connection = useGameStore((s) => s.connection);
   const solo = useGameStore((s) => s.solo);
   const leave = useGameStore((s) => s.leave);
+  const pendingSeat = useGameStore((s) => s.pendingSeat);
   const [askLeave, setAskLeave] = useState(false);
 
   /**
@@ -36,6 +38,9 @@ export default function App() {
    * 4. Oyundayken önce sor: kurucu yanlışlıkla çıkarsa oda dağılır.
    */
   const onBack = useCallback(() => {
+    // Perde açıkken geri tuşu ölü: basmak sıradaki oyuncuyu atlayıp
+    // önceki oyuncunun ekranını açığa çıkarabilirdi.
+    if (pendingSeat) return;
     if (askLeave) {
       setAskLeave(false);
       return;
@@ -45,7 +50,7 @@ export default function App() {
       return;
     }
     setAskLeave(true);
-  }, [askLeave, screen, leave]);
+  }, [askLeave, screen, leave, pendingSeat]);
 
   useBackButton(onBack);
 
@@ -101,10 +106,16 @@ function PhaseScreen() {
   const view = useGameStore((s) => s.view)!;
 
   // Rol cebi her oyun ekranında dursun: insanlar rollerini unutuyor.
+  const pendingSeat = useGameStore((s) => s.pendingSeat);
+  const sirdaki = pendingSeat ? view.players.find((p) => p.id === pendingSeat) : null;
+
   return (
     <>
       <CurrentScreen />
       <RolePocket view={view} />
+      {/* Perde EN ÜSTTE: altındaki ekran kurucunun kendi görünümü ama
+          yine de görünmemeli — sıradaki oyuncu masadan ekrana bakıyor. */}
+      {sirdaki && <PassScreen toName={sirdaki.name} color={sirdaki.color} />}
     </>
   );
 }

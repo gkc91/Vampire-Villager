@@ -1,46 +1,42 @@
-import type { GameState, PlayerId } from './types';
+import type { GameState, Player, PlayerId } from './types';
 import { eligibleActors } from './stateMachine';
 
 /**
  * Yerel koltuklar — "telefon şimdi kimde olmalı?" (08-yerel-oyuncular.md)
  *
  * Kurucu, uzaktan katılanların yanına kendi telefonunda oynayacak oyuncular
- * ekleyebiliyor (`isLocal`). Bu fonksiyon o oyuncular arasından SIRASI
- * GELENİ söylüyor; `null` dönerse kurucunun telefonunda bekleyen kimse
- * yoktur ve kurucu kendi ekranına bakar.
+ * ekleyebiliyor (`isLocal`). Buradaki iki fonksiyon kurucunun ekranında
+ * perdenin ne zaman ineceğine karar veriyor.
  *
  * MOTORUN İÇİNDE çünkü kural bilgisi gerektiriyor: hangi gece adımında
  * kimin oynayacağını `eligibleActors` biliyor. Arayüzün bunu yeniden
  * türetmesi, kuralın iki yerde yaşaması demek olurdu.
- *
- * SIRA UZAKTAKİLERİ BEKLETMEZ: yalnız yerel oyuncular taranıyor. Uzaktaki
- * oyuncu kendi telefonunda oynarken kurucu aynı anda kendi yerel
- * oyuncusunu oynatabilir; motor zaten iki hamleyi de kabul ediyor.
  */
-export function nextLocalActor(state: GameState): PlayerId | null {
-  const yerel = state.players.filter((p) => p.isPlayer && p.isLocal && !p.left);
-  if (yerel.length === 0) return null;
+
+/**
+ * Bu oyuncunun şu fazda yapması gereken, HENÜZ YAPMADIĞI bir şey var mı?
+ *
+ * Tek oyuncu için cevap verdiği sürece hem kurucuya hem yerel oyuncuya
+ * aynı kural uygulanıyor — sıranın kimde olduğu tek yerden çıkıyor.
+ */
+function sirasiVar(state: GameState, p: Player): boolean {
+  if (!p.isPlayer || p.left) return false;
 
   switch (state.phase) {
     case 'ROLE_REVEAL':
-      // Rolünü henüz görmemiş ilk yerel oyuncu.
-      return yerel.find((p) => !p.ready)?.id ?? null;
+      return !p.ready;
 
     case 'NIGHT': {
       const step = state.nightStep;
-      if (!step) return null;
-      const eligible = eligibleActors(state, step);
-      // O adımda oynaması gereken ama henüz oynamamış ilk yerel oyuncu.
+      if (!step) return false;
       return (
-        yerel.find(
-          (p) => eligible.includes(p.id) && !state.night.acted.includes(`${p.id}:${step}`),
-        )?.id ?? null
+        eligibleActors(state, step).includes(p.id) &&
+        !state.night.acted.includes(`${p.id}:${step}`)
       );
     }
 
     case 'VOTE':
-      // Henüz oy vermemiş ilk yaşayan yerel oyuncu.
-      return yerel.find((p) => p.alive && state.votes[p.id] === undefined)?.id ?? null;
+      return p.alive && state.votes[p.id] === undefined;
 
     default:
       /*
@@ -50,6 +46,29 @@ export function nextLocalActor(state: GameState): PlayerId | null {
        * zaten masanın ortasında yüksek sesle yapılıyor; telefonu elden
        * ele dolaştırmanın anlamı olmazdı.
        */
-      return null;
+      return false;
   }
+}
+
+/**
+ * Kurucunun telefonunda sırası gelen yerel oyuncu (yoksa null).
+ *
+ * KURUCU ÖNCE KENDİ İŞİNİ BİTİRİR. Telefon zaten onun elinde; kendi
+ * rolünü görmeden "telefonu Ayşe'ye ver" perdesiyle karşılaşmak tuhaftı.
+ * Kurucunun yapacağı bir şey varken perde inmiyor.
+ *
+ * UZAKTAKİLER SIRAYA GİRMİYOR: onlar kendi telefonlarında oynuyor.
+ * Kurucunun ekranında belirmeleri hem gereksiz bekleme hem sızıntı
+ * olurdu. Bu yüzden yalnız `isLocal` olanlar taranıyor.
+ */
+export function nextLocalActor(state: GameState, hostId?: PlayerId): PlayerId | null {
+  const yerel = state.players.filter((p) => p.isPlayer && p.isLocal && !p.left);
+  if (yerel.length === 0) return null;
+
+  if (hostId) {
+    const kurucu = state.players.find((p) => p.id === hostId);
+    if (kurucu && sirasiVar(state, kurucu)) return null;
+  }
+
+  return yerel.find((p) => sirasiVar(state, p))?.id ?? null;
 }

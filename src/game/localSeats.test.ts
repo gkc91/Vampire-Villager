@@ -123,3 +123,41 @@ describe('oyundan çıkan yerel oyuncu', () => {
     expect(nextLocalActor(state)).toBe('p2');
   });
 });
+
+describe('kurucu önce kendi işini bitirir', () => {
+  it('kurucu rolünü görmeden perde inmiyor', () => {
+    const state = yerelYap(startWithRoles([...ROLLER]), 'p1');
+
+    // p0 kurucu ve henüz rolünü görmedi.
+    expect(nextLocalActor(state, 'p0')).toBeNull();
+    // Kurucu kimliği verilmezse eski davranış: sıra doğrudan yerele geçer.
+    expect(nextLocalActor(state)).toBe('p1');
+  });
+
+  it('kurucu rolünü görünce sıra yerel oyuncuya geçiyor', () => {
+    let state = yerelYap(startWithRoles([...ROLLER]), 'p1');
+
+    state = reduce(state, { type: 'ROLE_SEEN', playerId: 'p0' }, T0);
+
+    expect(nextLocalActor(state, 'p0')).toBe('p1');
+  });
+
+  it('gecede de kurucu önce oynuyor', () => {
+    // p0 vampir, p1 kâhin değil ama ikisi de yerel sırada olabilir.
+    const state = yerelYap(startNightWithRoles([...ROLLER]), 'p2');
+
+    // p0 (kurucu, vampir) bu adımda oynamalı → perde inmez.
+    expect(nextLocalActor(state, 'p0')).toBeNull();
+  });
+
+  it('kurucu sadece anlatıcıysa beklenmiyor', () => {
+    // Oyuncu olmayan kurucunun sırası hiç gelmez; perde hemen inmeli.
+    let state = yerelYap(startWithRoles([...ROLLER]), 'p1');
+    state = {
+      ...state,
+      players: state.players.map((p) => (p.id === 'p0' ? { ...p, isPlayer: false } : p)),
+    };
+
+    expect(nextLocalActor(state, 'p0')).toBe('p1');
+  });
+});

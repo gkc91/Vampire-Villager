@@ -326,7 +326,8 @@ export class HostController {
    * Perdenin ne zaman ineceğine bu karar veriyor.
    */
   pendingLocalActor(): PlayerId | null {
-    return nextLocalActor(this.state);
+    // Kurucunun kimliği veriliyor: kendi işi bitmeden perde inmesin.
+    return nextLocalActor(this.state, this.hostPlayerId);
   }
 
   /** Her oyuncuya YALNIZ kendi görünümünü yollar. */

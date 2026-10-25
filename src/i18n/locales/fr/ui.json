@@ -250,5 +250,13 @@
     "working": "Vérification auprès du store…",
     "found": "Ton accès premium a été restauré.",
     "none": "Aucun achat à restaurer sur ce compte."
+  },
+  "localSeat": {
+    "add": "Ajouter un joueur local",
+    "name": "Nom du joueur",
+    "badge": "sur ce téléphone",
+    "passTo": "Passe le téléphone",
+    "passHint": "Donne le téléphone au joueur suivant. Personne d'autre ne doit regarder l'écran.",
+    "ready": "Je suis {{name}}, prêt"
   }
 }
