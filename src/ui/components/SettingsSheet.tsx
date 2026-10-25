@@ -5,6 +5,7 @@ import { setMusicEnabled, setSfxEnabled } from '../../audio/audioManager';
 import { isTtsSupported, stopSpeaking } from '../../audio/tts';
 import { ConnectionDiagnostics } from './ConnectionDiagnostics';
 import { ConnectionInfo } from './ConnectionInfo';
+import { PremiumPurchase } from './PremiumPurchase';
 import { PrivacyOptions } from './PrivacyOptions';
 import { RestorePurchases } from './RestorePurchases';
 import { useGameStore } from '../../store/gameStore';
@@ -25,8 +26,20 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/60" onClick={onClose}>
+      {/*
+        YÜKSEKLİK SINIRI ŞART. Panelin boyu yoktu: on dil düğmesi + anahtarlar
+        + bağlantı tanılaması + geri yükleme + gizlilik hepsi birikince panel
+        ekrandan taşıyor, alta yaslı olduğu için ÜST tarafı durum çubuğunun
+        altına giriyordu — 25 Ekim 2026'da gelen ekran görüntüsünde "Dil"
+        başlığı saatin üstüne biniyordu.
+
+        Çözüm panelin kendi içinde kaymasi: üstte her zaman boşluk kalıyor,
+        içerik ne kadar büyürse büyüsün durum çubuğuna değmiyor.
+        `vh` kullanılıyor, `dvh` değil: uygulamada adres çubuğu yok, eski
+        WebView'larda `dvh` desteği belirsiz (RolePocket'ta da `vh` var).
+      */}
       <div
-        className="w-full rounded-t-3xl border-t border-night-600 bg-night-900 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]"
+        className="max-h-[85vh] w-full overflow-y-auto overscroll-contain rounded-t-3xl border-t border-night-600 bg-night-900 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-night-600" aria-hidden="true" />
@@ -76,6 +89,10 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             <ConnectionDiagnostics />
           </div>
         )}
+
+        {/* Satın alma, geri yüklemenin ÜSTÜNDE. Önceden yalnız geri yükleme
+            vardı ve oyuncular "satın almayı bulamıyoruz" dedi. */}
+        <PremiumPurchase />
 
         {/* App Store Review 3.1.1: geri yükleme yolu görünür olmak zorunda. */}
         <RestorePurchases />
