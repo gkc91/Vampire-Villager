@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { NarrationEvent } from '../game/types';
 import { useSettingsStore } from '../store/settingsStore';
 import { speak, stopSpeaking } from '../audio/tts';
+import { sesliOkunabilir } from './narrationVisibility';
 
 /** Anlatım olayını cihazın diline çevirir (rol adı da yerelleşir). */
 export function useNarrationText(): (event: NarrationEvent) => string {
@@ -35,7 +36,7 @@ export function useNarrationSpeech(log: NarrationEvent[]): void {
       return;
     }
     for (const event of log.slice(spokenCount.current)) {
-      speak(toText(event), i18n.language);
+      if (sesliOkunabilir(event)) speak(toText(event), i18n.language);
     }
     spokenCount.current = log.length;
   }, [log, tts, i18n.language, toText]);

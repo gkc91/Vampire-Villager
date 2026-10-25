@@ -1,16 +1,16 @@
-# 08 — Yerel Oyuncular (devralma + elden ele)
+# 08 — Elden Ele Modu (yerel oyuncular)
 
-**Durum: TASARIM — onay bekliyor. Kod yazılmadı.**
+**Durum: TASARIM ONAYLANDI — kod bekliyor.**
 
-Kaynak: 25 Ekim 2026 oyun gecesi. İki istek aynı mekanizmaya çıkıyor:
+Kaynak: 25 Ekim 2026 oyun gecesi.
 
-1. **Devralma** — "birinin şarjı biterse kurucunun telefonunda kişi ekleme
-   olsun". Altı kişi oynuyor, biri düşüyor, oyun yarıda kalıyor.
-2. **Elden ele** — "en baştaki elden ele modu. Kurucu istediği kadar
-   oyuncu ekleyebilsin, diğer oyuncuların yanına bot ekleme gibi düşün."
+> "Baştan oyuncu ekleyerek kurmak. Kurucu istediği kadar oyuncu
+> ekleyebilsin, diğer oyuncuların yanına bot ekleme gibi düşün."
 
-İkisi de şu tek cümleye indirgeniyor: **girdisi kurucunun cihazından gelen
-bir koltuk.**
+**Kapsam baştan kurma ile sınırlı.** İlk taslakta "düşen oyuncunun
+koltuğunu devralma" da vardı; kullanıcı onu kapsam dışı bıraktı
+("devralınmak değil, olay baştan oyuncu ekleyerek kurmak"). Bu belgede
+yalnız elden ele modu var.
 
 ---
 
@@ -23,21 +23,20 @@ böyle oynuyor (`hostController.scheduleBots` → `buildPlayerView` →
 
 Yerel oyuncu = aynı akış, kararı bot yerine **insan** veriyor.
 
-Bunun anlamı: host-otoriter model değişmiyor, filtreleme değişmiyor, ağ
-katmanına dokunulmuyor. Yeni olan tek şey arayüz.
+Host-otoriter model değişmiyor, filtreleme değişmiyor, ağ katmanına
+dokunulmuyor. Yeni olan tek şey arayüz.
 
 ---
 
-## Gizlilik: perde süs değil, kuralın kendisi
+## Gizlilik iki yerden sızar: EKRAN ve SES
 
 `CLAUDE.md`: *"Her oyuncuya giden state filtrelenir; başka oyuncunun rolü
 asla yetkisiz istemciye gönderilmez."*
 
-Yerel oyuncunun görünümü kurucunun ekranında çiziliyor. Perde olmazsa
-kurucu herkesin rolünü görür ve **oyun biter** — vampiri bilen bir köylü
-masası oyun değildir.
+### 1. Ekran → perde
 
-Bu yüzden akış şöyle:
+Yerel oyuncunun görünümü kurucunun ekranında çiziliyor. Perde olmazsa
+kurucu herkesin rolünü görür ve **oyun biter**.
 
 ```
 ┌─────────────────────────┐
@@ -47,101 +46,77 @@ Bu yüzden akış şöyle:
             ↓ Ayşe basar
 ┌─────────────────────────┐
 │  Ayşe'nin kendi ekranı  │   ← normal oyuncu arayüzü
-│  (rol / gece / oy)      │
 └─────────────────────────┘
-            ↓ Ayşe işini bitirir
+            ↓ Ayşe bitirir
 ┌─────────────────────────┐
-│  Bitti — telefonu geri  │
-│         ver             │
+│  Bitti — telefonu ver   │
 └─────────────────────────┘
 ```
 
 Perde açılmadan yerel oyuncunun görünümü **hiç üretilmiyor**. Kurucunun
 kendi ekranıyla yan yana asla çizilmiyor.
 
-Kurucunun fiziksel olarak dikizlemesi engellenemez — elden ele oynanan her
-oyunda durum aynı. Yazılımın sorumluluğu kazara göstermemek; onu perde
-sağlıyor.
+Perdede **yalnız isim** yazıyor. "Gece hamlen var" cümlesi bile o kişinin
+gece uyanan bir rolü olduğunu masaya söyler.
+
+### 2. Ses → ✅ ZATEN DÜZELTİLDİ
+
+> "Kişinin rolü masaya belli olmamalı, onu sesli söyleme."
+
+Bu yalnız elden ele modunun sorunu değildi — **bugün yayında olan bir
+sızıntıydı**. Anlatıcı, görünümdeki her yeni kaydı okuyordu, `onlyFor`
+ile kişiye özel olanları da: "Vampire dönüştürüldün", "rolün çalındı",
+gece hamlesinin onayı. Ayarlardaki ipucu üstelik kullanıcıyı tam oraya
+yönlendiriyor: *"Aynı odada oynuyorsanız kurucunun cihazında açın."*
+
+Kural artık `src/ui/narrationVisibility.ts`'te: **herkese açık olan
+okunur, kişiye özel olan yalnız ekranda kalır.** Kendiliğinden güvenli —
+yeni gizli anlatıma `onlyFor` koymak yetiyor.
+
+25 simüle edilmiş oyunun anlatımı üzerinde test var; kural kaldırılınca
+**317 gizli kaydın** sesli okunacağı görülüyor.
 
 ---
 
 ## Veri modeli
 
-`Player`a tek alan ekleniyor:
+`Player`a tek alan:
 
 ```ts
 isLocal?: boolean;   // girdisi kurucunun cihazından geliyor
 ```
 
-`isBot`tan **ayrı** tutuluyor çünkü davranışları farklı:
+`isBot`tan ayrı:
 
 | | `isBot` | `isLocal` |
 |---|---|---|
 | Kararı kim verir | `botAction` | insan |
 | `scheduleBots` sürer mi | evet | **hayır** |
 | Rol dağıtımına girer | evet | evet |
-| `connected` | hep true | hep true (cihaz kurucunun) |
+| Oyuncu sayısına sayılır | evet | **evet** |
 
 `ADD_PLAYER` eylemi zaten var; yeni eylem türü gerekmiyor.
 
 ---
 
-## A) Devralma — düşen oyuncunun koltuğu
+## Akış
 
-**Tetik:** oyuncu koptu (`SUSPENSION_MS` 90 sn sayıyor) ya da `left`.
+**Lobi:** "Bot ekle"nin yanında *"Yerel oyuncu ekle"* + isim alanı.
+Kurucu istediği kadar ekler.
 
-**Arayüz:** kurucunun oyuncu listesinde o satırda
-*"Bu oyuncuyu telefonumda oynat"*.
+**Hazır durumu:** yerel oyuncular **otomatik hazır**. Kurucu zaten onlar
+adına ekliyor; tek tek hazırlamak gereksiz tık.
 
-**Etki:** `isLocal = true`, askı iptal, **rol korunur**. Tur kaldığı
-yerden sürer; yeni rol dağıtılmaz.
+**Oyuncu sayısı:** 4–24 sınırına **sayılırlar**. Ayrım yapmaya sebep yok.
 
-Bu küçük iş: rol zaten dağıtılmış, yalnız girdinin geldiği yer değişiyor.
+**Rol gösterme:** yerel oyuncular sırayla, her biri için perde.
 
----
+**Gece / oy:** sırası gelen yerel oyuncu için perde → hamle → perde.
 
-## B) Elden ele — baştan yerel oyuncu
-
-**Arayüz:** lobide "Bot ekle"nin yanında *"Yerel oyuncu ekle"* + isim
-alanı.
-
-**Etki:** normal oyuncu olarak eklenir (`isPlayer: true, isLocal: true`).
-Rol dağıtımı, kazanma koşulları, her şey aynı.
-
-**Akış:**
-- **Rol gösterme:** yerel oyuncular sırayla, her biri için perde.
-- **Gece:** sırası gelen yerel oyuncu için perde → hamlesini yapar → perde.
-- **Oy:** aynı.
-
-Tek cihazla oynanan bir masa bu şekilde tamamen mümkün hale geliyor.
-
----
-
-## Senin kararın olan noktalar
-
-Bunlar kuralı değiştiriyor, tahminle ilerlemiyorum:
-
-1. **Devralınan oyuncu geri bağlanırsa ne olsun?**
-   (a) koltuğu geri alır, yerel mod kapanır —
-   (b) yerel kalır, dönen cihaz izleyici olur —
-   (c) kurucuya sorulur
-   *Önerim (a): şarjı biten kişi şarja takıp geri dönebilir.*
-
-2. **Elden ele oyuncular lobide otomatik "hazır" sayılsın mı?**
-   *Önerim: evet — kurucu zaten onlar adına ekliyor, tek tek hazırlamak
-   gereksiz tık.*
-
-3. **Yerel oyuncu oyun ortasında çıkarılabilsin mi?**
-   *Önerim: evet, botlardaki `removeBot` gibi — ama yalnız LOBİDE.
-   Oyun başladıktan sonra çıkarmak rol dağılımını bozar.*
-
-4. **Oyuncu sayısı sınırları (4–24) yerel oyuncuları da sayıyor mu?**
-   *Önerim: evet, ayrım yapmaya sebep yok.*
-
-5. **Perdede ne yazsın?** Yalnız isim mi ("Telefonu Ayşe'ye ver"), yoksa
-   ne yapacağı da mı ("sıra sende, gece hamlen var")?
-   *Önerim: yalnız isim. "Gece hamlen var" cümlesi bile masaya o kişinin
-   gece uyanan bir rolü olduğunu söyler — sızıntı.*
+**Çıkarma:** lobide botlardaki gibi (`removeBot` deseni). **Oyun
+ortasında yok** — kullanıcının kararı: *"yerel oyuncu çıkarsa oyun
+patlıyor zaten, kapatılıyor oyun demek, ekstra bir şey yapma."* Rol
+dağılımını bozacağı için özel bir kurtarma yolu yazılmıyor.
 
 ---
 
@@ -149,26 +124,29 @@ Bunlar kuralı değiştiriyor, tahminle ilerlemiyorum:
 
 Kural değişikliği = test değişikliği (`CLAUDE.md`).
 
-- **Motor:** yerel oyuncu rol dağıtımına normal oyuncu gibi giriyor.
+- **Motor:** yerel oyuncu rol dağıtımına ve sayı sınırlarına normal
+  oyuncu gibi giriyor.
 - **Gizlilik (en önemlisi):** aynı `id` için yerel oyuncunun görünümü,
   uzak oyuncunun görünümüyle **birebir aynı**. Tek bayt fazla bilgi
   sızarsa test düşer.
 - **Perde:** "Hazırım"a basılmadan rol DOM'a hiç girmiyor.
-- **Devralma:** askı iptal oluyor, rol korunuyor, tur ilerliyor.
+- **Hazır durumu:** eklenen yerel oyuncu lobide hazır görünüyor.
 - **Gerileme:** botlar etkilenmiyor; `scheduleBots` yerel oyuncuya
   dokunmuyor.
 
 ---
 
-## Kapsam dışı (şimdilik)
+## Kapsam dışı
 
+- Düşen oyuncunun koltuğunu devralma (kullanıcı kapsam dışı bıraktı)
+- Oyun ortasında yerel oyuncu çıkarma
 - Yerel oyuncular için ayrı renk/avatar seçimi
 - Perdede geri sayım
-- Yerel oyuncunun uzak cihaza "devredilmesi" (B'nin tersi)
+- Yerel oyuncunun uzak cihaza devredilmesi
 
 ---
 
 ## Milestone
 
-M8. Onaydan sonra `07-tasks.md`'ye görev maddeleri olarak girer; her
-commit bir madde ile eşleşir.
+M8. `07-tasks.md`'ye görev maddeleri olarak girer; her commit bir madde
+ile eşleşir.
