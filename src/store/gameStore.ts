@@ -84,6 +84,24 @@ interface GameStore {
   endDiscussion: () => void;
   updateSettings: (settings: Partial<GameSettings>) => void;
   addBot: (name: string) => void;
+  /**
+   * Kurucunun telefonunda oynayacak oyuncu ekler
+   * (08-yerel-oyuncular.md). Uzaktakilerin yanına, ayrı bir mod değil.
+   */
+  addLocalPlayer: (name: string) => void;
+  /**
+   * Sırası gelen ama PERDESİ HENÜZ AÇILMAMIŞ yerel oyuncu.
+   * Doluysa arayüz "telefonu X'e ver" perdesini gösterir.
+   */
+  pendingSeat: PlayerId | null;
+  /**
+   * Perdesi açılmış, şu an kurucunun ekranında oynayan yerel oyuncu.
+   * Doluyken `view` KURUCUNUN değil, bu oyuncunun görünümüdür ve tüm
+   * niyetler bu kimlikle gider.
+   */
+  localSeat: PlayerId | null;
+  /** "Hazırım" — perdeyi açar, sıradaki yerel oyuncunun ekranını getirir. */
+  passToSeat: () => void;
   kick: (playerId: PlayerId) => void;
   restart: () => void;
 }
@@ -100,10 +118,53 @@ const SLOW_CONNECT_MS = 12_000;
 export const useGameStore = create<GameStore>((set, get) => {
   const asHost = (): HostController | null => (get().isHost ? host : null);
 
+  /**
+   * Niyet KİMİN adına gidiyor?
+   *
+   * Perde açıkken dokunuşlar kurucunun değil, o koltukta oturan yerel
+   * oyuncunun adına gitmeli. Eskiden elden ele modunda tam burası
+   * atlanmıştı: Ayşe'nin "gördüm" dokunuşu Ali'yi hazır işaretliyordu.
+   */
+  const oynayanId = (controller: HostController): PlayerId =>
+    get().localSeat ?? controller.hostPlayerId;
+
   const sendIntent = (msg: Parameters<NetworkAdapter['sendToHost']>[0]): void => {
     adapter?.sendToHost(msg);
   };
 
+
+  /**
+   * Kurucunun ekranında ŞU AN kimin görünümü duruyor?
+   *
+   * Yerel koltuk açıkken (`localSeat`) `view` o oyuncunun görünümüdür;
+   * böylece bütün oyun ekranları değişmeden çalışıyor — ekranlar kimin
+   * görünümüne baktıklarını bilmek zorunda değil.
+   *
+   * PERDE KAPALIYKEN ASLA YEREL GÖRÜNÜM ÜRETİLMİYOR. Sırası gelen oyuncu
+   * belli ama "Hazırım"a basılmadıysa ekranda kurucunun kendi görünümü
+   * kalıyor ve üstünde perde duruyor. Perdenin arkasına yanlışlıkla
+   * başkasının rolünü koymamanın tek güvenli yolu bu.
+   */
+  const tazeleHostGorunumu = (): void => {
+    const controller = get().isHost ? host : null;
+    if (!controller) return;
+
+    const sira = controller.pendingLocalActor();
+    const acik = get().localSeat;
+
+    if (sira === null) {
+      // Kurucunun telefonunda bekleyen kimse yok.
+      set({ view: controller.viewFor(controller.hostPlayerId), pendingSeat: null, localSeat: null });
+      return;
+    }
+    if (acik === sira) {
+      // Perde açık ve sıra hâlâ aynı kişide.
+      set({ view: controller.viewFor(sira), pendingSeat: null });
+      return;
+    }
+    // Sıra (yeni) birine geldi: perde insin.
+    set({ view: controller.viewFor(controller.hostPlayerId), pendingSeat: sira, localSeat: null });
+  };
 
   /**
    * Masanın rol havuzunu yeniden hesaplar.
@@ -191,6 +252,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     connection: 'idle',
     errorKey: null,
     view: null,
+    pendingSeat: null,
+    localSeat: null,
     myName: '',
     myToken: '',
     diagnostics: null,
@@ -225,8 +288,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       adapter.onStateChange((connection) => set({ connection }));
       adapter.onDiagnostics((diagnostics) => set({ diagnostics }));
 
-      host = new HostController(adapter, roomId, token, name, (view) => {
-        set({ view });
+      host = new HostController(adapter, roomId, token, name, () => {
+        tazeleHostGorunumu();
       });
       set({
         screen: 'game',
@@ -305,6 +368,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         solo: false,
         connection: 'idle',
         view: null,
+        pendingSeat: null,
+        localSeat: null,
         diagnostics: null,
         slowConnect: false,
       });
@@ -319,40 +384,40 @@ export const useGameStore = create<GameStore>((set, get) => {
     setReady(ready) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'SET_READY', playerId: controller.hostPlayerId, ready });
+        controller.dispatch({ type: 'SET_READY', playerId: oynayanId(controller), ready });
       else sendIntent({ type: 'ready', token: get().myToken, ready });
     },
 
     roleSeen() {
       const controller = asHost();
-      if (controller) controller.dispatch({ type: 'ROLE_SEEN', playerId: controller.hostPlayerId });
+      if (controller) controller.dispatch({ type: 'ROLE_SEEN', playerId: oynayanId(controller) });
       else sendIntent({ type: 'roleSeen', token: get().myToken });
     },
 
     nightAction(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'NIGHT_ACTION', playerId: controller.hostPlayerId, targetId });
+        controller.dispatch({ type: 'NIGHT_ACTION', playerId: oynayanId(controller), targetId });
       else sendIntent({ type: 'nightAction', token: get().myToken, targetId });
     },
 
     nightPreview(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'NIGHT_PREVIEW', playerId: controller.hostPlayerId, targetId });
+        controller.dispatch({ type: 'NIGHT_PREVIEW', playerId: oynayanId(controller), targetId });
       else sendIntent({ type: 'nightPreview', token: get().myToken, targetId });
     },
 
     vote(targetId) {
       const controller = asHost();
-      if (controller) controller.dispatch({ type: 'VOTE', playerId: controller.hostPlayerId, targetId });
+      if (controller) controller.dispatch({ type: 'VOTE', playerId: oynayanId(controller), targetId });
       else sendIntent({ type: 'vote', token: get().myToken, targetId });
     },
 
     castSpell(targetId) {
       const controller = asHost();
       if (controller)
-        controller.dispatch({ type: 'CAST_SPELL', playerId: controller.hostPlayerId, targetId });
+        controller.dispatch({ type: 'CAST_SPELL', playerId: oynayanId(controller), targetId });
       else sendIntent({ type: 'castSpell', token: get().myToken, targetId });
     },
 
@@ -391,6 +456,17 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     addBot(name) {
       asHost()?.addBot(name);
+    },
+
+    addLocalPlayer(name) {
+      asHost()?.addLocalPlayer(name);
+    },
+
+    passToSeat() {
+      const sira = get().pendingSeat;
+      if (!sira) return;
+      set({ localSeat: sira, pendingSeat: null });
+      tazeleHostGorunumu();
     },
 
     kick(playerId) {

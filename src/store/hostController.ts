@@ -5,6 +5,7 @@ import type { GameAction, GameSettings, GameState, PlayerId } from '../game/type
 import { createInitialState, reduce } from '../game/stateMachine';
 import { buildPlayerView, type PlayerView } from '../game/view';
 import { botAction } from '../game/bot';
+import { nextLocalActor } from '../game/localSeats';
 import { currentUnlockedRoles } from '../monetization/entitlements';
 import { colorForToken } from '../util/identity';
 
@@ -287,9 +288,11 @@ export class HostController {
   }
 
   /**
-   * Elden ele artık yok (10 Eylül 2026'da kaldırıldı); bu metodu kimse
-   * çağırmıyor. Silinmedi çünkü 08-yerel-oyuncular.md'deki iş tam olarak
-   * bunun üstüne kurulacak.
+   * Kurucunun telefonunda oynayacak oyuncu ekler (08-yerel-oyuncular.md).
+   *
+   * Uzaktan katılanların YANINA ekleniyor; ayrı bir mod değil. Bot
+   * eklemenin insan hali: aynı `ADD_PLAYER`, farkı `isLocal` ve kararı
+   * botun değil insanın vermesi.
    */
   addLocalPlayer(name: string): PlayerId {
     this.botCounter += 1;
@@ -303,13 +306,27 @@ export class HostController {
         isHost: false,
         isPlayer: true,
         connected: true,
+        isLocal: true,
       },
     });
-    // Tek cihazda "hazırım" düğmesine basacak ayrı bir kullanıcı yok;
+    // Kendi telefonunda "hazırım" düğmesine basacak ayrı bir kullanıcı yok;
     // oyuncular listeye eklendiği anda hazır sayılır. Aksi halde kurucu
     // "herkes hazır değil" uyarısıyla oyunu hiç başlatamıyordu.
     this.dispatch({ type: 'SET_READY', playerId: id, ready: true });
     return id;
+  }
+
+  /** Herhangi bir oyuncunun filtrelenmiş görünümü — yerel koltuklar için. */
+  viewFor(playerId: PlayerId): PlayerView {
+    return buildPlayerView(this.state, this.roomId, playerId);
+  }
+
+  /**
+   * Kurucunun telefonunda sırası gelen yerel oyuncu (yoksa null).
+   * Perdenin ne zaman ineceğine bu karar veriyor.
+   */
+  pendingLocalActor(): PlayerId | null {
+    return nextLocalActor(this.state);
   }
 
   /** Her oyuncuya YALNIZ kendi görünümünü yollar. */
