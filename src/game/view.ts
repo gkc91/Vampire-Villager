@@ -34,6 +34,8 @@ export interface PublicPlayer {
   alive: boolean;
   left: boolean;
   isBot?: boolean;
+  /** Telefonu kurucuda olan oyuncu — lobide rozet için. */
+  isLocal?: boolean;
   /** Yalnız hayalet modunda / oyun sonunda dolu. */
   role?: RoleId;
   deathRound?: number;
@@ -153,6 +155,7 @@ export function buildPlayerView(state: GameState, roomId: string, viewerId: Play
     alive: p.alive,
     left: p.left,
     isBot: p.isBot,
+    isLocal: p.isLocal,
     // Roller yalnız oyun sonunda / hayalet modunda açılır (03-roles.md).
     role:
       seeEverything || (seesTeamRoles && p.id !== viewerId && isVampire(p))

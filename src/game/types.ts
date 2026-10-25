@@ -70,6 +70,12 @@ export interface Player {
   ready: boolean;
   alive: boolean;
   isBot?: boolean;
+  /**
+   * Girdisi KURUCUNUN cihazından geliyor (08-yerel-oyuncular.md).
+   * Bottan farkı kararı insanın vermesi: `scheduleBots` bu oyuncuya
+   * dokunmaz, sırası gelince kurucunun ekranında perde açılır.
+   */
+  isLocal?: boolean;
   left: boolean;
   role?: RoleId;
   /** Sınırlı roller için kalan hak (doktor 2, büyücü 1, lord 1, kan büy. 2). */
