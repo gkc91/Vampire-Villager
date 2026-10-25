@@ -286,10 +286,11 @@ export class HostController {
     }
   }
 
-  /** Her oyuncuya YALNIZ kendi görünümünü yollar. */
-
-
-  /** Elden ele: tek cihazda oynayan insan oyuncu ekler (bot değil). */
+  /**
+   * Elden ele artık yok (10 Eylül 2026'da kaldırıldı); bu metodu kimse
+   * çağırmıyor. Silinmedi çünkü 08-yerel-oyuncular.md'deki iş tam olarak
+   * bunun üstüne kurulacak.
+   */
   addLocalPlayer(name: string): PlayerId {
     this.botCounter += 1;
     const id = `seat-${this.botCounter}`;
@@ -311,6 +312,7 @@ export class HostController {
     return id;
   }
 
+  /** Her oyuncuya YALNIZ kendi görünümünü yollar. */
   private publish(): void {
     this.onHostView(buildPlayerView(this.state, this.roomId, this.hostPlayerId));
 
